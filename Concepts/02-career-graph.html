@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mika Williamson — Career Graph (concept B)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #07090f; --fg: #eef0f5; --muted: #8a90a0; --line: rgba(255,255,255,.1);
+    --core: #ffd9a0; --role: #ff9d42; --project: #4fd1ff; --skill: #a78bfa; --edu: #3ecf8e;
+    --f-head: "Schibsted Grotesk", "Segoe UI", system-ui, sans-serif;
+    --f-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: radial-gradient(ellipse at 55% 45%, #10172a 0%, #07090f 60%); color: var(--fg); font-family: var(--f-head); }
+  #stage { position: fixed; inset: 0; }
+  #stage canvas { display: block; }
+  .labels { position: absolute; inset: 0; pointer-events: none; }
+  .lbl { --c: #fff; font: 600 11.5px var(--f-head); color: #e9ecf3; white-space: nowrap; padding: 2px 8px; border-radius: 999px;
+         background: rgba(7,9,15,.75); border: 1px solid color-mix(in srgb, var(--c) 45%, transparent); transform: translateY(-50%); transition: opacity .15s; }
+  .lbl.core { font-size: 14px; color: var(--core); border-color: var(--core); }
+  .lbl.focus { color: #fff; border-color: var(--c); box-shadow: 0 0 14px color-mix(in srgb, var(--c) 55%, transparent); }
+  .lbl.hide { opacity: 0; }
+
+  header { position: fixed; top: 22px; left: 24px; z-index: 3; max-width: 380px; pointer-events: none; }
+  header p.eyebrow { font: 500 11px var(--f-mono); letter-spacing: .14em; text-transform: uppercase; color: var(--role); margin: 0 0 8px; }
+  header h1 { font-size: clamp(30px, 4vw, 44px); margin: 0 0 8px; line-height: 1; letter-spacing: -.02em; }
+  header p { margin: 0; color: #b8bdca; font-size: 14.5px; line-height: 1.5; }
+
+  .filters { position: fixed; left: 24px; bottom: 22px; z-index: 3; display: flex; gap: 8px; flex-wrap: wrap; max-width: calc(100% - 48px); }
+  .filters button { --c: #fff; font: 500 11px var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: #d6d9e2; cursor: pointer;
+    padding: 7px 12px; border-radius: 999px; background: rgba(12,16,28,.85); border: 1px solid var(--line); display: inline-flex; align-items: center; gap: 7px; }
+  .filters button i { width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
+  .filters button.on { border-color: var(--c); color: #fff; }
+  .hint { position: fixed; right: 24px; bottom: 26px; z-index: 3; font: 500 11px var(--f-mono); color: var(--muted); }
+
+  aside { position: fixed; top: 22px; right: 22px; width: 340px; max-height: calc(100% - 90px); overflow-y: auto; z-index: 4;
+          padding: 20px; border-radius: 14px; background: rgba(10,14,26,.92); border: 1px solid var(--line); backdrop-filter: blur(12px);
+          transform: translateX(380px); transition: transform .3s ease; }
+  aside.open { transform: none; }
+  aside .type { font: 500 10.5px var(--f-mono); letter-spacing: .14em; text-transform: uppercase; }
+  aside h2 { margin: 6px 26px 2px 0; font-size: 20px; line-height: 1.25; }
+  aside .when { font: 500 11px var(--f-mono); color: var(--muted); margin-bottom: 12px; }
+  aside ul { margin: 0 0 14px; padding-left: 18px; color: #c6cad5; font-size: 13.5px; line-height: 1.55; }
+  aside .links { display: flex; flex-wrap: wrap; gap: 6px; }
+  aside .links button { --c: #fff; font: 600 11.5px var(--f-head); color: #e9ecf3; cursor: pointer; padding: 4px 9px; border-radius: 999px;
+    background: rgba(255,255,255,.04); border: 1px solid color-mix(in srgb, var(--c) 45%, transparent); }
+  aside .x { position: absolute; top: 12px; right: 14px; background: none; border: none; color: var(--muted); font-size: 18px; cursor: pointer; }
+  aside .label2 { font: 500 10px var(--f-mono); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  @media (max-width: 700px) {
+    header p { display: none; }
+    aside { top: auto; bottom: 0; right: 0; left: 0; width: auto; max-height: 55%; border-radius: 14px 14px 0 0; transform: translateY(110%); }
+    .hint { display: none; } .filters { bottom: 14px; }
+  }
+</style>
+<link rel="icon" href="data:,">
+</head>
+<body>
+<div id="stage"></div>
+<header>
+  <p class="eyebrow">Career graph · interactive</p>
+  <h1>Mika Williamson</h1>
+  <p>Every role, project, skill and qualification — and how they connect. Hover to trace, click to read.</p>
+</header>
+<div class="filters" id="filters"></div>
+<div class="hint">Drag to orbit · scroll to zoom · Esc to reset</div>
+<aside id="panel" aria-live="polite"><button class="x" id="close" aria-label="Close">×</button><div id="panelBody"></div></aside>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
+} }
+</script>
+<script type="module">
+import * as THREE from 'three'
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
+import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js'
+
+// ── Data: straight from the CV (private contacts deliberately excluded) ─────
+const TYPES = {
+  core: { label: 'Me', color: '#ffd9a0' }, role: { label: 'Experience', color: '#ff9d42' },
+  project: { label: 'Projects', color: '#4fd1ff' }, skill: { label: 'Skills', color: '#a78bfa' }, edu: { label: 'Education', color: '#3ecf8e' }
+}
+const N = [
+  ['mika', 'core', 'Mika Williamson', 'Cape Town · aspiring AI Solutions Architect', ['I optimise systems — physical and digital — and build AI that runs them.', 'From CNC manufacturing and 3D printing to robotics, ML and agentic AI.']],
+  ['bpd', 'role', 'CNC Operator · Blueprint Digital', '04/2025 – present', ['Increased production throughput 3× by optimising machining time and workflow.', 'Router and laser cutting to 0.1 mm tolerances; grew into CAD and product design.', 'Rollouts for international sportswear, footwear, retail and fitness brands.']],
+  ['dime3', 'role', 'Co-Founder · Dime3', '11/2023 – present', ['3D production studio: rapid prototyping, reverse engineering, custom manufacturing.', 'Retail rollouts for Blueprint Digital and national retail groups; hardware for automotive and fitness-event clients.', 'Tooling, moulds, jigs, brackets and a gyro watch winder.']],
+  ['atk', 'role', 'Co-Founder · ATK-Media', '01/2023 – 10/2023', ['Client acquisition; Shopify site setup and optimisation; organic social content.']],
+  ['sonic', 'role', 'Mobile DJ · Sonic Event Audio', '01/2021 – 10/2024', ['Sound, lighting and DJ for 100+ events; repeat clients through referrals.']],
+  ['ahive', 'role', 'Owner · AHIVE', '04/2021 – 01/2022', ['Ran a Shopify store end to end; found a supplier with 10% faster, cheaper shipping.', 'Facebook ads with A/B testing and Pixel tracking.']],
+  ['champ', 'project', 'Mika OS', 'Personal AI operating system · 2026', ['15 agents on local LLMs (LM Studio) with cloud fallback.', 'A Director agent that checks in, reports progress and runs jobs on request.', 'Electron app with a Three.js AI Core and a 3D knowledge graph of my vault.']],
+  ['bpdcap', 'project', 'BPD Capture', 'Android + Windows app · 2026', ['Offline job documentation for CE-numbered field work.', 'PDF field reports, backups, in-app updates, Three.js startup animation.']],
+  ['mlp', 'project', 'ML models', 'TensorFlow · Scikit-learn', ['Dog-breed multi-class classifier, heart-disease prediction, bulldozer-price prediction.']],
+  ['winder', 'project', 'Gyro watch winder', 'Dime3 product', ['Designed and 3D-printed functional hardware — a gimbal-style watch winder.']],
+  ['bsc', 'edu', 'BSc IT · Robotics & Intelligent Systems', 'Eduvos · 2022 – 2024', ['Robotics, operating systems, databases, networks, control systems.']],
+  ['hc', 'edu', 'Higher Certificate · Robotics', 'Eduvos · 2021 – 2022', ['Awarded Cum Laude and the Top Achiever Award.']],
+  ['ztmml', 'edu', 'AI & ML / Data Science Bootcamp', 'ZTM · 2024', ['Supervised & unsupervised learning, deep learning, transfer learning.']],
+  ['ztmpe', 'edu', 'AI Prompt Engineering', 'ZTM · 2025 – 2026', ['CoT/ToT, few-shot, ReAct, parameter tuning, defensive prompting, MCP.']],
+  ['vibe', 'edu', 'Vibe Coding', 'ZTM · 2026', ['AI-assisted development with Claude Code, Cursor and Copilot.']],
+  ['cnc', 'skill', 'CNC & toolpaths', 'VCarve Pro · Rayjet', ['Toolpath creation and optimisation, router setup and operation.']],
+  ['cad', 'skill', 'CAD & design for manufacture', 'Fusion 360 · CorelDRAW', ['3D modelling for manufacturing, jigs and fixtures.']],
+  ['print', 'skill', '3D printing', 'FDM & SLA · Bambu Lab · Creality', ['Production printing for retail and industrial timelines.']],
+  ['rev', 'skill', 'Reverse engineering', '', ['Measuring and re-creating parts for clients.']],
+  ['ml', 'skill', 'Machine learning', 'TensorFlow · Keras · Scikit-learn', ['Feature engineering, model evaluation, hyperparameter tuning.']],
+  ['cv', 'skill', 'Computer vision', '', ['Image classification with transfer learning.']],
+  ['py', 'skill', 'Python & data', 'Pandas · NumPy · Matplotlib', ['Data preparation, analysis and visualisation.']],
+  ['prompt', 'skill', 'Prompt engineering & ReAct', '', ['Reasoning + acting loops, defensive prompting.']],
+  ['agents', 'skill', 'Agentic AI & MCP', 'LM Studio · Node · PM2', ['Multi-agent systems running on local models.']],
+  ['apps', 'skill', 'App development', 'Electron · React Native · Expo', ['Desktop and Android apps built with AI coding agents.']],
+  ['three', 'skill', 'Three.js & 3D UI', '', ['Interactive 3D interfaces and animations.']],
+  ['robotics', 'skill', 'Robotics & control', 'PLC · PID · C++/Arduino', ['Sensor control, PLC programming, control-system modelling.']],
+  ['shop', 'skill', 'Shopify & e-commerce', '', ['Store setup, product sourcing, ad campaigns.']],
+  ['clients', 'skill', 'Clients & projects', '', ['Client acquisition, rollouts and cross-functional delivery.']]
+]
+const E = `bpd-cnc bpd-cad bpd-clients bpd-bpdcap dime3-print dime3-cad dime3-rev dime3-clients dime3-winder
+  atk-shop atk-clients ahive-shop sonic-clients champ-agents champ-prompt champ-three champ-apps champ-py
+  bpdcap-apps bpdcap-three mlp-ml mlp-cv mlp-py winder-cad winder-print bsc-robotics bsc-py bsc-ml hc-robotics hc-py
+  ztmml-ml ztmml-cv ztmml-py ztmml-mlp ztmpe-prompt ztmpe-agents vibe-apps vibe-champ`
+  .trim().split(/\s+/).map(p => p.split('-'))
+N.filter(n => ['role', 'project', 'edu'].includes(n[1])).forEach(n => E.push(['mika', n[0]]))
+
+// ── Scene ───────────────────────────────────────────────────────────────────
+const stage = document.getElementById('stage')
+let renderer
+try { renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }) } catch (e) { document.body.classList.add('no-webgl'); throw e }
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2))
+stage.appendChild(renderer.domElement)
+const labelR = new CSS2DRenderer(); labelR.domElement.className = 'labels'; stage.appendChild(labelR.domElement)
+const scene = new THREE.Scene(); scene.fog = new THREE.FogExp2(0x07090f, .02)
+const camera = new THREE.PerspectiveCamera(50, 1, .1, 200)
+const controls = new OrbitControls(camera, renderer.domElement)
+Object.assign(controls, { enableDamping: true, dampingFactor: .08, minDistance: 4, maxDistance: 40, autoRotate: !matchMedia('(prefers-reduced-motion: reduce)').matches, autoRotateSpeed: .4 })
+
+const halo = (() => { const c = document.createElement('canvas'); c.width = c.height = 128; const g = c.getContext('2d'); const r = g.createRadialGradient(64, 64, 0, 64, 64, 64)
+  r.addColorStop(0, 'rgba(255,255,255,.9)'); r.addColorStop(.25, 'rgba(255,255,255,.35)'); r.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = r; g.fillRect(0, 0, 128, 128); return new THREE.CanvasTexture(c) })()
+
+const idx = new Map(N.map((n, i) => [n[0], i]))
+const links = E.map(([a, b]) => [idx.get(a), idx.get(b)]).filter(([a, b]) => a != null && b != null)
+const deg = N.map(() => 0); links.forEach(([a, b]) => { deg[a]++; deg[b]++ })
+const nodes = N.map(([id, type, label, when, points], i) => ({ id, type, label, when, points, i, deg: deg[i], nb: new Set(), color: new THREE.Color(TYPES[type].color) }))
+links.forEach(([a, b]) => { nodes[a].nb.add(b); nodes[b].nb.add(a) })
+
+// Solve the layout once (repulsion + springs + type cohesion), then just idle
+const pos = nodes.map(n => n.type === 'core' ? new THREE.Vector3() : new THREE.Vector3().randomDirection().multiplyScalar(4 + Math.random() * 2))
+const vel = nodes.map(() => new THREE.Vector3()), d = new THREE.Vector3()
+for (let s = 0; s < 500; s++) {
+  const a = 1 - s / 500
+  for (let i = 0; i < nodes.length; i++) for (let j = i + 1; j < nodes.length; j++) {
+    d.subVectors(pos[i], pos[j]); const r2 = Math.max(d.lengthSq(), .1)
+    d.multiplyScalar(1.4 * a / (r2 * Math.sqrt(r2))); vel[i].add(d); vel[j].sub(d)
+  }
+  links.forEach(([i, j]) => { d.subVectors(pos[j], pos[i]); const l = d.length() || .01; d.multiplyScalar((l - 3) / l * .045 * a); vel[i].add(d); vel[j].sub(d) })
+  nodes.forEach((n, i) => { vel[i].addScaledVector(pos[i], -.006 * a); if (n.type === 'core') { vel[i].set(0, 0, 0); pos[i].set(0, 0, 0) } else { vel[i].clampLength(0, .5).multiplyScalar(.82); pos[i].add(vel[i]) } })
+}
+
+const sphere = new THREE.SphereGeometry(1, 24, 16)
+const group = new THREE.Group(); scene.add(group)
+nodes.forEach((n, i) => {
+  n.base = pos[i]; n.phase = Math.random() * 6.28
+  n.r = n.type === 'core' ? .55 : n.type === 'skill' ? .16 + .03 * n.deg : .26 + .025 * n.deg
+  n.mesh = new THREE.Mesh(sphere, new THREE.MeshBasicMaterial({ color: n.color, transparent: true })); n.mesh.scale.setScalar(n.r)
+  n.halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: halo, color: n.color, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false })); n.halo.scale.setScalar(n.r * 5)
+  n.pick = new THREE.Mesh(new THREE.SphereGeometry(Math.max(n.r * 2, .45), 8, 6), new THREE.MeshBasicMaterial({ visible: false })); n.pick.userData.i = i
+  const el = document.createElement('div'); el.className = 'lbl' + (n.type === 'core' ? ' core' : ''); el.textContent = n.label; el.style.setProperty('--c', TYPES[n.type].color)
+  n.lbl = new CSS2DObject(el); n.lbl.position.y = n.r + .25
+  n.holder = new THREE.Group(); n.holder.add(n.mesh, n.halo, n.pick, n.lbl); n.holder.position.copy(n.base); group.add(n.holder)
+})
+const lineGeo = new THREE.BufferGeometry(); lineGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(links.length * 6), 3))
+const lines = new THREE.LineSegments(lineGeo, new THREE.LineBasicMaterial({ color: 0x8fb4ff, transparent: true, opacity: .25, depthWrite: false })); group.add(lines)
+const hiGeo = new THREE.BufferGeometry(); hiGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(links.length * 6), 3))
+const hiLines = new THREE.LineSegments(hiGeo, new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: .9, blending: THREE.AdditiveBlending, depthWrite: false })); group.add(hiLines)
+
+camera.position.set(0, 4, innerWidth < 700 ? 30 : 23)
+
+// ── State: hover / select / filter ──────────────────────────────────────────
+let hovered = null, selected = null, filter = null, tween = null
+const clock = new THREE.Clock()
+function apply() {
+  const f = hovered || selected
+  nodes.forEach(n => {
+    const inF = !f || n === f || f.nb.has(n.i)
+    const inT = !filter || n.type === filter || n.type === 'core'
+    const lit = inF && inT
+    n.mesh.material.opacity = lit ? 1 : .12
+    n.halo.material.opacity = lit ? (n === f ? 1 : .6) : .05
+    n.lbl.visible = lit && (!!f || !!filter || n.type !== 'skill' || n.deg >= 4)
+    n.lbl.element.classList.toggle('focus', n === f)
+  })
+  lines.material.opacity = f || filter ? .07 : .25
+  hiLines.userData.links = f ? links.filter(([a, b]) => a === f.i || b === f.i) : []
+  if (f) hiLines.material.color.copy(f.color).lerp(new THREE.Color(0xffffff), .35)
+}
+function declutter() {
+  const f = hovered || selected, kept = []
+  nodes.filter(n => n.lbl.visible).sort((a, b) => (b === f) - (a === f) || (b.type === 'core') - (a.type === 'core') || b.deg - a.deg).forEach(n => {
+    const r = n.lbl.element.getBoundingClientRect()
+    const hit = r.width && kept.some(k => r.left < k.right + 4 && r.right > k.left - 4 && r.top < k.bottom + 2 && r.bottom > k.top - 2)
+    n.lbl.element.classList.toggle('hide', hit); if (!hit && r.width) kept.push(r)
+  })
+}
+function writeLines(geo, list) {
+  const arr = geo.attributes.position.array
+  list.forEach(([a, b], k) => { const p = nodes[a].holder.position, q = nodes[b].holder.position; arr.set([p.x, p.y, p.z, q.x, q.y, q.z], k * 6) })
+  geo.setDrawRange(0, list.length * 2); geo.attributes.position.needsUpdate = true
+}
+
+const panel = document.getElementById('panel'), body = document.getElementById('panelBody')
+function select(n) {
+  selected = n; controls.autoRotate = !n && !matchMedia('(prefers-reduced-motion: reduce)').matches
+  panel.classList.toggle('open', !!n); apply()
+  if (!n) return
+  const esc = s => s.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c])
+  body.innerHTML = `<div class="type" style="color:${TYPES[n.type].color}">${TYPES[n.type].label}</div><h2>${esc(n.label)}</h2>
+    <div class="when">${esc(n.when)}</div><ul>${n.points.map(p => `<li>${esc(p)}</li>`).join('')}</ul>
+    <div class="label2">Connected</div><div class="links">${[...n.nb].map(i => nodes[i]).sort((a, b) => b.deg - a.deg)
+      .map(m => `<button data-i="${m.i}" style="--c:${TYPES[m.type].color}">${esc(m.label)}</button>`).join('')}</div>`
+  body.querySelectorAll('button[data-i]').forEach(b => b.onclick = () => select(nodes[+b.dataset.i]))
+  const spread = [...n.nb].reduce((m, i) => Math.max(m, nodes[i].base.distanceTo(n.base)), 0)
+  const dir = camera.position.clone().sub(controls.target).normalize()
+  tween = { t0: clock.elapsedTime, from: camera.position.clone(), fromT: controls.target.clone(), toT: n.base.clone(), to: n.base.clone().addScaledVector(dir, Math.max(6, spread * 1.9)) }
+}
+document.getElementById('close').onclick = () => select(null)
+addEventListener('keydown', e => { if (e.key === 'Escape') { select(null); setFilter(null) } })
+
+const filtersEl = document.getElementById('filters')
+function setFilter(t) { filter = t; filtersEl.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.t === (t || ''))); apply() }
+filtersEl.innerHTML = `<button data-t="" class="on" style="--c:#fff"><i></i>All</button>` +
+  Object.entries(TYPES).filter(([k]) => k !== 'core').map(([k, v]) => `<button data-t="${k}" style="--c:${v.color}"><i></i>${v.label}</button>`).join('')
+filtersEl.querySelectorAll('button').forEach(b => b.onclick = () => setFilter(b.dataset.t || null))
+
+const ray = new THREE.Raycaster(), ptr = new THREE.Vector2()
+function pick(e) { const r = renderer.domElement.getBoundingClientRect(); ptr.set((e.clientX - r.left) / r.width * 2 - 1, -(e.clientY - r.top) / r.height * 2 + 1); ray.setFromCamera(ptr, camera)
+  const h = ray.intersectObjects(nodes.map(n => n.pick), false)[0]; return h ? nodes[h.object.userData.i] : null }
+renderer.domElement.addEventListener('pointermove', e => { const n = pick(e); if (n !== hovered) { hovered = n; renderer.domElement.style.cursor = n ? 'pointer' : ''; apply() } })
+let down = null
+renderer.domElement.addEventListener('pointerdown', e => down = [e.clientX, e.clientY])
+renderer.domElement.addEventListener('pointerup', e => { if (down && Math.hypot(e.clientX - down[0], e.clientY - down[1]) < 5) select(pick(e)) })
+controls.addEventListener('start', () => { tween = null })
+
+function resize() { renderer.setSize(innerWidth, innerHeight); labelR.setSize(innerWidth, innerHeight); camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix() }
+addEventListener('resize', resize); resize(); apply()
+
+let frameN = 0, raf
+function loop() {
+  const t = clock.getElapsedTime()
+  nodes.forEach(n => { n.holder.position.copy(n.base); if (n.type !== 'core') n.holder.position.y += Math.sin(t * .6 + n.phase) * .07 })
+  writeLines(lineGeo, links); writeLines(hiGeo, hiLines.userData.links || [])
+  if (tween) { const k = Math.min((t - tween.t0) / .9, 1), e = k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2
+    camera.position.lerpVectors(tween.from, tween.to, e); controls.target.lerpVectors(tween.fromT, tween.toT, e); if (k >= 1) tween = null }
+  controls.update(); renderer.render(scene, camera); labelR.render(scene, camera)
+  if (frameN++ % 4 === 0) declutter()
+  raf = requestAnimationFrame(loop)
+}
+document.addEventListener('visibilitychange', () => { if (document.hidden) cancelAnimationFrame(raf); else loop() })
+loop()
+</script>
+</body>
+</html>

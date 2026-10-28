@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><link rel="icon" href="data:,"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mika Williamson Systems Portfolio</title>
+<meta name="description" content="Mika Williamson, Cape Town. CNC and 3D-printing production, robotics and ML, and agentic AI systems." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0b0c0e; --bg-2: #121418; --card: #16181d; --fg: #eeece6; --fg-2: #c3c5ca; --muted: #8b8e95;
+    --line: rgba(255,255,255,.09); --amber: #ff9d42; --amber-ink: #ffb46b;
+    --f: "Schibsted Grotesk", "Segoe UI", system-ui, sans-serif; --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.6 var(--f); }
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; }
+  .wrap { max-width: 1160px; margin: 0 auto; padding: 0 22px; }
+  .eyebrow { font: 700 11px var(--mono); letter-spacing: .16em; text-transform: uppercase; color: var(--amber); margin: 0 0 10px; }
+  h1, h2, h3 { margin: 0; letter-spacing: -.02em; line-height: 1.08; }
+  h2 { font-size: clamp(28px, 3.6vw, 40px); }
+  section { padding: 84px 0; }
+  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 20px; border-radius: 12px; font-weight: 700; text-decoration: none; border: 1px solid var(--line); transition: background .15s, border-color .15s; }
+  .btn.primary { background: var(--amber); color: #111; border-color: var(--amber); }
+  .btn.primary:hover { background: var(--amber-ink); }
+  .btn:not(.primary):hover { border-color: var(--fg-2); }
+
+  /* Hero: the career-flow workshop runs behind the copy; the copy is real HTML on top */
+  .hero { position: relative; min-height: min(92vh, 860px); display: flex; align-items: center; overflow: hidden; border-bottom: 1px solid var(--line); }
+  .hero iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; pointer-events: none; }
+  .hero::after { content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(90deg, rgba(11,12,14,.96) 0%, rgba(11,12,14,.86) 34%, rgba(11,12,14,0) 62%), linear-gradient(0deg, var(--bg) 0%, rgba(11,12,14,0) 22%); }
+  .hero .wrap { position: relative; z-index: 2; width: 100%; padding-top: 84px; padding-bottom: 40px; }
+  .hero-copy { max-width: 520px; }
+  .hero h1 { font-size: clamp(36px, 4.4vw, 58px); margin-bottom: 18px; }
+  .hero h1 em { font-style: normal; color: var(--amber); }
+  .hero p.lede { font-size: 19px; color: var(--fg-2); margin: 0 0 26px; max-width: 46ch; }
+  .cta { display: flex; gap: 12px; flex-wrap: wrap; }
+  .story { display: inline-block; margin-top: 8px; font: 600 13px var(--mono); color: var(--amber); text-decoration: none; border-bottom: 1px solid rgba(255,157,66,.4); }
+  .story:hover { border-color: var(--amber); }
+  .now { margin-top: 26px; font: 500 12px var(--mono); color: var(--muted); min-height: 1.6em; }
+  .now b { color: var(--fg-2); font-weight: 700; }
+  .now i { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #3ee08f; margin-right: 8px; box-shadow: 0 0 8px #3ee08f; }
+  @media (max-width: 760px) {
+    .hero { min-height: 0; padding: 0; display: block; }
+    .hero iframe { position: relative; height: 52vh; min-height: 300px; }
+    .hero::after { background: linear-gradient(0deg, var(--bg) 0%, rgba(11,12,14,0) 30%); height: 52vh; min-height: 300px; }
+    .hero .wrap { padding-top: 6px; padding-bottom: 46px; }
+  }
+
+  /* Proof strip */
+  .proof { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; }
+  .proof div { background: var(--bg-2); padding: 26px 24px; }
+  .proof b { display: block; font-size: clamp(30px, 3.6vw, 44px); letter-spacing: -.03em; color: var(--amber); }
+  .proof span { color: var(--fg-2); font-size: 14.5px; }
+  @media (max-width: 760px) { .proof { grid-template-columns: 1fr 1fr; } }
+
+  /* Work */
+  .work { display: grid; gap: 22px; margin-top: 30px; }
+  .project { display: grid; grid-template-columns: 1.1fr .9fr; gap: 0; background: var(--card); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; }
+  .project:nth-child(even) { grid-template-columns: .9fr 1.1fr; }
+  .project:nth-child(even) .shot { order: 2; }
+  .shot { background: #0f1013; display: grid; place-items: center; overflow: hidden; min-height: 280px; }
+  .shot img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .shot.phone img { width: auto; height: 100%; max-height: 420px; object-fit: contain; padding: 18px 0; }
+  .info { padding: 30px 30px 28px; display: flex; flex-direction: column; gap: 12px; }
+  .info h3 { font-size: 26px; }
+  .info .problem { color: var(--fg-2); margin: 0; }
+  .info ul { margin: 0; padding-left: 18px; color: var(--fg-2); font-size: 15px; }
+  .stack { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+  .stack span { font: 600 11.5px var(--mono); padding: 4px 9px; border-radius: 99px; border: 1px solid var(--line); color: var(--fg-2); }
+  .info .links { margin-top: auto; padding-top: 8px; display: flex; gap: 14px; flex-wrap: wrap; font-weight: 700; font-size: 14.5px; }
+  .info .links a { color: var(--amber); text-decoration: none; }
+  .info .links a:hover { text-decoration: underline; }
+  .tag { font: 700 10.5px var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  @media (max-width: 860px) { .project, .project:nth-child(even) { grid-template-columns: 1fr; } .project:nth-child(even) .shot { order: 0; } }
+
+  /* Lab strip */
+  .lab { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 26px; }
+  .lab a { display: block; padding: 20px; border-radius: 14px; border: 1px solid var(--line); background: var(--bg-2); text-decoration: none; transition: border-color .15s, transform .15s; }
+  .lab a:hover { border-color: var(--amber); transform: translateY(-2px); }
+  .lab b { display: block; font-size: 17px; margin-bottom: 4px; }
+  .lab span { color: var(--muted); font-size: 14px; }
+  @media (max-width: 1000px) { .lab { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 760px) { .lab { grid-template-columns: 1fr; } }
+
+  /* Experience */
+  .timeline { margin-top: 30px; border-left: 2px solid var(--line); padding-left: 26px; display: grid; gap: 28px; }
+  .role { position: relative; }
+  .role::before { content: ""; position: absolute; left: -33px; top: 7px; width: 12px; height: 12px; border-radius: 50%; background: var(--bg); border: 2px solid var(--amber); }
+  .role .when { font: 600 12px var(--mono); color: var(--muted); }
+  .role h3 { font-size: 21px; margin: 2px 0 6px; }
+  .role h3 small { font-weight: 600; color: var(--fg-2); font-size: 16px; }
+  .role ul { margin: 0; padding-left: 18px; color: var(--fg-2); font-size: 15px; }
+
+  /* Skills + education */
+  .grid2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 28px; }
+  .grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 28px; }
+  .box { background: var(--bg-2); border: 1px solid var(--line); border-radius: 16px; padding: 22px; }
+  .box h3 { font-size: 17px; margin-bottom: 10px; }
+  .box p { margin: 0; color: var(--fg-2); font-size: 14.5px; }
+  .edu .box .when { font: 600 12px var(--mono); color: var(--muted); }
+  .edu .box.hl { border-color: rgba(255,157,66,.45); }
+  .badge { display: inline-block; margin-top: 8px; font: 700 11px var(--mono); padding: 4px 9px; border-radius: 99px; background: rgba(255,157,66,.14); color: var(--amber); }
+  .badge.prog { background: rgba(255,255,255,.07); color: var(--fg-2); }
+  @media (max-width: 860px) { .grid4 { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 560px) { .grid2, .grid4 { grid-template-columns: 1fr; } }
+
+  /* Contact */
+  .contact { text-align: center; padding: 96px 0 70px; }
+  .contact p { color: var(--fg-2); }
+  .contact .cta { justify-content: center; margin-top: 22px; }
+  footer { border-top: 1px solid var(--line); padding: 22px 0 34px; color: var(--muted); font-size: 13px; }
+  footer .wrap { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  nav.top { position: fixed; top: 0; left: 0; right: 0; z-index: 20; transition: background .2s, border-color .2s; border-bottom: 1px solid transparent; }
+  nav.top.solid { background: rgba(11,12,14,.86); backdrop-filter: blur(10px); border-color: var(--line); }
+  nav.top .wrap { display: flex; align-items: center; justify-content: space-between; height: 60px; }
+  nav.top .name { font-weight: 800; text-decoration: none; letter-spacing: -.01em; }
+  nav.top .links { display: flex; gap: 18px; font-size: 14.5px; font-weight: 600; }
+  nav.top .links a { text-decoration: none; color: var(--fg-2); } nav.top .links a:hover { color: var(--fg); }
+  @media (max-width: 600px) { nav.top .links a:not(.keep) { display: none; } }
+
+  /* ── Phones: tighter rhythm, readable proof numbers, screenshots shown whole ── */
+  @media (max-width: 760px) {
+    .wrap { padding-left: max(18px, env(safe-area-inset-left, 0px)); padding-right: max(18px, env(safe-area-inset-right, 0px)); }
+    section { padding: 56px 0; }
+    nav.top .wrap { height: 54px; }
+    nav.top { padding-top: env(safe-area-inset-top, 0px); }
+    nav.top .links a[href="#work"] { display: inline; }
+    .hero h1 { font-size: clamp(31px, 8.6vw, 38px); margin-bottom: 14px; }
+    .hero p.lede { font-size: 16.5px; margin-bottom: 22px; }
+    .cta .btn { flex: 1 1 140px; justify-content: center; }
+    .now { font-size: 11.5px; line-height: 1.5; }
+    .proof div { padding: 18px 16px; }
+    .proof b { font-size: clamp(22px, 6.4vw, 28px); white-space: nowrap; }
+    .proof span { font-size: 13.5px; line-height: 1.45; display: block; margin-top: 4px; }
+    h2 { font-size: 27px; }
+    .work { gap: 18px; margin-top: 22px; }
+    .shot { min-height: 0; aspect-ratio: 16 / 10; }
+    .shot img { object-fit: cover; object-position: top center; }
+    .shot.phone { aspect-ratio: auto; padding: 8px 0; }
+    .shot.phone img { max-height: 380px; padding: 10px 0; }
+    .info { padding: 22px 20px 22px; gap: 10px; }
+    .info h3 { font-size: 23px; }
+    .info .problem { font-size: 15.5px; }
+    .info ul { font-size: 14.5px; }
+    .info .links { font-size: 15px; }
+    .info .links a { min-height: 44px; display: inline-flex; align-items: center; }
+    .lab a { padding: 18px; }
+    .timeline { padding-left: 20px; gap: 24px; }
+    .role::before { left: -27px; }
+    .role h3 { font-size: 19px; }
+    .role ul, .box p { font-size: 14.5px; }
+    .grid4, .grid2 { gap: 12px; margin-top: 22px; }
+    .box { padding: 18px; }
+    .contact { padding: 64px 0 52px; }
+    footer .wrap { flex-direction: column; gap: 6px; }
+    footer { padding-bottom: calc(30px + env(safe-area-inset-bottom, 0px)); }
+  }
+</style>
+
+
+
+<nav class="top" id="nav" aria-label="Main">
+  <div class="wrap">
+    <a class="name" href="#top">Mika Williamson</a>
+    <div class="links"><a href="#work">Work</a><a href="#experience">Experience</a><a href="#skills">Skills</a><a class="keep" href="#contact">Contact</a></div>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <iframe id="heroScene" src="Concepts/career-flow-hero.html" title="Animation of Mika's career as a workshop: robots load a CNC router and a laser cutter, a 3D printer prints, the parts are assembled, and the product becomes an AI agent network" aria-hidden="true" tabindex="-1" loading="eager"></iframe>
+  <div class="wrap">
+    <div class="hero-copy">
+      <p class="eyebrow">Mika Williamson · Cape Town</p>
+      <h1>I optimise systems — <em>physical and digital</em> — and build AI that runs them.</h1>
+      <p class="lede">From CNC routers and 3D-print production to robotics, machine learning and agentic AI.</p>
+      <div class="cta"><a class="btn primary" href="#work">View work</a><a class="btn" href="https://www.linkedin.com/in/mika-williamson-07992a142/" target="_blank" rel="noopener">LinkedIn</a></div>
+      <p class="now" id="now" aria-live="polite"></p>
+      <a class="story" href="Concepts/career-flow-detailed.html">Watch the full story →</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section aria-label="Results">
+    <div class="wrap">
+      <div class="proof">
+        <div><b>3×</b><span>production throughput at Blueprint Digital</span></div>
+        <div><b>0.1 mm</b><span>router and laser cutting tolerance</span></div>
+        <div><b>100+</b><span>events as a mobile DJ — sound, lighting, setup</span></div>
+        <div><b>Cum Laude</b><span>Higher Certificate IT: Robotics · Top Achiever</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="work" style="padding-top:20px">
+    <div class="wrap">
+      <p class="eyebrow">Selected work</p>
+      <h2>Things I've built</h2>
+      <div class="work">
+        <article class="project">
+          <div class="shot"><img src="media/champ-os-dashboard.jpg" alt="Mika OS command center: the AI Core figure, agent overview and the Director panel" loading="lazy" width="1440" height="900" /></div>
+          <div class="info">
+            <span class="tag">Project · 2026</span>
+            <h3>Mika OS</h3>
+            <p class="problem">A personal AI operating system: a fleet of agents that runs my day, my vault and my machines' upkeep — on local models.</p>
+            <ul>
+              <li>15 agents (Node/PM2) running on local LLMs via LM Studio, with cloud fallback.</li>
+              <li>A Director agent that checks in on launch, reports progress and runs jobs on request.</li>
+              <li>Electron desktop app with a Three.js AI core and a 3D knowledge graph of an Obsidian vault.</li>
+            </ul>
+            <div class="stack"><span>Electron</span><span>Node</span><span>PM2</span><span>LM Studio</span><span>Three.js</span><span>Obsidian</span></div>
+            <div class="links"><a href="media/champ-os-knowledge-graph.jpg">See the knowledge graph →</a><span class="tag" style="align-self:center">Case study in progress</span></div>
+          </div>
+        </article>
+
+        <article class="project">
+          <div class="shot phone"><img src="media/bpd-dashboard.jpg" alt="BPD Capture Android app: active jobs list with CE numbers and due dates" loading="lazy" width="540" height="1200" /></div>
+          <div class="info">
+            <span class="tag">Project · 2026 · Blueprint Digital</span>
+            <h3>BPD Capture</h3>
+            <p class="problem">Field teams were documenting CE-numbered jobs across phones and folders. Now it's one offline app.</p>
+            <ul>
+              <li>Offline job documentation for Android and Windows.</li>
+              <li>One-tap PDF field reports, daily digest, backups and in-app updates.</li>
+              <li>Branded Three.js startup animation built from the real logo paths.</li>
+            </ul>
+            <div class="stack"><span>Expo / React Native</span><span>Electron</span><span>Vite + React</span><span>Three.js</span></div>
+            <div class="links"><a href="BPD-Capture/index.html">Read the case study →</a></div>
+          </div>
+        </article>
+
+        <article class="project">
+          <div class="shot"><img src="media/dime3-h2d-winder.jpg" alt="3D render: a Bambu Lab H2D presenting a printed gyro watch winder ring set" loading="lazy" width="1440" height="900" /></div>
+          <div class="info">
+            <span class="tag">Dime3 · Co-Founder · 11/2023 – present</span>
+            <h3>Dime3 hardware</h3>
+            <p class="problem">Rapid prototyping, reverse engineering and affordable custom manufacturing.</p>
+            <ul>
+              <li>Technical production for retail rollouts (Blueprint Digital and national retail groups).</li>
+              <li>Custom functional hardware for automotive and fitness-event clients.</li>
+              <li>Tooling, moulds and hardware — gyro watch winder, jigs, brackets.</li>
+            </ul>
+            <div class="stack"><span>Fusion 360</span><span>FDM &amp; SLA</span><span>Bambu Lab Studio</span><span>Creality Print</span></div>
+            <div class="links"><a href="Concepts/06-h2d-printer.html">Print it yourself (interactive) →</a></div>
+          </div>
+        </article>
+      </div>
+
+      <div class="lab">
+        <a href="Concepts/career-flow-detailed.html"><b>Career flow</b><span>The workshop behind the headline, full screen, with the story and dates for each stage.</span></a>
+        <a href="Concepts/05-cnc-router-pro.html"><b>Run the router</b><span>Pick a job on the controller and machine it — the hero, with the controls.</span></a>
+        <a href="Concepts/06-h2d-printer.html"><b>Print studio</b><span>A dual-nozzle printer prints each project, layer by layer.</span></a>
+        <a href="Concepts/02-career-graph.html"><b>Career graph</b><span>Roles, projects and skills as one explorable 3D graph.</span></a>
+      </div>
+    </div>
+  </section>
+
+  <section id="experience" style="background:var(--bg-2);border-block:1px solid var(--line)">
+    <div class="wrap">
+      <p class="eyebrow">Experience</p>
+      <h2>Where I've worked</h2>
+      <div class="timeline">
+        <div class="role"><div class="when">04/2025 – present</div><h3>CNC Operator <small>· Blueprint Digital</small></h3>
+          <ul><li>Increased production throughput 3× through machining-time and workflow optimisation.</li>
+            <li>Operate and maintain router and laser cutter, producing components to 0.1 mm tolerances; optimised VCarve Pro toolpaths; expanded into laser cutting, CAD and product design.</li>
+            <li>Production and custom hardware rollouts for international sportswear, footwear, retail and fitness brands.</li></ul></div>
+        <div class="role"><div class="when">11/2023 – present</div><h3>Co-Founder <small>· Dime3 (3D printing)</small></h3>
+          <ul><li>Rapid prototyping, reverse engineering and custom manufacturing; production for Blueprint Digital and national retail groups rollouts; hardware for automotive and fitness-event clients.</li>
+            <li>Set up and run the 3D printing machines for retail and industrial timelines.</li></ul></div>
+        <div class="role"><div class="when">01/2023 – 10/2023</div><h3>Co-Founder <small>· ATK-Media (digital marketing)</small></h3>
+          <ul><li>Client acquisition; Shopify site setup and optimisation; organic social content in Canva.</li></ul></div>
+        <div class="role"><div class="when">01/2021 – 10/2024</div><h3>Mobile DJ <small>· Sonic Event Audio (weekends)</small></h3>
+          <ul><li>Sound, lighting and DJ for 100+ events; repeat clients and referrals; faster, more reliable setups.</li></ul></div>
+        <div class="role"><div class="when">04/2021 – 01/2022</div><h3>Owner <small>· AHIVE (Shopify e-commerce)</small></h3>
+          <ul><li>Shopify dropshipping end to end; found a supplier with 10% faster, cheaper shipping; Facebook ads with A/B testing and Pixel tracking.</li></ul></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="skills">
+    <div class="wrap">
+      <p class="eyebrow">Skills</p>
+      <h2>What I work with</h2>
+      <div class="grid4">
+        <div class="box"><h3>AI / ML</h3><p>Deep learning, model evaluation, computer vision, feature engineering, hyperparameter tuning, ReAct frameworks, prompt engineering, agentic workflows with MCP.</p></div>
+        <div class="box"><h3>Manufacturing</h3><p>CAD, 3D modelling for manufacturing, 3D printing (FDM &amp; SLA), CNC router setup &amp; operation, toolpath creation &amp; optimisation, reverse engineering.</p></div>
+        <div class="box"><h3>Systems</h3><p>Linux (Ubuntu/Raspbian), SSH, PLC (C++ &amp; ladder logic), control systems (MATLAB/PID), C++/Arduino, SQL (MySQL), network security, VMware/Hyper-V.</p></div>
+        <div class="box"><h3>Tools</h3><p>Python, TensorFlow, Scikit-learn, NumPy, Pandas, Fusion 360, VCarve Pro, Rayjet, CorelDRAW, Bambu Lab Studio, Creality Print, Claude Code, Cursor, LM Studio.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="education" class="edu" style="padding-top:0">
+    <div class="wrap">
+      <p class="eyebrow">Education</p>
+      <h2>Study</h2>
+      <div class="grid2">
+        <div class="box hl"><div class="when">04/2021 – 03/2022 · Eduvos, Cape Town</div><h3>Higher Certificate IT: Robotics</h3><span class="badge">Cum Laude · Top Achiever Award</span></div>
+        <div class="box"><div class="when">03/2022 – 11/2024 · Eduvos, Cape Town</div><h3>BSc Information Technology: Robotics &amp; Intelligent Systems</h3><p>ML projects: dog-breed classifier, heart-disease and bulldozer-price prediction (TensorFlow/Keras, Scikit-learn).</p></div>
+        <div class="box"><div class="when">11/2025 – 06/2026 · ZTM Academy</div><h3>AI Prompt Engineering</h3><p>CoT/ToT, few-shot, ReAct, defensive prompting, agentic workflows with MCP.</p></div>
+        <div class="box"><div class="when">09/2026 · ZTM Academy</div><h3>Vibe Coding Bootcamp</h3><span class="badge">Certified</span></div>
+        <div class="box"><div class="when">10/2024 – 11/2024 · Udemy (ZTM)</div><h3>Complete AI &amp; ML, Data Science Bootcamp</h3></div>
+        <div class="box"><div class="when">2024 – 2025</div><h3>Finance &amp; Risk Management</h3></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact" class="contact" style="background:var(--bg-2);border-top:1px solid var(--line)">
+    <div class="wrap">
+      <p class="eyebrow">Contact</p>
+      <h2>Let's build something that runs itself.</h2>
+      <p>Contact via LinkedIn. References available on request.</p>
+      <div class="cta"><a class="btn primary" href="https://www.linkedin.com/in/mika-williamson-07992a142/" target="_blank" rel="noopener">LinkedIn</a><a class="btn" href="https://github.com/mikachamp" target="_blank" rel="noopener">GitHub</a></div>
+    </div>
+  </section>
+</main>
+
+<footer><div class="wrap"><span>© 2026 Mika Williamson · Cape Town</span><span>Built with Three.js. More machines to try in the Lab.</span></div></footer>
+
+<script>
+// Hero scene: pause the animation when the hero is off-screen or the tab is hidden; show what it's machining
+const frame = document.getElementById('heroScene'), now = document.getElementById('now'), nav = document.getElementById('nav')
+let visible = true
+const post = (type) => { try { frame.contentWindow.postMessage({ type }, '*') } catch {} }
+new IntersectionObserver(([e]) => { visible = e.isIntersecting; post(visible && !document.hidden ? 'resume' : 'pause') }, { threshold: .05 }).observe(frame)
+document.addEventListener('visibilitychange', () => post(document.hidden || !visible ? 'pause' : 'resume'))
+addEventListener('message', (e) => {
+  if (e.source !== frame.contentWindow || e.data?.type !== 'career-stage') return
+  const b = document.createElement('b'); b.textContent = String(e.data.n)
+  const dot = document.createElement('i'); if (e.data.ai) dot.style.cssText = 'background:#7fd6ff;box-shadow:0 0 8px #7fd6ff'
+  now.replaceChildren(dot, String(e.data.y) + ' · ', b, ' — ' + String(e.data.k))
+})
+addEventListener('scroll', () => nav.classList.toggle('solid', scrollY > 40), { passive: true })
+</script>
+
+</html>

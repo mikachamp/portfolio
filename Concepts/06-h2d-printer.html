@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mika Williamson — H2D Print Studio (concept E)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+<style>
+  :root { --g: #00ae42; --fg: #eef0f2; --muted: #8d939c; --panel: rgba(20,22,26,.92); --line: rgba(255,255,255,.09);
+    --f: "Inter", "Segoe UI", system-ui, sans-serif; --mono: "JetBrains Mono", ui-monospace, Consolas, monospace; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; overflow: hidden; color: var(--fg); font-family: var(--f);
+    background: radial-gradient(120% 90% at 70% 100%, #4a5563 0%, #20262e 38%, #07080a 75%); }
+  #stage { position: fixed; inset: 0; } #stage canvas { display: block; }
+  header { position: fixed; top: 18px; left: 18px; z-index: 3; max-width: 420px; padding: 18px 22px; border-radius: 14px; background: rgba(8,9,11,.72); border: 1px solid var(--line); backdrop-filter: blur(10px); }
+  .eyebrow { font: 700 11px var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--g); margin: 0 0 8px; }
+  h1 { font-size: clamp(26px, 3vw, 38px); line-height: 1.02; margin: 0 0 8px; letter-spacing: -.02em; }
+  header p { margin: 0; color: #c2c6cc; font-size: 14px; line-height: 1.5; }
+
+  /* Printer-style touchscreen panel */
+  .ui { position: fixed; right: 18px; top: 50%; transform: translateY(-50%); z-index: 4; width: 320px; border-radius: 20px; background: var(--panel); border: 1px solid var(--line); box-shadow: 0 30px 60px rgba(0,0,0,.5); overflow: hidden; backdrop-filter: blur(12px); }
+  .ui-top { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px 10px; font: 700 11px var(--mono); letter-spacing: .12em; color: var(--muted); }
+  .ui-top b { color: var(--fg); } .ui-top i { width: 8px; height: 8px; border-radius: 50%; background: #444; display: inline-block; margin-right: 6px; }
+  .ui-top i.on { background: var(--g); box-shadow: 0 0 8px var(--g); }
+  .status { display: grid; grid-template-columns: 74px 1fr; gap: 14px; align-items: center; padding: 6px 16px 14px; }
+  .ring { position: relative; width: 74px; height: 74px; }
+  .ring svg { transform: rotate(-90deg); } .ring b { position: absolute; inset: 0; display: grid; place-items: center; font: 700 16px var(--mono); }
+  .st-name { font-weight: 700; font-size: 15px; } .st-sub { font: 500 11.5px var(--mono); color: var(--muted); margin-top: 4px; line-height: 1.6; }
+  .temps { display: grid; grid-template-columns: repeat(4, 1fr); border-block: 1px solid var(--line); }
+  .temps div { padding: 9px 4px; text-align: center; font: 700 13px var(--mono); }
+  .temps span { display: block; font: 600 9.5px var(--mono); color: var(--muted); letter-spacing: .08em; margin-bottom: 3px; }
+  .temps div + div { border-left: 1px solid var(--line); }
+  .ams { display: flex; gap: 8px; padding: 12px 16px; align-items: center; }
+  .ams small { font: 700 10px var(--mono); color: var(--muted); letter-spacing: .1em; margin-right: auto; }
+  .slot { width: 30px; height: 30px; border-radius: 50%; border: 3px solid rgba(255,255,255,.12); position: relative; transition: border-color .2s, transform .2s; }
+  .slot.active { border-color: var(--g); transform: scale(1.12); }
+  .slot::after { content: attr(data-n); position: absolute; inset: 0; display: grid; place-items: center; font: 700 10px var(--mono); color: rgba(0,0,0,.55); }
+  .label { font: 700 10px var(--mono); letter-spacing: .12em; color: var(--muted); padding: 4px 16px 6px; }
+  .jobs { display: grid; gap: 6px; padding: 0 12px; }
+  .job { display: grid; grid-template-columns: 36px 1fr auto; gap: 10px; align-items: center; padding: 8px 10px; border-radius: 12px; border: 1px solid var(--line); background: rgba(255,255,255,.03); color: inherit; text-align: left; cursor: pointer; font: inherit; transition: border-color .15s, background .15s; }
+  .job:hover { border-color: rgba(255,255,255,.25); } .job.sel { border-color: var(--g); background: rgba(0,174,66,.08); }
+  .job .sw { width: 36px; height: 36px; border-radius: 9px; display: grid; grid-template-columns: 1fr 1fr; overflow: hidden; }
+  .job b { font-size: 13px; } .job small { display: block; font: 500 10.5px var(--mono); color: var(--muted); margin-top: 2px; }
+  .job .tm { font: 600 10.5px var(--mono); color: var(--muted); }
+  .job.done .tm { color: var(--g); }
+  .speed { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin: 12px 12px 0; padding: 4px; border-radius: 10px; background: rgba(255,255,255,.05); }
+  .speed button { border: 0; background: transparent; color: var(--muted); padding: 7px 0; border-radius: 7px; font: 700 10.5px var(--f); cursor: pointer; }
+  .speed button.on { background: var(--g); color: #fff; }
+  .keys { display: grid; grid-template-columns: 1.4fr 1fr; gap: 8px; padding: 12px; }
+  .key { border: 0; border-radius: 12px; padding: 12px; font: 800 13px var(--f); cursor: pointer; color: #fff; }
+  .key.go { background: var(--g); } .key.go.pause { background: #d99a1e; } .key.stop { background: rgba(255,255,255,.08); }
+  .key:disabled { opacity: .4; cursor: not-allowed; }
+  .views { display: flex; gap: 6px; padding: 0 12px 14px; }
+  .views button { flex: 1; border: 1px solid var(--line); background: transparent; color: var(--muted); border-radius: 8px; padding: 6px; font: 600 10.5px var(--mono); cursor: pointer; }
+  .views button.on { color: #fff; border-color: var(--g); }
+
+  .card { position: fixed; left: 18px; bottom: 18px; z-index: 4; width: min(400px, calc(100% - 36px)); padding: 18px 20px; border-radius: 14px; background: rgba(12,13,16,.9); border: 1px solid var(--line); backdrop-filter: blur(12px); opacity: 0; transform: translateY(14px); transition: opacity .5s, transform .5s; pointer-events: none; }
+  .card.show { opacity: 1; transform: none; pointer-events: auto; }
+  .card .k { font: 700 10.5px var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--g); }
+  .card h2 { margin: 6px 0 2px; font-size: 21px; } .card .when { font: 500 11px var(--mono); color: var(--muted); margin-bottom: 10px; }
+  .card ul { margin: 0; padding-left: 18px; font-size: 14px; line-height: 1.55; color: #d0d3d7; }
+  @media (max-width: 760px) {
+    header { left: 10px; right: 10px; top: 10px; max-width: none; padding: 12px 14px; } header p { display: none; }
+    .ui { top: auto; bottom: 10px; left: 10px; right: 10px; transform: none; width: auto; }
+    .status, .temps, .label, .views { display: none; } .jobs { grid-template-columns: 1fr 1fr; } .job .tm, .job small { display: none; }
+    .card { bottom: auto; top: 86px; left: 10px; width: calc(100% - 20px); }
+  }
+</style>
+<link rel="icon" href="data:,">
+</head>
+<body>
+<div id="stage" aria-hidden="true"></div>
+<header>
+  <p class="eyebrow">Mika Williamson · Dime3</p>
+  <h1>Print my work.</h1>
+  <p>I co-founded a 3D production studio. Pick a job on the printer, press Print — each part is a project, printed in two colours on dual nozzles.</p>
+</header>
+
+<div class="ui" id="ui" role="group" aria-label="Printer controls">
+  <div class="ui-top"><span><i id="led"></i><b>H2D</b> · AMS 2 Pro</span><span id="state">IDLE</span></div>
+  <div class="status">
+    <div class="ring"><svg width="74" height="74"><circle cx="37" cy="37" r="31" stroke="rgba(255,255,255,.1)" stroke-width="7" fill="none" /><circle id="arc" cx="37" cy="37" r="31" stroke="#00ae42" stroke-width="7" fill="none" stroke-linecap="round" stroke-dasharray="194.8" stroke-dashoffset="194.8" /></svg><b id="pct">0%</b></div>
+    <div><div class="st-name" id="jobName">Select a job</div><div class="st-sub" id="jobSub">Layer — / —<br />Nozzle —</div></div>
+  </div>
+  <div class="temps"><div><span>LEFT</span><b id="tL">25</b>°</div><div><span>RIGHT</span><b id="tR">25</b>°</div><div><span>BED</span><b id="tB">25</b>°</div><div><span>CHAMBER</span><b id="tC">24</b>°</div></div>
+  <div class="ams" id="ams"><small>AMS</small></div>
+  <div class="label">PRINT QUEUE</div>
+  <div class="jobs" id="jobs"></div>
+  <div class="speed" id="speed" role="group" aria-label="Speed mode"><button data-s=".5">Silent</button><button data-s="1" class="on">Standard</button><button data-s="1.24">Sport</button><button data-s="1.66">Ludicrous</button></div>
+  <div class="keys"><button class="key go" id="kGo" disabled>Print</button><button class="key stop" id="kStop">Stop</button></div>
+  <div class="views"><button id="vFollow" class="on">FOLLOW</button><button id="vFree">FREE ORBIT</button></div>
+</div>
+<div class="card" id="card"></div>
+
+<script type="importmap">
+{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/" } }
+</script>
+<script type="module">
+import * as THREE from 'three'
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js'
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js'
+
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches
+const FAST = +new URLSearchParams(location.search).get('fast') || 1 // test hook: speed up time
+await document.fonts.load('600 64px Inter').catch(() => {}); await document.fonts.load('700 30px Inter').catch(() => {})
+const $ = (id) => document.getElementById(id)
+
+// ── Filament in the AMS (slot colours as in Bambu's own H2D render) ────────
+const SLOTS = [{ c: '#f1f1ee', n: 'PLA White' }, { c: '#2f5bd3', n: 'PLA Blue' }, { c: '#3fae4f', n: 'PETG Green' }, { c: '#e2462f', n: 'PLA Red' }]
+
+// ── Jobs: each printed part is a project (facts from the CV) ───────────────
+// Bodies are 2D shapes extruded upward; each body is printed by the nozzle loaded with its slot.
+const V = (x, y) => new THREE.Vector2(x, y)
+function circleShape(r, holes = [], n = 64) { const s = new THREE.Shape(); s.absarc(0, 0, r, 0, Math.PI * 2, false); holes.forEach(h => s.holes.push(h)); return s }
+function holePath(x, y, r) { const p = new THREE.Path(); p.absarc(x, y, r, 0, Math.PI * 2, true); return p }
+function ring(rOut, rIn) { return circleShape(rOut, [holePath(0, 0, rIn)]) }
+function roundRectShape(w, h, r, x = 0, y = 0) { const s = new THREE.Shape(), x0 = x - w / 2, y0 = y - h / 2; s.moveTo(x0 + r, y0); s.lineTo(x0 + w - r, y0); s.quadraticCurveTo(x0 + w, y0, x0 + w, y0 + r); s.lineTo(x0 + w, y0 + h - r); s.quadraticCurveTo(x0 + w, y0 + h, x0 + w - r, y0 + h); s.lineTo(x0 + r, y0 + h); s.quadraticCurveTo(x0, y0 + h, x0, y0 + h - r); s.lineTo(x0, y0 + r); s.quadraticCurveTo(x0, y0, x0 + r, y0); return s }
+function hexShape(r, holes = []) { const s = new THREE.Shape(); for (let i = 0; i <= 6; i++) { const a = i / 6 * Math.PI * 2 + Math.PI / 6; i ? s.lineTo(Math.cos(a) * r, Math.sin(a) * r) : s.moveTo(Math.cos(a) * r, Math.sin(a) * r) } holes.forEach(h => s.holes.push(h)); return s }
+
+const JOBS = [
+  { id: 'winder', name: 'Gyro watch winder', file: 'dime3_gyro_winder.3mf', title: 'Co-Founder · Dime3', when: '11/2023 – present',
+    bodies: [{ shape: ring(1.45, 1.22), z: [0, .32], slot: 3 }, { shape: ring(1.1, .88), z: [0, .32], slot: 0 }, { shape: ring(.76, .56), z: [0, .32], slot: 3 }, { shape: circleShape(.4, [holePath(0, 0, .16)]), z: [0, .5], slot: 0 }],
+    points: ['Co-founded a 3D production studio: prototyping, reverse engineering, custom manufacturing.', 'Retail rollouts for Blueprint Digital and national retail groups; hardware for automotive and fitness-event clients.', 'Designed and printed this gyro watch winder — three nested gimbal rings.'] },
+  { id: 'jig', name: 'Production jig', file: 'dime3_drill_jig.3mf', title: 'Tooling & jigs · Dime3', when: 'Dime3 · 2023 – present',
+    bodies: [{ shape: (() => { const s = roundRectShape(2.6, 1.6, .18); [[-.8, .3], [0, .3], [.8, .3], [-.8, -.35], [.8, -.35]].forEach(([x, y]) => s.holes.push(holePath(x, y, .13))); return s })(), z: [0, .3], slot: 1 },
+      { shape: roundRectShape(2.6, .3, .1, 0, -.65), z: [.3, .75], slot: 1 }, { shape: roundRectShape(.5, .5, .1, -1.0, .45), z: [.3, .5], slot: 0 }, { shape: roundRectShape(.5, .5, .1, 1.0, .45), z: [.3, .5], slot: 0 }],
+    points: ['Tooling, moulds, jigs and brackets for production runs.', 'Reverse engineering and rapid prototyping for clients.', 'Two materials in one print: a rigid body with soft locating pads.'] },
+  { id: 'display', name: 'Retail display riser', file: 'rollout_display_riser.3mf', title: 'Retail rollouts', when: 'Blueprint Digital · Dime3',
+    bodies: [{ shape: roundRectShape(2.8, 1.8, .2), z: [0, .25], slot: 0 }, { shape: roundRectShape(2.0, 1.3, .18, 0, -.1), z: [.25, .55], slot: 0 }, { shape: roundRectShape(1.2, .8, .14, 0, -.2), z: [.55, .9], slot: 0 }, { shape: roundRectShape(2.0, .14, .05, 0, .62), z: [.25, .32], slot: 2 }],
+    points: ['Rollouts for international sportswear, footwear, retail and fitness brands.', 'CNC and laser production to 0.1 mm at Blueprint Digital — throughput up 3×.', 'Retail rollouts for Blueprint Digital and national retail groups through Dime3.'] },
+  { id: 'core', name: 'Mika OS core', file: 'mika_os_core.3mf', title: 'Mika OS', when: 'Project · 2026',
+    bodies: [{ shape: hexShape(1.35, [holePath(0, 0, .42), ...Array.from({ length: 6 }, (_, i) => holePath(Math.cos(i / 6 * Math.PI * 2) * .88, Math.sin(i / 6 * Math.PI * 2) * .88, .14))]), z: [0, .35], slot: 1 }, { shape: ring(.36, .2), z: [0, .6], slot: 2 }],
+    points: ['15 AI agents running on local LLMs (LM Studio) with cloud fallback.', 'A Director agent that checks in, reports progress and runs jobs on request.', 'Electron desktop app with a Three.js AI core and a 3D knowledge graph.'] }
+]
+
+// ── Renderer ────────────────────────────────────────────────────────────────
+const stage = $('stage')
+let renderer
+try { renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' }) }
+catch { stage.style.display = 'none'; throw new Error('no webgl') }
+renderer.setPixelRatio(Math.min((devicePixelRatio || 1) * 1.5, 2)); renderer.setClearColor(0, 0)
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.0
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap
+renderer.localClippingEnabled = true
+stage.appendChild(renderer.domElement)
+const scene = new THREE.Scene()
+scene.environment = new THREE.PMREMGenerator(renderer).fromScene(new RoomEnvironment(), .04).texture; scene.environmentIntensity = .55
+const camera = new THREE.PerspectiveCamera(32, 1, .05, 120)
+camera.position.set(-8, 6, 11)
+const controls = new OrbitControls(camera, renderer.domElement)
+Object.assign(controls, { enableDamping: true, dampingFactor: .07, minDistance: 3, maxDistance: 26, maxPolarAngle: Math.PI * .52 })
+controls.target.set(0, 3.2, 0)
+
+const key = new THREE.DirectionalLight(0xffffff, 2.2); key.position.set(-6, 10, 8); key.castShadow = true
+key.shadow.mapSize.set(2048, 2048); key.shadow.bias = -.0004; Object.assign(key.shadow.camera, { left: -6, right: 6, top: 9, bottom: -3, near: 1, far: 30 })
+const rim = new THREE.DirectionalLight(0x9fc0ff, 1.4); rim.position.set(7, 6, -6)
+scene.add(key, rim, new THREE.HemisphereLight(0xdfe6ff, 0x1a1a1a, .45))
+
+// ── Textures + materials ────────────────────────────────────────────────────
+const maxA = renderer.capabilities.getMaxAnisotropy()
+const canvasTex = (w, h, draw, srgb = true) => { const c = document.createElement('canvas'); c.width = w; c.height = h; const g = c.getContext('2d'); draw(g, w, h); const t = new THREE.CanvasTexture(c); if (srgb) t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = maxA; t.userData = { g, c }; return t }
+const noise = (g, w, h, a) => { const im = g.getImageData(0, 0, w, h), d = im.data; for (let i = 0; i < d.length; i += 4) { const n = (Math.random() - .5) * a; d[i] += n; d[i + 1] += n; d[i + 2] += n } g.putImageData(im, 0, 0) }
+const plateTex = canvasTex(1024, 940, (g, w, h) => {
+  g.fillStyle = '#26282b'; g.fillRect(0, 0, w, h); noise(g, w, h, 26)
+  g.fillStyle = 'rgba(255,255,255,.55)'; g.font = '600 26px Inter, sans-serif'; g.textAlign = 'right'; g.fillText('MAX BUILD VOLUME  350 × 320 × 325 mm³', w - 30, h - 26)
+  g.textAlign = 'left'; g.font = '600 20px Inter'; g.fillText('Textured PEI Plate', 30, h - 26)
+})
+const std = (o) => new THREE.MeshStandardMaterial(o)
+const M = {
+  shell: std({ color: 0xe9eaec, roughness: .38, metalness: .05 }),         // white side panels
+  black: std({ color: 0x141518, roughness: .45, metalness: .2 }),
+  matte: std({ color: 0x1c1d20, roughness: .8, metalness: .05 }),          // chamber interior
+  tint: new THREE.MeshPhysicalMaterial({ color: 0x15181d, roughness: .04, metalness: 0, transparent: true, opacity: .32, envMapIntensity: 1.6, depthWrite: false }),
+  chrome: std({ color: 0xd5d9de, roughness: .14, metalness: 1 }),
+  carbon: std({ color: 0x0d0e10, roughness: .35, metalness: .4 }),
+  plate: std({ map: plateTex, roughness: .7, metalness: .2 }),
+  dome: new THREE.MeshPhysicalMaterial({ color: 0xcfd6dd, roughness: .03, transparent: true, opacity: .22, envMapIntensity: 1.5, depthWrite: false, side: THREE.DoubleSide }),
+  brass: std({ color: 0xc9a14c, roughness: .3, metalness: 1 })
+}
+const glow = (c) => new THREE.MeshBasicMaterial({ color: c, toneMapped: false })
+function add(geo, mat, x = 0, y = 0, z = 0, parent = scene) { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); m.castShadow = m.receiveShadow = true; parent.add(m); return m }
+const rbox = (w, h, d, mat, x, y, z, parent, r = .08) => add(new RoundedBoxGeometry(w, h, d, 4, Math.min(r, w / 2.2, h / 2.2, d / 2.2)), mat, x, y, z, parent)
+
+// ── The H2D (1 unit = 100 mm; body ≈ 492 × 514 × 626 mm) ───────────────────
+const BW = 4.92, BD = 5.14, TOP = 5.95, FZ = BD / 2
+// Pedestal (as in Bambu's hero render)
+add(new THREE.BoxGeometry(13, 1.4, 9), std({ color: 0x0b0c0e, roughness: .55, metalness: .2 }), 1.2, -.7, -.6)
+// Base + top lid
+rbox(BW - .1, .38, BD - .1, M.black, 0, .19, 0, scene, .06)
+add(new THREE.BoxGeometry(1.0, .12, .2), M.black, 1.3, .06, FZ - .05)                       // front foot notch
+rbox(BW, .14, BD, M.black, 0, TOP - .07, 0, scene, .05)
+// White side shells (rounded), right one with the tinted side window
+for (const s of [-1, 1]) rbox(.34, TOP - .38, BD, M.shell, s * (BW / 2 - .17), (TOP + .38) / 2, 0, scene, .14)
+add(new THREE.PlaneGeometry(2.7, 3.3), M.tint, BW / 2 + .002, 3.0, -.25).rotation.y = Math.PI / 2
+const sideFrame = new THREE.Mesh(new THREE.PlaneGeometry(2.86, 3.46), M.black); sideFrame.rotation.y = Math.PI / 2; sideFrame.position.set(BW / 2 + .001, 3.0, -.25); scene.add(sideFrame)
+// Chamber: back wall, floor, inner sides
+add(new THREE.BoxGeometry(BW - .68, TOP - .52, .1), M.matte, 0, (TOP + .38) / 2, -BD / 2 + .05)
+add(new THREE.BoxGeometry(BW - .68, .06, BD - .2), M.matte, 0, .41, 0)
+// Front fascia: black band with touchscreen (left) and wordmark (right)
+const FA = { y0: 4.9, y1: TOP - .14 }
+rbox(BW - .66, FA.y1 - FA.y0, .22, M.black, 0, (FA.y0 + FA.y1) / 2, FZ - .11, scene, .04)
+const screenTex = canvasTex(640, 400, () => {})
+const scr = add(new THREE.PlaneGeometry(.92, .575), new THREE.MeshBasicMaterial({ map: screenTex, toneMapped: false }), -1.45, (FA.y0 + FA.y1) / 2, FZ + .002); scr.castShadow = false
+const word = canvasTex(512, 128, (g, w, h) => { g.fillStyle = '#d7dadf'; g.font = '500 30px Inter'; g.textBaseline = 'middle'; g.fillText('Bambu Lab', 0, h / 2 + 2); g.font = '600 64px Inter'; g.fillText('H2D', 210, h / 2 + 4) })
+add(new THREE.PlaneGeometry(1.1, .275), new THREE.MeshBasicMaterial({ map: word, transparent: true }), 1.25, (FA.y0 + FA.y1) / 2 + .1, FZ + .002).castShadow = false
+// Chamber LED bar under the fascia
+const chamberLed = add(new THREE.BoxGeometry(BW - .9, .025, .05), glow(0xffffff), 0, FA.y0 - .08, FZ - .3)
+const chamberLight = new THREE.PointLight(0xffffff, 0, 6); chamberLight.position.set(0, 4.4, 1.2); scene.add(chamberLight)
+// Door: tinted glass in a slim black frame, hinged on the left
+const door = new THREE.Group(); door.position.set(-BW / 2 + .34, 0, FZ - .02); scene.add(door)
+const DW = BW - .68, DY0 = .5, DY1 = FA.y0 - .02
+add(new THREE.BoxGeometry(DW, DY1 - DY0, .03), M.tint, DW / 2, (DY0 + DY1) / 2, 0, door).castShadow = false
+for (const [w, h, x, y] of [[DW, .05, DW / 2, DY1 - .025], [DW, .05, DW / 2, DY0 + .025], [.05, DY1 - DY0, .025, (DY0 + DY1) / 2], [.07, DY1 - DY0, DW - .035, (DY0 + DY1) / 2]]) add(new THREE.BoxGeometry(w, h, .05), M.black, x, y, .01, door)
+add(new THREE.BoxGeometry(.05, .9, .06), M.black, DW - .12, 2.6, .05, door) // handle
+// Front-left white pillar strip (the light edge visible in Bambu's render)
+add(new THREE.BoxGeometry(.06, DY1 - DY0, .02), glow(0xf6f7f9), -BW / 2 + .36, (DY0 + DY1) / 2, FZ - .005)
+
+// Z axis: three lead screws; the bed carrier moves down as layers stack
+for (const [x, z] of [[-1.85, -2.0], [1.85, -2.0], [-1.95, 1.75]]) add(new THREE.CylinderGeometry(.04, .04, TOP - .6, 16), M.chrome, x, (TOP + .2) / 2, z)
+const bed = new THREE.Group(); scene.add(bed)
+add(new THREE.BoxGeometry(3.7, .14, 3.5), std({ color: 0x3a3d42, roughness: .5, metalness: .6 }), 0, -.13, 0, bed) // heated bed
+add(new THREE.BoxGeometry(3.6, .04, 3.3), M.plate, 0, -.02, 0, bed)                                               // PEI plate, top at y=0
+for (const [x, z] of [[-1.85, -2.0], [1.85, -2.0], [-1.95, 1.75]]) add(new THREE.BoxGeometry(.3, .12, .3), M.black, x, -.16, z, bed)
+
+// CoreXY gantry: Y rails along the sides, an X carbon beam that travels front↔back, the dual toolhead on it
+const NOZ_Y = 4.05, RAIL_Y = 4.55
+for (const s of [-1, 1]) { add(new THREE.BoxGeometry(.1, .14, BD - .7), M.carbon, s * 2.0, RAIL_Y, 0); add(new THREE.CylinderGeometry(.06, .06, .12, 20), M.chrome, s * 2.0, RAIL_Y + .1, -BD / 2 + .5) }
+const xBeam = new THREE.Group(); scene.add(xBeam)
+add(new THREE.BoxGeometry(4.0, .12, .14), M.carbon, 0, RAIL_Y, 0, xBeam)
+for (const s of [-1, 1]) add(new THREE.BoxGeometry(.24, .2, .3), M.black, s * 2.0, RAIL_Y, 0, xBeam)
+const head = new THREE.Group(); xBeam.add(head)
+rbox(.66, .62, .5, M.black, 0, NOZ_Y + .52, .04, head, .07)
+rbox(.62, .3, .04, std({ color: 0x24262a, roughness: .3, metalness: .5 }), 0, NOZ_Y + .58, .3, head, .02)
+const headLbl = canvasTex(256, 64, (g) => { g.fillStyle = '#c9ccd1'; g.font = '600 26px Inter'; g.fillText('Bambu Lab', 60, 42) })
+add(new THREE.PlaneGeometry(.4, .1), new THREE.MeshBasicMaterial({ map: headLbl, transparent: true }), 0, NOZ_Y + .58, .325, head).castShadow = false
+const NOFF = .17 // each nozzle sits this far left/right of the head centre
+const nozzles = [-1, 1].map(s => {
+  const n = new THREE.Group(); n.position.set(s * NOFF, 0, 0); head.add(n)
+  add(new THREE.BoxGeometry(.2, .2, .22), std({ color: 0x8e949c, roughness: .35, metalness: .9 }), 0, NOZ_Y + .2, 0, n)   // heater block
+  add(new THREE.CylinderGeometry(.05, .015, .1, 16), M.brass, 0, NOZ_Y + .05, 0, n)                                         // nozzle tip at NOZ_Y
+  const tip = add(new THREE.SphereGeometry(.025, 10, 8), glow(0xff7a2a), 0, NOZ_Y + .005, 0, n); tip.visible = false
+  return { g: n, tip, s }
+})
+// PTFE tubes from the AMS into the head
+const tubeMat = std({ color: 0xf2f2f2, roughness: .3, transparent: true, opacity: .75 })
+const tubes = [-1, 1].map(s => { const m = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([new THREE.Vector3(s * .5, TOP + .3, -1.3), new THREE.Vector3(s * .4, TOP - .2, -1.5)]), 8, .025, 8), tubeMat); scene.add(m); return m })
+
+// AMS 2 Pro on top: black base, clear dome, four spools
+const AMS_Y = TOP, ams = new THREE.Group(); ams.position.set(0, AMS_Y, -.2); scene.add(ams)
+rbox(3.9, .7, 2.6, M.black, 0, .35, 0, ams, .12)
+const domeR = 1.2
+const dome = add(new THREE.CylinderGeometry(domeR, domeR, 3.8, 64, 1, true, 0, Math.PI), M.dome, 0, .7, 0, ams); dome.rotation.z = Math.PI / 2; dome.rotation.y = Math.PI / 2; dome.castShadow = false
+for (const s of [-1, 1]) { const cap = add(new THREE.CircleGeometry(domeR, 48, 0, Math.PI), M.dome, s * 1.9, .7, 0, ams); cap.rotation.y = s * Math.PI / 2; cap.castShadow = false }
+const spools = SLOTS.map((sl, i) => {
+  const g = new THREE.Group(); g.position.set(-1.38 + i * .92, .7 + .02, 0); ams.add(g)
+  const fil = add(new THREE.CylinderGeometry(.88, .88, .6, 48), std({ color: sl.c, roughness: .45 }), 0, 0, 0, g); fil.rotation.z = Math.PI / 2
+  for (const f of [-1, 1]) { const fl = add(new THREE.CylinderGeometry(1.0, 1.0, .03, 48), std({ color: 0x1c1d20, roughness: .4, transparent: true, opacity: .85 }), f * .32, 0, 0, g); fl.rotation.z = Math.PI / 2 }
+  add(new THREE.CylinderGeometry(.06, .06, .3, 16), M.brass, 0, -.1, 1.25, ams).position.set(g.position.x, .45, 1.25) // feeder
+  return g
+})
+const amsLbl = canvasTex(256, 64, (g) => { g.fillStyle = '#cfd2d7'; g.font = '700 30px Inter'; g.fillText('AMS 2 Pro', 40, 44) })
+add(new THREE.PlaneGeometry(.9, .22), new THREE.MeshBasicMaterial({ map: amsLbl, transparent: true }), 1.2, .38, 1.302, ams).castShadow = false
+
+// ── Toolpaths: slice each job into layers ───────────────────────────────────
+const LH = .05 // visual layer height (exaggerated so the build is visible)
+function contoursOf(shape) { const ex = shape.extractPoints(18); return [ex.shape, ...ex.holes].map(c => { const p = c.map(v => new THREE.Vector3(v.x, 0, -v.y)); p.push(p[0].clone()); return p }) }
+function densify(pts, step) { const out = [pts[0].clone()]; for (let i = 1; i < pts.length; i++) { const a = pts[i - 1], b = pts[i], n = Math.max(1, Math.ceil(a.distanceTo(b) / step)); for (let k = 1; k <= n; k++) out.push(a.clone().lerp(b, k / n)) } return out }
+// Accel-limited motion along a polyline (same planner as the CNC concept)
+function plan(pts, vmax, acc) {
+  const n = pts.length, d = new Float32Array(n), v = new Float32Array(n).fill(vmax)
+  for (let i = 1; i < n; i++) d[i] = pts[i].distanceTo(pts[i - 1])
+  v[0] = v[n - 1] = 0
+  for (let i = 1; i < n - 1; i++) { const a = pts[i].clone().sub(pts[i - 1]), b = pts[i + 1].clone().sub(pts[i]), la = a.length(), lb = b.length(); if (la && lb) v[i] = vmax * Math.max(.2, 1 - Math.acos(THREE.MathUtils.clamp(a.dot(b) / (la * lb), -1, 1)) / (Math.PI * .5)) }
+  for (let i = 1; i < n; i++) v[i] = Math.min(v[i], Math.sqrt(v[i - 1] ** 2 + 2 * acc * d[i]))
+  for (let i = n - 2; i >= 0; i--) v[i] = Math.min(v[i], Math.sqrt(v[i + 1] ** 2 + 2 * acc * d[i + 1]))
+  const t = new Float32Array(n); for (let i = 1; i < n; i++) { const s = v[i - 1] + v[i]; t[i] = t[i - 1] + (s > 1e-5 ? 2 * d[i] / s : 2 * Math.sqrt(d[i] / acc)) }
+  return { pts, d, v, t, dur: t[n - 1] }
+}
+const KIN = { print: [5.5, 30], travel: [14, 60] }
+function buildProgram(job) {
+  const top = Math.max(...job.bodies.map(b => b.z[1])), layers = Math.round(top / LH), moves = []
+  // Map AMS slots onto the two nozzles: first slot used → left, second → right (as a slicer would)
+  const used = [...new Set(job.bodies.map(b => b.slot))], nozzleOf = (slot) => used.indexOf(slot) % 2
+  let cur = new THREE.Vector3(-1.6, 0, 1.4), active = nozzleOf(job.bodies[0].slot)
+  for (let L = 0; L < layers; L++) {
+    const h = (L + 1) * LH, order = job.bodies.filter(b => h > b.z[0] + 1e-6 && h <= b.z[1] + 1e-6)
+    // print the active nozzle's bodies first to save a swap; alternate per layer like a real slicer
+    order.sort((a, b) => (nozzleOf(a.slot) === active ? -1 : 1) - (nozzleOf(b.slot) === active ? -1 : 1))
+    for (const b of order) {
+      const nz = nozzleOf(b.slot)
+      if (nz !== active) { moves.push({ type: 'swap', from: active, to: nz, dur: .45, h, slot: b.slot }); active = nz }
+      for (const c of contoursOf(b.shape)) {
+        const start = c[0], tr = densify([cur, start], .1)
+        if (tr.length > 1 && cur.distanceTo(start) > .02) moves.push({ type: 'travel', ...plan(tr, ...KIN.travel), h, nozzle: active })
+        moves.push({ type: 'print', ...plan(densify(c, .03), ...KIN.print), h, nozzle: active, slot: b.slot, layer: L + 1 })
+        cur = c[c.length - 1]
+      }
+    }
+  }
+  let t = 0; moves.forEach(m => { m.t0 = t; t += m.dur })
+  return { moves, total: t, layers, used, nozzleOf }
+}
+
+// ── Part meshes (clipped at the printed height) ────────────────────────────
+const clip = new THREE.Plane(new THREE.Vector3(0, -1, 0), 0)
+let part = null
+function buildPart(job) {
+  const g = new THREE.Group()
+  job.bodies.forEach(b => {
+    const geo = new THREE.ExtrudeGeometry(b.shape, { depth: b.z[1] - b.z[0], bevelEnabled: false, curveSegments: 32 })
+    geo.rotateX(-Math.PI / 2); geo.translate(0, b.z[0], 0)
+    const m = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: SLOTS[b.slot].c, roughness: .55, metalness: 0, clippingPlanes: [clip], side: THREE.DoubleSide }))
+    m.castShadow = m.receiveShadow = true; g.add(m)
+  })
+  return g
+}
+// Fresh-extrusion trail for the current contour
+const trailGeo = new THREE.BufferGeometry(), trail = new THREE.Line(trailGeo, new THREE.LineBasicMaterial({ color: 0xffb066, toneMapped: false }))
+bed.add(trail)
+function setTrail(pts, h) { trailGeo.setFromPoints(pts.map(p => new THREE.Vector3(p.x, h + .004, p.z))); trailGeo.setDrawRange(0, 0) }
+
+// ── State + UI ──────────────────────────────────────────────────────────────
+let job = null, prog = null, clock = 0, mi = 0, si = 1, running = false, finished = false, speed = 1, activeNozzle = 0, swapT = 1, swapFrom = 0, swapTo = 0
+let presentT = -1, doorOpen = 0, doorTarget = 0
+const BED_IDLE = 1.6, BED_PRESENT = 1.1
+let bedY = BED_IDLE, bedTarget = BED_IDLE
+const tip = new THREE.Vector3(0, 0, 0), headPos = new THREE.Vector3(-1.6, 0, 1.4)
+const temps = { L: 25, R: 25, B: 25, C: 24 }
+const card = $('card')
+$('ams').innerHTML += SLOTS.map((s, i) => `<span class="slot" data-n="${i + 1}" title="${s.n}" style="background:${s.c}"></span>`).join('')
+$('jobs').innerHTML = JOBS.map(j => { const sl = [...new Set(j.bodies.map(b => b.slot))]; return `<button class="job" data-id="${j.id}"><span class="sw">${sl.map(s => `<i style="background:${SLOTS[s].c}"></i>`).join('')}${sl.length < 2 ? `<i style="background:${SLOTS[sl[0]].c}"></i>` : ''}</span><span><b>${j.name}</b><small>${j.file}</small></span><span class="tm" data-tm></span></button>` }).join('')
+JOBS.forEach(j => { j.prog = buildProgram(j); const el = document.querySelector(`.job[data-id="${j.id}"] [data-tm]`); el.textContent = `${j.prog.layers} layers` })
+const setState = (s) => { $('state').textContent = s; $('led').classList.toggle('on', s === 'PRINTING') }
+
+function load(j) {
+  stop(false); job = j; prog = j.prog; clock = 0; mi = 0; si = 1; finished = false; presentT = -1; doorTarget = 0
+  if (part) { part.parent.remove(part) }
+  part = buildPart(j); bed.add(part); clip.constant = -100
+  activeNozzle = prog.nozzleOf(j.bodies[0].slot); swapT = 1; swapTo = activeNozzle
+  document.querySelectorAll('.job').forEach(b => b.classList.toggle('sel', b.dataset.id === j.id))
+  $('jobName').textContent = j.name; $('kGo').disabled = false; $('kGo').textContent = 'Print'; $('kGo').classList.remove('pause'); card.classList.remove('show')
+  setState('READY'); bedTarget = NOZ_Y - .002 // home: bring the plate up to the nozzle
+}
+function go() {
+  if (!job) return
+  if (finished) load(job)
+  running = !running
+  $('kGo').textContent = running ? 'Pause' : 'Resume'; $('kGo').classList.toggle('pause', running); setState(running ? 'PRINTING' : 'PAUSED')
+  if (running && reduced) clock = prog.total
+}
+function stop(reset = true) {
+  running = false; $('kGo').textContent = 'Print'; $('kGo').classList.remove('pause')
+  if (reset) { if (part) part.parent.remove(part); part = null; job = null; prog = null; finished = false; bedTarget = BED_IDLE; doorTarget = 0; $('kGo').disabled = true; $('jobName').textContent = 'Select a job'; card.classList.remove('show'); setState('IDLE'); document.querySelectorAll('.job').forEach(b => b.classList.remove('sel')) }
+}
+document.querySelectorAll('.job').forEach(b => b.onclick = () => { load(JOBS.find(j => j.id === b.dataset.id)); go() })
+$('kGo').onclick = go; $('kStop').onclick = () => stop()
+document.querySelectorAll('#speed button').forEach(b => b.onclick = () => { speed = +b.dataset.s; document.querySelectorAll('#speed button').forEach(x => x.classList.toggle('on', x === b)) })
+let follow = true
+$('vFollow').onclick = () => { follow = true; $('vFollow').classList.add('on'); $('vFree').classList.remove('on') }
+$('vFree').onclick = () => { follow = false; $('vFree').classList.add('on'); $('vFollow').classList.remove('on') }
+controls.addEventListener('start', () => { if (follow) $('vFree').click() })
+
+// The fascia touchscreen mirrors the job
+function drawScreen(pct, layer) {
+  const { g, c } = screenTex.userData, w = c.width, h = c.height
+  g.fillStyle = '#0d0f12'; g.fillRect(0, 0, w, h)
+  g.fillStyle = '#00ae42'; g.fillRect(0, 0, w, 8)
+  g.fillStyle = '#fff'; g.font = '700 34px Inter'; g.fillText(job ? job.name : 'Idle', 28, 64)
+  g.fillStyle = '#8d939c'; g.font = '500 24px Inter'; g.fillText(job ? `Layer ${layer} / ${prog.layers}` : 'Ready to print', 28, 104)
+  g.fillStyle = 'rgba(255,255,255,.1)'; g.fillRect(28, 140, w - 56, 14); g.fillStyle = '#00ae42'; g.fillRect(28, 140, (w - 56) * pct, 14)
+  g.fillStyle = '#fff'; g.font = '700 64px Inter'; g.fillText(`${Math.round(pct * 100)}%`, 28, 250)
+  ;[['L', temps.L], ['R', temps.R], ['Bed', temps.B]].forEach(([k, v], i) => { g.fillStyle = '#8d939c'; g.font = '500 22px Inter'; g.fillText(k, 330 + i * 100, 210); g.fillStyle = '#fff'; g.font = '700 30px Inter'; g.fillText(`${Math.round(v)}°`, 330 + i * 100, 250) })
+  SLOTS.forEach((s, i) => { g.fillStyle = s.c; g.beginPath(); g.arc(46 + i * 56, 330, 18, 0, Math.PI * 2); g.fill() })
+  screenTex.needsUpdate = true
+}
+
+// ── Layout + camera ─────────────────────────────────────────────────────────
+const ui = $('ui'); let effAspect = 1
+function resize() {
+  const W = innerWidth, H = innerHeight, r = ui.getBoundingClientRect(); renderer.setSize(W, H)
+  if (W > 760) { const P = W - r.left + 10; camera.aspect = (W + P) / H; camera.setViewOffset(W + P, H, P, 0, W, H); effAspect = (W - P) / H; camera.fov = 32 }
+  else { const P = H - r.top + 8; camera.aspect = W / (H + P); camera.setViewOffset(W, H + P, 0, P, W, H); effAspect = W / (H - P); camera.fov = 48 }
+  camera.updateProjectionMatrix()
+}
+addEventListener('resize', resize); resize()
+const fit = (w, h) => { const tv = Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2); return Math.max(h / 2 / tv, w / 2 / (tv * effAspect)) * 1.08 }
+
+// ── Main loop (time-based) ──────────────────────────────────────────────────
+const damp = (k, dt) => 1 - Math.exp(-k * dt), ease = (t) => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2
+const camGoal = new THREE.Vector3(), tgtGoal = new THREE.Vector3(), dir = new THREE.Vector3()
+const PRESENT = new THREE.Vector3(0, 3.1, FZ + 2.2)
+let last = performance.now(), el = 0, layerNow = 0, firstFrame = true
+drawScreen(0, 0)
+
+function sample() {
+  while (mi < prog.moves.length) {
+    const m = prog.moves[mi], lt = clock - m.t0
+    if (lt >= m.dur) { mi++; si = 1; if (prog.moves[mi]?.type === 'print') setTrail(prog.moves[mi].pts, prog.moves[mi].h); continue }
+    layerNow = Math.round(m.h / LH)
+    if (m.type === 'swap') { swapFrom = m.from; swapTo = m.to; swapT = lt / m.dur; return { h: m.h, moving: false } }
+    activeNozzle = m.nozzle; swapT = 1; swapTo = m.nozzle
+    while (si < m.pts.length - 1 && m.t[si] <= lt) si++
+    const t0 = m.t[si - 1], seg = m.t[si] - t0, tau = lt - t0, v0 = m.v[si - 1], v1 = m.v[si], a = seg > 0 ? (v1 - v0) / seg : 0, s = v0 * tau + .5 * a * tau * tau
+    tip.lerpVectors(m.pts[si - 1], m.pts[si], m.d[si] > 0 ? Math.min(s / m.d[si], 1) : 1)
+    if (m.type === 'print') trailGeo.setDrawRange(0, si + 1)
+    return { h: m.h, moving: true, printing: m.type === 'print', slot: m.slot }
+  }
+  return { h: prog.moves.at(-1)?.h || 0, moving: false }
+}
+
+function frame(now) {
+  const dt = Math.min((now - last) / 1000, 1 / 20) * FAST; last = now; el += dt
+  let info = null
+  if (prog && running) {
+    // wait for the plate to reach the nozzle before printing
+    if (Math.abs(bedY - (NOZ_Y - .002)) < .02 || clock > 0) {
+      clock = Math.min(clock + dt * speed, prog.total)
+      info = sample()
+      bedTarget = NOZ_Y - info.h - .002 + (info.moving && !info.printing ? -.03 : 0) // small z-hop on travel
+      clip.constant = bedY + info.h + .002 // world height of the printed top
+    }
+    if (clock >= prog.total) {
+      running = false; finished = true; layerNow = prog.layers; setState('FINISHED'); $('kGo').textContent = 'Reprint'; $('kGo').classList.remove('pause')
+      document.querySelector(`.job[data-id="${job.id}"]`)?.classList.add('done'); trailGeo.setDrawRange(0, 0)
+      bedTarget = BED_PRESENT; doorTarget = 1; presentT = el + 1.4; clip.constant = 100
+    }
+  }
+  // Present the finished part: it lifts off the plate, floats out of the open door, turns slowly
+  if (finished && part && el > presentT && presentT > 0) {
+    if (part.parent === bed) { scene.attach(part); part.userData.from = part.position.clone() }
+    const k = ease(Math.min((el - presentT) / 1.8, 1))
+    part.position.lerpVectors(part.userData.from, PRESENT, k)
+    part.rotation.x = -.5 * k; part.rotation.y += dt * .5 * k
+    if (k >= 1 && !card.classList.contains('show')) showCard(job)
+  }
+  // Bed, door, toolhead (nozzle swap = one lifts, the other drops, head shifts by the nozzle spacing)
+  bedY += (bedTarget - bedY) * (reduced ? 1 : damp(running ? 25 : 2.2, dt)); bed.position.y = bedY
+  doorOpen += (doorTarget - doorOpen) * (reduced ? 1 : damp(2.5, dt)); door.rotation.y = -1.6 * doorOpen
+  const sw = ease(THREE.MathUtils.clamp(swapT, 0, 1)), nzSide = (n) => n === 0 ? -1 : 1
+  const offX = THREE.MathUtils.lerp(nzSide(swapFrom), nzSide(swapTo), swapT < 1 ? sw : 1) * NOFF
+  headPos.lerp(tip, damp(prog && running ? 60 : 4, dt))
+  head.position.x = headPos.x - offX; xBeam.position.z = headPos.z
+  nozzles.forEach((n, i) => {
+    const isActive = (swapT < 1 ? (sw > .5 ? swapTo : swapFrom) : activeNozzle) === i
+    const lift = isActive ? 0 : .12
+    n.g.position.y += (lift - n.g.position.y) * (reduced ? 1 : damp(14, dt))
+    n.tip.visible = !!(info?.printing && isActive)
+  })
+  // AMS: the active slot's spool turns while extruding
+  const feeding = info?.printing ? info.slot : -1
+  spools.forEach((s, i) => { if (i === feeding) s.rotation.x += dt * 1.6 })
+  document.querySelectorAll('.slot').forEach((s, i) => s.classList.toggle('active', i === feeding))
+  // Temps ease toward targets; chamber light on while busy
+  const hot = !!(prog && (running || clock > 0) && !finished)
+  temps.L += ((hot ? 220 : 25) - temps.L) * damp(.6, dt); temps.R += ((hot ? 230 : 25) - temps.R) * damp(.6, dt); temps.B += ((hot ? 65 : 25) - temps.B) * damp(.4, dt); temps.C += ((hot ? 42 : 24) - temps.C) * damp(.15, dt)
+  chamberLight.intensity += ((job ? 8 : 2) - chamberLight.intensity) * damp(3, dt)
+  // HUD
+  const pct = prog ? clock / prog.total : 0
+  $('pct').textContent = `${Math.round(pct * 100)}%`; $('arc').style.strokeDashoffset = 194.8 * (1 - pct)
+  $('jobSub').innerHTML = job ? `Layer ${layerNow} / ${prog.layers}<br />Nozzle ${activeNozzle ? 'R' : 'L'} · ${SLOTS[info?.slot ?? job.bodies[0].slot].n}` : 'Layer — / —<br />Nozzle —'
+  $('tL').textContent = Math.round(temps.L); $('tR').textContent = Math.round(temps.R); $('tB').textContent = Math.round(temps.B); $('tC').textContent = Math.round(temps.C)
+  if (Math.floor(el * 4) !== Math.floor((el - dt) * 4)) drawScreen(pct, layerNow)
+  // Camera: idle = the whole machine (3/4 front-left like Bambu's render); printing = into the chamber; done = the presented part
+  if (follow) {
+    if (finished && presentT > 0 && el > presentT) { tgtGoal.copy(PRESENT).add(new THREE.Vector3(0, -.2, -.6)); dir.set(-.35, .35, 1).normalize(); camGoal.copy(tgtGoal).addScaledVector(dir, fit(6.5, 4.6)) }
+    else if (job) { tgtGoal.set(headPos.x * .15, bedY + .4, .2); dir.set(-.3 + Math.sin(el * .1) * .05, .28, 1).normalize(); camGoal.copy(tgtGoal).addScaledVector(dir, fit(5.4, 3.8)) }
+    else { tgtGoal.set(0, 3.9, 0); dir.set(-.55, .3, 1).normalize(); camGoal.copy(tgtGoal).addScaledVector(dir, fit(10, 9.6)) }
+    const snap = firstFrame || reduced; firstFrame = false
+    controls.target.lerp(tgtGoal, snap ? 1 : damp(1.8, dt)); camera.position.lerp(camGoal, snap ? 1 : damp(1.3, dt))
+  }
+  controls.update(); renderer.render(scene, camera); requestAnimationFrame(frame)
+}
+function showCard(j) { card.innerHTML = `<div class="k">Printed · ${j.file}</div><h2>${j.title}</h2><div class="when">${j.when}</div><ul>${j.points.map(p => `<li>${p}</li>`).join('')}</ul>`; card.classList.add('show') }
+requestAnimationFrame(frame)
+</script>
+</body>
+</html>

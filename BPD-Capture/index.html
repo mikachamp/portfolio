@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BPD Capture Case Study</title>
+<meta name="description" content="How I designed and shipped BPD Capture, a field photo app for Blueprint Digital, working with Claude as my build partner.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column (~68ch) with full-width figures that break out to a wider measure; numbered steps because the process really is a sequence. */
+:root {
+  --bg: #F3F2EE; --fg: #1D1F22; --muted: #5E636A; --line: #D9D7D0; --card: #FFFFFF; --accent: #2E6F68; --flag: #B4543C;
+  --f-head: "Schibsted Grotesk", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --f-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg: #141617; --fg: #E4E4DF; --muted: #9AA0A6; --line: #2C2F32; --card: #1C1F21; --accent: #7FC3B9; --flag: #E58A6E; color-scheme: dark; }
+}
+:root[data-theme="dark"] { --bg: #141617; --fg: #E4E4DF; --muted: #9AA0A6; --line: #2C2F32; --card: #1C1F21; --accent: #7FC3B9; --flag: #E58A6E; color-scheme: dark; }
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 400 1.08rem/1.65 var(--f-body); }
+main { max-width: 1100px; margin: 0 auto; padding-inline: 16px; padding-block: 48px 80px; display: grid; gap: 64px; }
+.col { max-width: 68ch; margin-inline: auto; width: 100%; display: grid; gap: 16px; }
+h1, h2, h3 { font-family: var(--f-head); text-wrap: balance; margin: 0; letter-spacing: -0.015em; }
+h1 { font-size: clamp(2.1rem, 5vw, 3.4rem); line-height: 1.05; }
+h2 { font-size: clamp(1.5rem, 3vw, 2rem); line-height: 1.15; }
+h3 { font-size: 1.1rem; }
+p { margin: 0; }
+a { color: var(--accent); text-underline-offset: 3px; }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+.eyebrow { font: 500 .78rem var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.lede { font-size: 1.25rem; line-height: 1.55; color: var(--fg); }
+.meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 16px; border-top: 1px solid var(--line); padding-top: 18px; }
+.meta div { display: grid; gap: 2px; }
+.meta b { font: 500 .75rem var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.meta span { font-family: var(--f-head); font-size: .98rem; }
+.step-head { display: grid; gap: 6px; }
+.step-head .n { font: 500 .8rem var(--f-mono); color: var(--accent); letter-spacing: .06em; }
+figure { margin: 0; display: grid; gap: 10px; }
+figure img, figure video { width: 100%; max-width: 100%; height: auto; border-radius: 14px; display: block; background: #111; }
+figure video { max-width: 240px; margin-inline: auto; }
+figcaption { font: 400 .85rem/1.5 var(--f-head); color: var(--muted); max-width: 70ch; }
+.wide { width: 100%; }
+.pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; align-items: start; }
+.trio { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; align-items: start; }
+.phone img { max-width: 300px; margin-inline: auto; }
+.quote { border-left: 3px solid var(--flag); padding: 2px 0 2px 16px; font-style: italic; color: var(--fg); }
+.quote cite { display: block; font: normal 400 .85rem var(--f-head); color: var(--muted); margin-top: 4px; }
+ul { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; }
+.loop { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font: 500 .9rem var(--f-head); }
+.loop span { background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; }
+.loop i { font-style: normal; color: var(--muted); }
+.table-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font: 400 .92rem/1.45 var(--f-head); min-width: 520px; }
+th, td { text-align: left; padding: 10px 12px 10px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font: 500 .75rem var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.cta { display: flex; flex-wrap: wrap; gap: 10px; }
+.cta a { font: 600 .95rem var(--f-head); text-decoration: none; border: 1px solid var(--line); background: var(--card); color: var(--fg); padding: 10px 16px; border-radius: 999px; }
+.cta a:hover { border-color: var(--accent); }
+.rounds { display: grid; gap: 28px; }
+.round-tag { font: 500 .78rem var(--f-mono); color: var(--muted); letter-spacing: .06em; text-transform: uppercase; }
+footer { border-top: 1px solid var(--line); padding-top: 22px; color: var(--muted); font: 400 .9rem/1.6 var(--f-head); }
+</style>
+<link rel="icon" href="data:,">
+</head>
+<body>
+<main>
+
+  <header class="col">
+    <span class="eyebrow">Case study · Mobile + desktop app · 2026</span>
+    <h1>BPD Capture: a field photo app for Blueprint Digital</h1>
+    <p class="lede">I designed and shipped an offline Android app that lets site teams photograph and file every job by its CE number, then send a finished field report from the van. I directed the product and design; Claude, an AI coding assistant, wrote and tested the code with me. This page walks through how the work actually went, including the parts that didn't work the first time.</p>
+    <div class="meta">
+      <div><b>My role</b><span>Product owner, designer, tester</span></div>
+      <div><b>Built with</b><span>Claude Code (AI pair programmer)</span></div>
+      <div><b>Stack</b><span>Expo / React Native, Electron, three.js, SQLite</span></div>
+      <div><b>Shipped</b><span>Android APK via GitHub Releases, v1.0 → v1.4.2</span></div>
+    </div>
+  </header>
+
+  <section class="col">
+    <div class="step-head"><span class="n">01 · The brief</span><h2>Capture, file and report, without a server</h2></div>
+    <p>Blueprint Digital's jobs are tracked by CE number. On site, photos ended up mixed in personal camera rolls and had to be sorted by hand later. The app needed to:</p>
+    <ul>
+      <li>keep every photo and video in a folder for its CE number, on the phone;</li>
+      <li>work with no signal, because sites often have none;</li>
+      <li>produce a field report PDF and send it to the dispatcher in a couple of taps;</li>
+      <li>run without a backend or app store account, so it costs nothing to operate.</li>
+    </ul>
+  </section>
+
+  <section class="col">
+    <div class="step-head"><span class="n">02 · How I worked with Claude</span><h2>I set the direction, Claude built and tested, I judged the result</h2></div>
+    <p>Every feature went through the same loop. I described what I wanted in plain language, often with reference screenshots from other apps. Claude wrote the code, installed the build on an Android emulator and took its own screenshots to check the result. I reviewed what it showed me and pushed back until it was right.</p>
+    <div class="loop" aria-label="Working loop"><span>My brief + references</span><i>→</i><span>Claude builds</span><i>→</i><span>Emulator screenshots</span><i>→</i><span>My feedback</span><i>→</i><span>Refine or ship</span></div>
+    <p>Decisions were written down as they were made, so they stayed consistent between sessions: a <strong>design system document</strong> (colours, type, components, a changelog row for every visual change), a <strong>security document</strong> with rules both apps follow, and a short instruction file that tells Claude to keep both up to date.</p>
+  </section>
+
+  <section class="col">
+    <div class="step-head"><span class="n">03 · First version</span><h2>The working app</h2></div>
+    <p>Version one covered the whole job: a dashboard of jobs in progress, capture straight into each job's folder, due dates with a calendar, insights on overdue work, PDF field reports, a daily digest and full backup and restore. I picked a dark theme with a cyan-to-purple gradient from a set of reference screenshots, and tested it on my own phone.</p>
+    <div class="pair">
+      <figure class="phone"><img src="media/v1-dashboard.jpg" alt="Version 1 dashboard: dark screen, job cards with initials avatars, purple buttons and emoji tab icons"><figcaption>Version 1 dashboard. It worked well, but this look is what testers later called "AI-generated".</figcaption></figure>
+      <figure class="phone"><img src="media/logo-dashboard.jpg" alt="Dashboard in version 1.4.2 with the Blueprint Digital logo in the header"><figcaption>v1.4.2: same layout, with the real logo replacing a placeholder camera icon.</figcaption></figure>
+    </div>
+  </section>
+
+  <section class="col">
+    <div class="step-head"><span class="n">04 · The startup animation</span><h2>Seven 3D concepts, two rejections, one logo drawn by its own pencil</h2></div>
+    <p>I wanted the app to open with something that felt like Blueprint Digital, not a generic loading spinner. Claude built the concepts as live three.js scenes in one gallery so I could compare them side by side and rotate them, rather than judging still images.</p>
+    <blockquote class="quote">That's such a boring loading screen and it is so cliché, as many people use that exact one.<cite>My feedback on the first 3D attempt, a spinning torus knot</cite></blockquote>
+    <blockquote class="quote">You have combined two designs in one animation, which does not look good.<cite>My feedback on a blend of the "camera iris" and "blueprint" concepts</cite></blockquote>
+    <p>The answer was to use the real logo. Claude extracted the exact vector paths and gradient colours from the logo's PDF (not the outline-only cut file), and I chose concept 7: the pencil in the logo traces the outline, the colours pour in, the bulb lights up and the pencil slides into place. The last frame had to match the printed logo exactly, and it does.</p>
+  </section>
+  <figure class="wide"><img src="media/concept-gallery.jpg" alt="Concept gallery with seven tabs; concept 7, Pencil Draws Logo, is selected and shows the finished logo"><figcaption>The concept gallery: seven live 3D concepts on one page. <a href="startup-animation-concepts.html">Open the interactive gallery</a> (needs an internet connection to load three.js).</figcaption></figure>
+  <figure class="wide"><img src="media/animation-frames.jpg" alt="Six frames: the pencil draws the outline, blue fills in, the body fills, the bulb lights, the final logo"><figcaption>Six frames from the 3.5-second animation, as it runs in the app.</figcaption></figure>
+  <div class="col">
+    <div class="pair">
+      <figure><img src="media/logo-match.jpg" alt="Original logo artwork on white beside the animation's final frame on black"><figcaption>Left: the original artwork. Right: the animation's final frame.</figcaption></figure>
+      <figure><video src="media/bpd-startup-animation.mp4" poster="media/animation-poster.jpg" controls muted playsinline loop preload="metadata"></video><figcaption>The animation exported as a video, rendered frame by frame from the same code the app runs. The app also saves it to the phone's gallery the first time it opens.</figcaption></figure>
+    </div>
+  </div>
+
+  <section class="col">
+    <div class="step-head"><span class="n">05 · Icons</span><h2>One source for every logo</h2></div>
+    <p>The app icon, the in-app logo and the desktop icon are all rendered from the animation's final frame, so they can never drift apart. Testing on the emulator caught one problem: Android crops icons to a circle, and the first version clipped the pencil tip. The logo now sits at 45% of the icon canvas instead of 58%.</p>
+    <div class="pair">
+      <figure><img src="media/icons.jpg" alt="Four icon variants: monochrome, adaptive, launcher and in-app logo"><figcaption>Themed (monochrome), adaptive, launcher and in-app versions.</figcaption></figure>
+      <figure><img src="media/launcher-icon.jpg" alt="Android app drawer with the BPD Capture icon fully inside its circle"><figcaption>After the fix, on the Android home screen.</figcaption></figure>
+    </div>
+  </section>
+
+  <section class="col">
+    <div class="step-head"><span class="n">06 · Shipping without an app store</span><h2>Updates in one tap</h2></div>
+    <p>The app is installed directly from an APK file, so it checks GitHub Releases for new versions itself. The first version of the updater asked people to save a backup zip before updating, and I found that confusing on my own phone. Now the backup is saved quietly on the device, the update downloads, and Android asks for the one confirmation it always requires. Claude tested the full path on the emulator, from an older build through to the installed new version.</p>
+    <div class="pair">
+      <figure class="phone"><img src="media/update-dialog.jpg" alt="Dialog: Update available v1.4.1, Update Now"><figcaption>One button, with no file handling for the user.</figcaption></figure>
+      <figure class="phone"><img src="media/android-update.jpg" alt="Android system dialog: Do you want to update this app?"><figcaption>The only other step: Android's own confirmation.</figcaption></figure>
+    </div>
+  </section>
+
+  <section class="col">
+    <div class="step-head"><span class="n">07 · Desktop companion</span><h2>The same jobs on a Windows PC</h2></div>
+    <p>A Windows version, built with Electron, mirrors the phone app's screens and data model for office work: reviewing jobs, adding photos from files or a webcam, and the same startup animation. Syncing data between the two through GitHub is planned next.</p>
+  </section>
+  <figure class="wide"><img src="media/desktop-app.jpg" alt="Desktop app: header with logo and tabs for Dashboard, Calendar, Insights and Clients, search bar and New Order button"><figcaption>The desktop app's dashboard.</figcaption></figure>
+
+  <section class="col">
+    <div class="step-head"><span class="n">08 · Security review</span><h2>Testing it the way an attacker would</h2></div>
+    <p>Before going further I asked for a security check of both apps. Claude reviewed the code, then ran ten real attack attempts inside the desktop app (reading system files, escaping the data folder, deleting files outside it, navigating to a website). All ten are now blocked, and normal use still works.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Finding</th><th>Severity</th><th>Outcome</th></tr></thead>
+      <tbody>
+        <tr><td>A job number like <code>..</code> could point outside the jobs folder; deleting that job would have wiped every job's photos</td><td>High</td><td>Fixed in both apps with shared validation</td></tr>
+        <tr><td>Desktop accepted any file path from its own screens</td><td>High</td><td>Fixed: files outside the app's data folder are refused</td></tr>
+        <tr><td>Desktop window could be navigated to a website</td><td>Medium</td><td>Fixed: navigation and pop-ups blocked</td></tr>
+        <tr><td>Release builds signed with a publicly known key</td><td>Critical</td><td>Planned: a private signing key with a one-time reinstall</td></tr>
+      </tbody>
+    </table></div>
+    <p>SQL injection was already ruled out, because every query passes typed text as data. An automatic check now fails the build if anyone ever writes a query that pastes text in.</p>
+  </section>
+
+  <section class="col">
+    <div class="step-head"><span class="n">09 · Redesign, in progress</span><h2>"It looks AI-generated"</h2></div>
+    <p>People I showed the app to said it looked like it was made by AI. They were right about why: a purple gradient, emoji used as icons, and identical rounded cards are the default look of generated apps. Redesigning is taking several rounds, and each round taught me something about how I want to brief design.</p>
+    <div class="rounds">
+      <div class="trio">
+        <figure><img src="media/concept-A.jpg" alt="Concept A: blueprint-blue screens with grid lines and drawing title blocks"><figcaption><span class="round-tag">Round 1 · A</span><br>Drafting table: blueprint paper and title blocks.</figcaption></figure>
+        <figure><img src="media/concept-B.jpg" alt="Concept B: grey and safety-yellow screens with job tags"><figcaption><span class="round-tag">Round 1 · B</span><br>Field kit: site tags, hazard stripes, big buttons.</figcaption></figure>
+        <figure><img src="media/concept-C.jpg" alt="Concept C: light screens with ink dots and crop marks"><figcaption><span class="round-tag">Round 1 · C</span><br>Colour proof: the logo's inks as status colours.</figcaption></figure>
+      </div>
+      <p><strong>Round 1</strong> took its ideas from the business: blueprints, site work, print. I liked none of them. The design didn't need to illustrate the brand, so I shared four dashboard designs I liked instead.</p>
+      <p><strong>Round 2</strong> recreated those references almost exactly: number tiles, charts and filter pills everywhere. It felt overwhelming, and I realised I'd wanted their style (colours, type, shapes), not their layout.</p>
+      <figure><img src="media/calm-layout.jpg" alt="Calm layout: a simple job list and a job screen on near-black with white text"><figcaption><span class="round-tag">Round 3</span> · A calm layout: a plain job list, one summary line and one highlighted action per screen. The layout worked, but the bright white text on black felt harsh and the colours didn't belong together.</figcaption></figure>
+      <figure><img src="media/palettes.jpg" alt="Five versions of the same screens in Moss, Dusk, Ink and ember, Clay and Stone palettes"><figcaption><span class="round-tag">Round 4</span> · Five colour schemes on the same layout. Each tints the background with its accent and uses softer text so everything blends. <a href="redesign-colour-schemes.html">Open the interactive comparison</a>.</figcaption></figure>
+    </div>
+    <p>The chosen scheme will be built on a separate branch, so the working app stays untouched until the new design has been tested on the phone.</p>
+  </section>
+
+  <section class="col">
+    <div class="step-head"><span class="n">10 · What I learned</span><h2>Directing AI is a design skill</h2></div>
+    <ul>
+      <li><strong>Show, then decide.</strong> Comparing live options side by side (7 animation concepts, 5 colour schemes) got to good answers faster than describing ideas in words.</li>
+      <li><strong>Say what a reference is for.</strong> "Use this for the colours and type, not the layout" would have saved a whole round.</li>
+      <li><strong>Insist on real assets.</strong> The animation only worked once it used the actual logo paths instead of an approximation.</li>
+      <li><strong>Test where people use it.</strong> A 3D startup crash only showed up on a real phone, never in the browser preview. After that, every build was checked on an Android emulator with screenshots, which caught the clipped icon and the confusing update flow before they reached anyone.</li>
+      <li><strong>Write rules down.</strong> The design system, security rules and changelog let each session pick up where the last left off.</li>
+    </ul>
+  </section>
+
+  <section class="col">
+    <h2>Explore the working files</h2>
+    <div class="cta">
+      <a href="startup-animation-concepts.html">Startup animation concepts (3D)</a>
+      <a href="redesign-colour-schemes.html">Redesign colour schemes</a>
+      <a href="media/bpd-startup-animation.mp4">Startup animation video</a>
+    </div>
+  </section>
+
+  <footer class="col">
+    <p>BPD Capture was built for Blueprint Digital. The job names and clients in the screenshots are test data, not real customers.</p>
+  </footer>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,1002 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="icon" href="data:,">
+</head>
+<body>
+<title>BPD Loading Concepts</title>
+<style>
+  /* Layout: one-screen viewer — wrapping tab bar, then a full-height 3D stage. Deliberately dark (the app's own theme). */
+  :root {
+    --bg: #131316;
+    --surface: #1c1c21;
+    --border: #333238;
+    --fg: #f5f5f7;
+    --fg-muted: #9c9ba3;
+    --accent: linear-gradient(135deg, #4fc3f7, #7c4dff);
+    --focus: #4fc3f7;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body { margin: 0; display: flex; flex-direction: column; background: var(--bg); color: var(--fg); font-family: -apple-system, 'Segoe UI', Roboto, sans-serif; }
+  #tabs { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 16px; border-bottom: 1px solid var(--border); align-items: center; }
+  #tabs h1 { flex-basis: 100%; font-size: 15px; margin: 0 0 2px; color: var(--fg-muted); font-weight: 600; letter-spacing: 0.2px; }
+  .tab-btn { background: var(--surface); color: var(--fg); border: 1px solid var(--border); border-radius: 10px; padding: 9px 14px; font-weight: 600; cursor: pointer; font-size: 13px; }
+  .tab-btn.active { background: var(--accent); border-color: transparent; }
+  .tab-btn:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  #replay-btn { margin-left: auto; }
+  #hint { padding: 8px 16px; color: var(--fg-muted); font-size: 12px; border-bottom: 1px solid var(--border); }
+  #stage { position: relative; flex: 1; min-height: 360px; width: 100%; overflow: hidden; }
+  canvas { display: block; touch-action: none; }
+  .scene-label { position: absolute; bottom: 16px; left: 16px; right: 16px; font-size: 13px; color: var(--fg-muted); max-width: 440px; line-height: 1.5; pointer-events: none; }
+  @media (max-width: 520px) { #replay-btn { margin-left: 0; } }
+</style>
+  <div id="tabs">
+    <h1>BPD Capture — loading screen concepts</h1>
+    <button class="tab-btn" data-scene="aperture">1 · Aperture</button>
+    <button class="tab-btn" data-scene="blueprint">2 · Blueprint Assembly</button>
+    <button class="tab-btn" data-scene="network">3 · Job Network</button>
+    <button class="tab-btn" data-scene="mix">4 · Mix (current)</button>
+    <button class="tab-btn" data-scene="bulb">5 · Idea → Design</button>
+    <button class="tab-btn" data-scene="logo">6 · BPD Logo</button>
+    <button class="tab-btn" data-scene="logodraw">7 · Pencil Draws Logo</button>
+    <button class="tab-btn" id="replay-btn">↻ Replay intro</button>
+  </div>
+  <div id="hint">Drag to orbit · scroll to zoom — this is live 3D geometry, not a video. Each tab is a different concept.</div>
+  <div id="stage"></div>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.169.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.169.0/examples/jsm/"
+    }
+  }
+  </script>
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+    const stage = document.getElementById('stage');
+    const CYAN = 0x4fc3f7;
+    const PURPLE = 0x7c4dff;
+
+    function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+    function easeInOutQuad(t) { return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; }
+
+    class SceneRig {
+      constructor(labelText) {
+        this.clock = new THREE.Clock();
+        this.scene = new THREE.Scene();
+        this.camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+        this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+        this.controls.enableDamping = true;
+        this.controls.dampingFactor = 0.08;
+        this.controls.minDistance = 2;
+        this.controls.maxDistance = 25;
+        this.label = document.createElement('div');
+        this.label.className = 'scene-label';
+        this.label.textContent = labelText;
+        this.resize = this.resize.bind(this);
+      }
+      mount() {
+        stage.innerHTML = '';
+        stage.appendChild(this.renderer.domElement);
+        stage.appendChild(this.label);
+        window.addEventListener('resize', this.resize);
+        this.resize();
+        this.clock.start();
+        this.running = true;
+        this.loop();
+      }
+      unmount() {
+        this.running = false;
+        window.removeEventListener('resize', this.resize);
+      }
+      resize() {
+        const w = stage.clientWidth, h = stage.clientHeight;
+        this.camera.aspect = w / h;
+        this.camera.updateProjectionMatrix();
+        this.renderer.setSize(w, h);
+      }
+      loop() {
+        if (!this.running) return;
+        this.controls.update();
+        this.tick(this.clock.getElapsedTime());
+        this.renderer.render(this.scene, this.camera);
+        requestAnimationFrame(() => this.loop());
+      }
+      restart() { this.clock.stop(); this.clock.start(); }
+    }
+
+    // ---------- Concept 1: Camera Aperture ----------
+    function buildAperture() {
+      const rig = new SceneRig('Concept 1 — Camera Aperture. The iris mechanically opens like a real shutter, tied directly to the app’s job: capturing site photos. Blades are lit metal, not a flat texture.');
+      rig.camera.position.set(0, 0, 8.5);
+
+      const BLADE_COUNT = 9, RING_R = 1.65, LEN = 2.55;
+      const CLOSED = Math.PI * 0.08, OPEN = Math.PI * 0.62, DUR = 1.7;
+
+      const key = new THREE.PointLight(0xaab4ff, 6, 25); key.position.set(0, 2, 7);
+      const cyan = new THREE.PointLight(CYAN, 26, 20); cyan.position.set(-4, 2, 4);
+      const purple = new THREE.PointLight(PURPLE, 26, 20); purple.position.set(4, -2, 3);
+      const ambient = new THREE.AmbientLight(0x2a2a40, 1.1);
+      rig.scene.add(key, cyan, purple, ambient);
+
+      function bladeShape() {
+        const w = 0.85, s = new THREE.Shape();
+        s.moveTo(0, -w/2); s.lineTo(0, w/2); s.lineTo(LEN*0.72, w*0.16); s.lineTo(LEN, 0); s.lineTo(LEN*0.72, -w*0.16); s.closePath();
+        return s;
+      }
+      const geo = new THREE.ShapeGeometry(bladeShape());
+      const mat = new THREE.MeshStandardMaterial({ color: 0x24242e, metalness: 0.55, roughness: 0.35, emissive: 0x0b0f14, side: THREE.DoubleSide });
+
+      const group = new THREE.Group();
+      const pivots = [];
+      for (let i = 0; i < BLADE_COUNT; i++) {
+        const theta = (i / BLADE_COUNT) * Math.PI * 2;
+        const pivot = new THREE.Group();
+        pivot.position.set(Math.cos(theta) * RING_R, Math.sin(theta) * RING_R, 0);
+        pivot.rotation.z = theta + Math.PI;
+        const blade = new THREE.Mesh(geo, mat);
+        blade.rotation.z = CLOSED;
+        pivot.add(blade);
+        group.add(pivot);
+        pivots.push(pivot);
+      }
+      rig.scene.add(group);
+
+      const glowGeo = new THREE.CircleGeometry(0.55, 48);
+      const glowMat = new THREE.MeshBasicMaterial({ color: 0x9fd8ff, transparent: true, opacity: 0 });
+      const glow = new THREE.Mesh(glowGeo, glowMat);
+      glow.position.z = -0.3;
+      rig.scene.add(glow);
+
+      rig.tick = (t) => {
+        const openT = easeOutCubic(Math.min(t / DUR, 1));
+        const settled = Math.max(t - DUR, 0);
+        // Once fully open, the iris keeps breathing gently instead of freezing on
+        // a static frame — same "always alive" quality as the Job Network scene.
+        const breathe = openT >= 1 ? Math.sin(settled * 1.1) * 0.05 : 0;
+        const rot = CLOSED + (OPEN - CLOSED) * openT + breathe;
+        for (const p of pivots) p.children[0].rotation.z = rot;
+        glowMat.opacity = openT * (openT >= 1 ? 0.78 + Math.sin(settled * 1.1) * 0.12 : 0.9);
+        glow.scale.setScalar(0.4 + openT * 1.3 + (openT >= 1 ? Math.sin(settled * 1.1) * 0.05 : 0));
+        group.rotation.z = openT >= 1 ? settled * 0.1 : 0;
+        cyan.position.x = Math.sin(t * 0.5) * 4;
+        purple.position.x = Math.cos(t * 0.5) * 4;
+        cyan.position.y = Math.cos(t * 0.37) * 2;
+        purple.position.y = Math.sin(t * 0.37) * 2;
+      };
+      return rig;
+    }
+
+    // ---------- Concept 2: Blueprint Assembly ----------
+    function buildBlueprint() {
+      const rig = new SceneRig('Concept 2 — Blueprint Assembly. Scattered schematic panels fly together into a job sheet, then a CE-number corner stamp seats itself — tied to field documentation / work orders rather than photography.');
+      rig.camera.position.set(0, 0, 9);
+
+      const key = new THREE.PointLight(0xaab4ff, 10, 30); key.position.set(2, 3, 8);
+      const cyan = new THREE.PointLight(CYAN, 20, 20); cyan.position.set(-5, 3, 5);
+      const purple = new THREE.PointLight(PURPLE, 20, 20); purple.position.set(5, -3, 5);
+      rig.scene.add(key, cyan, purple, new THREE.AmbientLight(0x30304a, 1.2));
+
+      const COLS = 5, ROWS = 7, CELL = 0.62, GAP = 0.04;
+      const panelGeo = new THREE.PlaneGeometry(CELL - GAP, CELL - GAP);
+      const panelMat = new THREE.MeshStandardMaterial({ color: 0x1c2430, metalness: 0.2, roughness: 0.6, emissive: 0x0a1018, side: THREE.DoubleSide });
+      const edges = new THREE.EdgesGeometry(panelGeo);
+
+      const panels = [];
+      const boardW = COLS * CELL, boardH = ROWS * CELL;
+      for (let c = 0; c < COLS; c++) {
+        for (let r = 0; r < ROWS; r++) {
+          const target = new THREE.Vector3((c - (COLS - 1) / 2) * CELL, (r - (ROWS - 1) / 2) * CELL, 0);
+          const start = target.clone().add(new THREE.Vector3(
+            (Math.random() - 0.5) * 9,
+            (Math.random() - 0.5) * 9,
+            -4 - Math.random() * 5
+          ));
+          const mesh = new THREE.Mesh(panelGeo, panelMat);
+          const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x4fc3f7, transparent: true, opacity: 0.5 }));
+          mesh.add(line);
+          mesh.position.copy(start);
+          mesh.rotation.set((Math.random() - 0.5) * 3, (Math.random() - 0.5) * 3, (Math.random() - 0.5) * 3);
+          rig.scene.add(mesh);
+          panels.push({
+            mesh, start, target,
+            delay: (c + r * COLS) * 0.015 + Math.random() * 0.1,
+            bobPhase: Math.random() * Math.PI * 2,
+            bobSpeed: 0.5 + Math.random() * 0.4,
+          });
+        }
+      }
+
+      // A thin scan line that sweeps the board on a loop once assembly settles —
+      // continuous motion so the sheet keeps feeling alive instead of freezing.
+      const scanGeo = new THREE.PlaneGeometry(boardW + 0.2, 0.035);
+      const scanMat = new THREE.MeshBasicMaterial({ color: 0x4fc3f7, transparent: true, opacity: 0 });
+      const scanLine = new THREE.Mesh(scanGeo, scanMat);
+      scanLine.position.z = 0.15;
+      rig.scene.add(scanLine);
+
+      // Gradient border frame, draws on after assembly
+      const frameGeo = new THREE.EdgesGeometry(new THREE.PlaneGeometry(boardW + 0.3, boardH + 0.3));
+      const frameMat = new THREE.LineBasicMaterial({ color: 0x7c4dff, transparent: true, opacity: 0 });
+      const frame = new THREE.LineSegments(frameGeo, frameMat);
+      rig.scene.add(frame);
+
+      // CE stamp badge — a ring + text-like tick marks, rotates in at the corner
+      const stampGroup = new THREE.Group();
+      const ringGeo = new THREE.TorusGeometry(0.38, 0.045, 16, 48);
+      const ringMat = new THREE.MeshStandardMaterial({ color: 0x4fc3f7, emissive: 0x15405a, metalness: 0.4, roughness: 0.4 });
+      const ring = new THREE.Mesh(ringGeo, ringMat);
+      stampGroup.add(ring);
+      for (let i = 0; i < 3; i++) {
+        const tick = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.22, 0.04), new THREE.MeshStandardMaterial({ color: 0xf5f5f7, emissive: 0x222233 }));
+        tick.position.set(-0.13 + i * 0.13, 0, 0);
+        stampGroup.add(tick);
+      }
+      stampGroup.position.set(boardW / 2 - 0.1, boardH / 2 - 0.1, 0.6);
+      stampGroup.scale.setScalar(0.001);
+      rig.scene.add(stampGroup);
+
+      const ASSEMBLE_DUR = 1.6, STAMP_DELAY = 1.5, STAMP_DUR = 0.6;
+      const SCAN_DELAY = 2.2, SCAN_PERIOD = 2.8;
+      rig.tick = (t) => {
+        for (const p of panels) {
+          const local = Math.min(Math.max((t - p.delay) / ASSEMBLE_DUR, 0), 1);
+          const e = easeOutCubic(local);
+          p.mesh.position.lerpVectors(p.start, p.target, e);
+          p.mesh.rotation.x *= (1 - e);
+          p.mesh.rotation.y *= (1 - e);
+          p.mesh.rotation.z *= (1 - e);
+          // Settled panels get a faint continuous bob — the board breathes
+          // instead of locking into a dead, static grid once assembled.
+          if (local >= 1) {
+            p.mesh.position.z = p.target.z + Math.sin(t * p.bobSpeed + p.bobPhase) * 0.035;
+          }
+        }
+        const frameT = Math.min(Math.max((t - ASSEMBLE_DUR) / 0.5, 0), 1);
+        frameMat.opacity = frameT * (0.65 + Math.sin(t * 0.9) * 0.15);
+
+        const stampT = easeOutCubic(Math.min(Math.max((t - STAMP_DELAY) / STAMP_DUR, 0), 1));
+        stampGroup.scale.setScalar(0.001 + stampT * 0.999);
+        // Keeps slowly turning like a seal under inspection, rather than stopping dead at 0.
+        stampGroup.rotation.z = stampT >= 1 ? (t - STAMP_DELAY - STAMP_DUR) * 0.3 : (1 - stampT) * Math.PI * 2;
+
+        if (t > SCAN_DELAY) {
+          const cycle = ((t - SCAN_DELAY) % SCAN_PERIOD) / SCAN_PERIOD;
+          scanLine.position.y = -boardH / 2 - 0.3 + cycle * (boardH + 0.6);
+          scanMat.opacity = Math.sin(cycle * Math.PI) * 0.6;
+        }
+
+        cyan.position.x = -5 + Math.sin(t * 0.4) * 1.5;
+        purple.position.x = 5 + Math.cos(t * 0.4) * 1.5;
+      };
+      return rig;
+    }
+
+    // ---------- Concept 3: Job Network ----------
+    function buildNetwork() {
+      const rig = new SceneRig('Concept 3 — Job Network. Orbiting nodes represent in-flight job sites converging into a tracked core, echoing the Dashboard/Insights view of many CE-numbered jobs resolving into one system.');
+      rig.camera.position.set(0, 1.5, 9);
+
+      const key = new THREE.PointLight(0xaab4ff, 8, 30); key.position.set(0, 4, 6);
+      rig.scene.add(key, new THREE.AmbientLight(0x25253a, 1.3));
+
+      const NODE_COUNT = 24;
+      const nodeGeo = new THREE.SphereGeometry(0.09, 16, 16);
+      const nodes = [];
+      const group = new THREE.Group();
+      rig.scene.add(group);
+
+      for (let i = 0; i < NODE_COUNT; i++) {
+        const color = i % 2 === 0 ? CYAN : PURPLE;
+        const mat = new THREE.MeshStandardMaterial({ color, emissive: color, emissiveIntensity: 0.6, roughness: 0.4 });
+        const mesh = new THREE.Mesh(nodeGeo, mat);
+        const radius = 2.6 + Math.random() * 1.8;
+        const incl = (Math.random() - 0.5) * Math.PI * 0.7;
+        const speed = 0.15 + Math.random() * 0.2;
+        const phase = Math.random() * Math.PI * 2;
+        group.add(mesh);
+        nodes.push({ mesh, radius, incl, speed, phase });
+      }
+
+      // Faint connective lines from each node to the core, opacity driven by convergence
+      const lineMat = new THREE.LineBasicMaterial({ color: 0x6c5ce7, transparent: true, opacity: 0.18 });
+      const lineGeo = new THREE.BufferGeometry();
+      const positions = new Float32Array(NODE_COUNT * 2 * 3);
+      lineGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      const lines = new THREE.LineSegments(lineGeo, lineMat);
+      rig.scene.add(lines);
+
+      const coreGeo = new THREE.IcosahedronGeometry(0.5, 2);
+      const coreMat = new THREE.MeshStandardMaterial({ color: 0x1c1c21, metalness: 0.6, roughness: 0.3, emissive: 0x0b0f14 });
+      const core = new THREE.Mesh(coreGeo, coreMat);
+      core.scale.setScalar(0.001);
+      rig.scene.add(core);
+
+      const CONVERGE_DUR = 2.0;
+      rig.tick = (t) => {
+        const converge = easeInOutQuad(Math.min(t / CONVERGE_DUR, 1));
+        const orbitRadiusScale = 1 - converge * 0.55;
+        const posAttr = lineGeo.attributes.position;
+        nodes.forEach((n, i) => {
+          const angle = n.phase + t * n.speed;
+          const r = n.radius * orbitRadiusScale;
+          const x = Math.cos(angle) * r;
+          const z = Math.sin(angle) * r;
+          const y = Math.sin(n.incl + t * 0.1) * r * 0.4;
+          n.mesh.position.set(x, y, z);
+          posAttr.setXYZ(i * 2, x, y, z);
+          posAttr.setXYZ(i * 2 + 1, 0, 0, 0);
+        });
+        posAttr.needsUpdate = true;
+        lineMat.opacity = 0.08 + converge * 0.25;
+        core.scale.setScalar(0.001 + converge * 0.999);
+        core.rotation.y = t * 0.2;
+        group.rotation.y = t * 0.05;
+      };
+      return rig;
+    }
+
+    // ---------- Concept 4: Mix — aperture opens to reveal the blueprint ----------
+    function buildMix() {
+      const rig = new SceneRig('Concept 4 — Mix. The blueprint job sheet assembles and gets stamped while hidden behind a closed iris; the shutter then opens to reveal the finished, sealed document — capture mechanics revealing field documentation.');
+      rig.camera.position.set(0, 0, 9.5);
+
+      const key = new THREE.PointLight(0xaab4ff, 8, 30); key.position.set(0, 2, 8);
+      const cyan = new THREE.PointLight(CYAN, 24, 22); cyan.position.set(-4, 2, 5);
+      const purple = new THREE.PointLight(PURPLE, 24, 22); purple.position.set(4, -2, 5);
+      rig.scene.add(key, cyan, purple, new THREE.AmbientLight(0x2a2a40, 1.1));
+
+      // --- blueprint board, sitting behind the iris plane (negative z) ---
+      const COLS = 5, ROWS = 7, CELL = 0.62, GAP = 0.04;
+      const BOARD_Z = -1.4;
+      const panelGeo = new THREE.PlaneGeometry(CELL - GAP, CELL - GAP);
+      const panelMat = new THREE.MeshStandardMaterial({ color: 0x1c2430, metalness: 0.2, roughness: 0.6, emissive: 0x0a1018, side: THREE.DoubleSide });
+      const edges = new THREE.EdgesGeometry(panelGeo);
+      const panels = [];
+      const boardW = COLS * CELL, boardH = ROWS * CELL;
+      for (let c = 0; c < COLS; c++) {
+        for (let r = 0; r < ROWS; r++) {
+          const target = new THREE.Vector3((c - (COLS - 1) / 2) * CELL, (r - (ROWS - 1) / 2) * CELL, BOARD_Z);
+          const start = target.clone().add(new THREE.Vector3((Math.random() - 0.5) * 9, (Math.random() - 0.5) * 9, -4 - Math.random() * 4));
+          const mesh = new THREE.Mesh(panelGeo, panelMat);
+          const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x4fc3f7, transparent: true, opacity: 0.5 }));
+          mesh.add(line);
+          mesh.position.copy(start);
+          mesh.rotation.set((Math.random() - 0.5) * 3, (Math.random() - 0.5) * 3, (Math.random() - 0.5) * 3);
+          rig.scene.add(mesh);
+          panels.push({ mesh, start, target, delay: (c + r * COLS) * 0.012, bobPhase: Math.random() * Math.PI * 2, bobSpeed: 0.5 + Math.random() * 0.4 });
+        }
+      }
+      const frameGeo = new THREE.EdgesGeometry(new THREE.PlaneGeometry(boardW + 0.3, boardH + 0.3));
+      const frameMat = new THREE.LineBasicMaterial({ color: 0x7c4dff, transparent: true, opacity: 0 });
+      const frame = new THREE.LineSegments(frameGeo, frameMat);
+      frame.position.z = BOARD_Z;
+      rig.scene.add(frame);
+
+      const stampGroup = new THREE.Group();
+      const ring = new THREE.Mesh(new THREE.TorusGeometry(0.38, 0.045, 16, 48), new THREE.MeshStandardMaterial({ color: 0x4fc3f7, emissive: 0x15405a, metalness: 0.4, roughness: 0.4 }));
+      stampGroup.add(ring);
+      for (let i = 0; i < 3; i++) {
+        const tick = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.22, 0.04), new THREE.MeshStandardMaterial({ color: 0xf5f5f7, emissive: 0x222233 }));
+        tick.position.set(-0.13 + i * 0.13, 0, 0);
+        stampGroup.add(tick);
+      }
+      stampGroup.position.set(boardW / 2 - 0.1, boardH / 2 - 0.1, BOARD_Z + 0.4);
+      stampGroup.scale.setScalar(0.001);
+      rig.scene.add(stampGroup);
+
+      // Backing glow — reads through the iris gap even before fully open.
+      const backGlow = new THREE.Mesh(new THREE.PlaneGeometry(boardW + 1, boardH + 1), new THREE.MeshBasicMaterial({ color: 0x1c2a3a, transparent: true, opacity: 0 }));
+      backGlow.position.z = BOARD_Z + 0.1;
+      rig.scene.add(backGlow);
+
+      // --- iris, in front at z ~ 0, closed over the board until it opens ---
+      const BLADE_COUNT = 8, RING_R = 1.9, LEN = 3.6;
+      const CLOSED = Math.PI * 0.08, OPEN = Math.PI * 0.64;
+      const IRIS_DELAY = 1.3, IRIS_DUR = 1.5;
+      function bladeShape() {
+        const w = 1.0, s = new THREE.Shape();
+        s.moveTo(0, -w / 2); s.lineTo(0, w / 2); s.lineTo(LEN * 0.72, w * 0.16); s.lineTo(LEN, 0); s.lineTo(LEN * 0.72, -w * 0.16); s.closePath();
+        return s;
+      }
+      const bladeGeo = new THREE.ShapeGeometry(bladeShape());
+      const bladeMat = new THREE.MeshStandardMaterial({ color: 0x24242e, metalness: 0.55, roughness: 0.35, emissive: 0x0b0f14, side: THREE.DoubleSide });
+      const irisGroup = new THREE.Group();
+      const pivots = [];
+      for (let i = 0; i < BLADE_COUNT; i++) {
+        const theta = (i / BLADE_COUNT) * Math.PI * 2;
+        const pivot = new THREE.Group();
+        pivot.position.set(Math.cos(theta) * RING_R, Math.sin(theta) * RING_R, 0);
+        pivot.rotation.z = theta + Math.PI;
+        const blade = new THREE.Mesh(bladeGeo, bladeMat);
+        blade.rotation.z = CLOSED;
+        pivot.add(blade);
+        irisGroup.add(pivot);
+        pivots.push(pivot);
+      }
+      rig.scene.add(irisGroup);
+
+      rig.tick = (t) => {
+        // Assemble + stamp the board first, hidden behind the still-closed iris.
+        for (const p of panels) {
+          const local = Math.min(Math.max((t - p.delay) / 1.1, 0), 1);
+          const e = easeOutCubic(local);
+          p.mesh.position.lerpVectors(p.start, p.target, e);
+          p.mesh.rotation.x *= (1 - e); p.mesh.rotation.y *= (1 - e); p.mesh.rotation.z *= (1 - e);
+          if (local >= 1) p.mesh.position.z = p.target.z + Math.sin(t * p.bobSpeed + p.bobPhase) * 0.03;
+        }
+        const frameT = Math.min(Math.max((t - 1.1) / 0.4, 0), 1);
+        frameMat.opacity = frameT * (0.65 + Math.sin(t * 0.9) * 0.15);
+        const stampT = easeOutCubic(Math.min(Math.max((t - 0.9) / 0.5, 0), 1));
+        stampGroup.scale.setScalar(0.001 + stampT * 0.999);
+        stampGroup.rotation.z = stampT >= 1 ? (t - 1.4) * 0.3 : (1 - stampT) * Math.PI * 2;
+
+        // Iris opens after the document is sealed, revealing it.
+        const openT = easeOutCubic(Math.min(Math.max((t - IRIS_DELAY) / IRIS_DUR, 0), 1));
+        const settled = Math.max(t - IRIS_DELAY - IRIS_DUR, 0);
+        const breathe = openT >= 1 ? Math.sin(settled * 1.1) * 0.045 : 0;
+        const rot = CLOSED + (OPEN - CLOSED) * openT + breathe;
+        for (const p of pivots) p.children[0].rotation.z = rot;
+        irisGroup.rotation.z = openT >= 1 ? settled * 0.08 : 0;
+        backGlow.material.opacity = openT * 0.35;
+
+        cyan.position.x = -4 + Math.sin(t * 0.4) * 1.5;
+        purple.position.x = 4 + Math.cos(t * 0.4) * 1.5;
+      };
+      return rig;
+    }
+
+    // ---------- Concept 5: Idea → Design — lightbulb switches on, pencil draws ----------
+    // Built only from geometry, lights and additive halo shells (no canvas textures),
+    // so it can be ported to expo-gl on mobile unchanged.
+    function buildBulb() {
+      const rig = new SceneRig('Concept 5 — Idea → Design. A lightbulb flickers on (the idea), then a pencil arrives and writes BPD (the design). Drag to orbit.');
+      rig.camera.position.set(0, -0.2, 9.5);
+      rig.controls.target.set(0, -0.4, 0);
+      const clamp = (v) => Math.min(Math.max(v, 0), 1);
+
+      const key = new THREE.PointLight(0xaab4ff, 6, 30); key.position.set(3, 4, 7);
+      const cyan = new THREE.PointLight(CYAN, 14, 20); cyan.position.set(-5, 1, 4);
+      const purple = new THREE.PointLight(PURPLE, 14, 20); purple.position.set(5, -2, 4);
+      const ambient = new THREE.AmbientLight(0x22223a, 0.8);
+      rig.scene.add(key, cyan, purple, ambient);
+
+      // --- lightbulb ---
+      const bulb = new THREE.Group();
+      bulb.position.y = 0.7;
+      rig.scene.add(bulb);
+
+      const R = 1.05, CY = 0.55;
+      const profile = [new THREE.Vector2(0.46, -0.85), new THREE.Vector2(0.52, -0.55)];
+      for (let a = -48; a <= 90; a += 6) {
+        const r = (a * Math.PI) / 180;
+        profile.push(new THREE.Vector2(Math.max(0.001, Math.cos(r) * R), CY + Math.sin(r) * R));
+      }
+      const glassMat = new THREE.MeshStandardMaterial({
+        color: 0x9fb4d8, transparent: true, opacity: 0.2, roughness: 0.08, metalness: 0.1,
+        emissive: 0xffc96b, emissiveIntensity: 0, side: THREE.DoubleSide, depthWrite: false,
+      });
+      bulb.add(new THREE.Mesh(new THREE.LatheGeometry(profile, 56), glassMat));
+
+      const metalMat = new THREE.MeshStandardMaterial({ color: 0x8a8f9c, metalness: 0.9, roughness: 0.35 });
+      const base = new THREE.Mesh(new THREE.CylinderGeometry(0.46, 0.42, 0.75, 32), metalMat);
+      base.position.y = -1.22;
+      bulb.add(base);
+      for (let i = 0; i < 4; i++) {
+        const ring = new THREE.Mesh(new THREE.TorusGeometry(0.455, 0.04, 8, 32), metalMat);
+        ring.rotation.x = Math.PI / 2;
+        ring.position.y = -0.95 - i * 0.17;
+        bulb.add(ring);
+      }
+      const contact = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.1, 0.18, 24), new THREE.MeshStandardMaterial({ color: 0x1a1a22, roughness: 0.6 }));
+      contact.position.y = -1.68;
+      bulb.add(contact);
+
+      const coil = [];
+      for (let i = 0; i <= 140; i++) {
+        const s = i / 140, ang = s * Math.PI * 2 * 8;
+        coil.push(new THREE.Vector3(-0.32 + s * 0.64, 0.45 + Math.sin(ang) * 0.06, Math.cos(ang) * 0.06));
+      }
+      const filMat = new THREE.MeshStandardMaterial({ color: 0x3a2a1a, emissive: 0xffb347, emissiveIntensity: 0, roughness: 0.5 });
+      bulb.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(coil), 280, 0.012, 6), filMat));
+      const supports = new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(-0.32, 0.45, 0), new THREE.Vector3(-0.14, -0.75, 0),
+        new THREE.Vector3(0.32, 0.45, 0), new THREE.Vector3(0.14, -0.75, 0),
+      ]);
+      bulb.add(new THREE.LineSegments(supports, new THREE.LineBasicMaterial({ color: 0x777788 })));
+
+      const bulbLight = new THREE.PointLight(0xffd27a, 0, 25);
+      bulbLight.position.set(0, 0.5, 0);
+      bulb.add(bulbLight);
+      // Soft radial glow: a camera-facing quad whose shader fades alpha with distance
+      // from the centre. Plain GLSL, no textures, so it ports to expo-gl as-is.
+      const glowMat = new THREE.ShaderMaterial({
+        uniforms: { uColor: { value: new THREE.Color(0xffd98a) }, uStrength: { value: 0 } },
+        vertexShader: 'varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
+        fragmentShader: 'uniform vec3 uColor; uniform float uStrength; varying vec2 vUv; void main() { float d = length(vUv - 0.5) * 2.0; float a = pow(max(1.0 - d, 0.0), 2.4) * uStrength; gl_FragColor = vec4(uColor * a, a); }',
+        transparent: true, blending: THREE.AdditiveBlending, depthWrite: false,
+      });
+      const glow = new THREE.Mesh(new THREE.PlaneGeometry(7, 7), glowMat);
+      glow.position.set(0, CY, -0.3);
+      bulb.add(glow);
+
+      // --- pencil: group origin is the graphite tip, body extends up its +Y ---
+      const pencil = new THREE.Group();
+      const L = 2.4;
+      const parts = [
+        [new THREE.CylinderGeometry(0.04, 0.0, 0.1, 6), 0x222228, 0.05, 0.3, 0.1],
+        [new THREE.CylinderGeometry(0.13, 0.04, 0.35, 6), 0xd9b38c, 0.275, 0.0, 0.8],
+        [new THREE.CylinderGeometry(0.13, 0.13, L, 6), 0x6c5ce7, 0.45 + L / 2, 0.2, 0.45],
+        [new THREE.CylinderGeometry(0.135, 0.135, 0.22, 24), 0xc0c4cc, 0.45 + L + 0.11, 0.9, 0.3],
+        [new THREE.CylinderGeometry(0.125, 0.125, 0.22, 24), 0x4fc3f7, 0.45 + L + 0.33, 0.0, 0.7],
+      ];
+      for (const [geo, color, y, metalness, roughness] of parts) {
+        const mesh = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color, metalness, roughness }));
+        mesh.position.y = y;
+        pencil.add(mesh);
+      }
+      pencil.rotation.set(-0.35, 0, -0.55); // lean up-right, toward the camera, like a hand holding it
+      const pencilRig = new THREE.Group();
+      pencilRig.add(pencil);
+      pencilRig.visible = false;
+      rig.scene.add(pencilRig);
+
+      // --- the pencil writes "BPD", one stroke at a time, lifting between strokes ---
+      const Z = 0.45;
+      const v = (x, y) => new THREE.Vector3(x, y, Z);
+      const line = (x, y0, y1) => new THREE.LineCurve3(v(x, y0), v(x, y1));
+      const bowl = (pts) => new THREE.CatmullRomCurve3(pts.map(([x, y]) => v(x, y)));
+      const TOP = -2.0, MID_B = -2.45, BOT = -2.9;
+      const bX = -1.25, pX = -0.3, dX = 0.65;
+      const letterCurves = [
+        line(bX, BOT, TOP),
+        bowl([[bX, TOP], [bX + 0.35, TOP - 0.03], [bX + 0.48, TOP - 0.22], [bX + 0.35, MID_B + 0.03], [bX, MID_B]]),
+        bowl([[bX, MID_B], [bX + 0.42, MID_B - 0.03], [bX + 0.56, MID_B - 0.23], [bX + 0.42, BOT + 0.03], [bX, BOT]]),
+        line(pX, BOT, TOP),
+        bowl([[pX, TOP], [pX + 0.38, TOP - 0.03], [pX + 0.52, TOP - 0.24], [pX + 0.38, TOP - 0.45], [pX, TOP - 0.48]]),
+        line(dX, BOT, TOP),
+        bowl([[dX, TOP], [dX + 0.42, TOP - 0.08], [dX + 0.64, (TOP + BOT) / 2], [dX + 0.42, BOT + 0.08], [dX, BOT]]),
+      ];
+      const inkMat = new THREE.MeshBasicMaterial({ color: CYAN });
+      const inkGlowMat = new THREE.MeshBasicMaterial({ color: PURPLE, transparent: true, opacity: 0.25, blending: THREE.AdditiveBlending, depthWrite: false });
+      // Timeline of pen-down strokes and pen-up hops, weighted by length so the
+      // pencil moves at a steady speed across the whole word.
+      const LIFT = 0.35;
+      const timeline = [];
+      letterCurves.forEach((curve, i) => {
+        if (i > 0) {
+          const from = letterCurves[i - 1].getPointAt(1), to = curve.getPointAt(0);
+          if (from.distanceTo(to) > 0.01) timeline.push({ kind: 'lift', from, to, len: from.distanceTo(to) * 0.6 + LIFT });
+        }
+        const ink = new THREE.TubeGeometry(curve, 48, 0.04, 8);
+        const inkGlow = new THREE.TubeGeometry(curve, 48, 0.085, 8);
+        ink.setDrawRange(0, 0);
+        inkGlow.setDrawRange(0, 0);
+        rig.scene.add(new THREE.Mesh(ink, inkMat), new THREE.Mesh(inkGlow, inkGlowMat));
+        timeline.push({ kind: 'draw', curve, geos: [ink, inkGlow], len: curve.getLength() });
+      });
+      const totalLen = timeline.reduce((sum, item) => sum + item.len, 0);
+
+      // Returns the tip position at writing progress p (0..1) and updates which ink is visible.
+      function writeTo(p) {
+        let remaining = p * totalLen;
+        let tip = timeline[0].curve.getPointAt(0);
+        for (const item of timeline) {
+          const local = Math.min(Math.max(remaining / item.len, 0), 1);
+          if (item.kind === 'draw') {
+            for (const g of item.geos) g.setDrawRange(0, Math.floor((g.index.count * local) / 3) * 3);
+            if (remaining > 0) tip = item.curve.getPointAt(local);
+          } else if (remaining > 0) {
+            tip = new THREE.Vector3().lerpVectors(item.from, item.to, local);
+            tip.z += Math.sin(local * Math.PI) * 0.35;
+          }
+          remaining -= item.len;
+        }
+        return tip;
+      }
+      const writeStart = timeline[0].curve.getPointAt(0);
+
+      const flicker = [[0.45, 1], [0.52, 0], [0.6, 1], [0.65, 0], [0.78, 1], [0.84, 0.3], [0.9, 1]];
+      const flyFrom = new THREE.Vector3(5.5, 3.5, 2);
+
+      rig.tick = (t) => {
+        // 1. The idea: filament flickers, then the bulb ramps to full and gently breathes.
+        let flick = 0;
+        for (const [at, v] of flicker) if (t >= at) flick = v;
+        const on = t < 0.9 ? flick * 0.6 : 0.6 + easeOutCubic(clamp((t - 0.9) / 0.6)) * 0.4;
+        const level = on * (t > 1.5 ? 1 + Math.sin((t - 1.5) * 2.2) * 0.04 : 1);
+        filMat.emissiveIntensity = level * 4;
+        glassMat.emissiveIntensity = level * 0.6;
+        glassMat.opacity = 0.2 + level * 0.15;
+        bulbLight.intensity = level * 30;
+        glowMat.uniforms.uStrength.value = level * 0.9;
+        glow.quaternion.copy(rig.camera.quaternion);
+        ambient.intensity = 0.8 + level * 0.6;
+
+        // 2. The design: pencil flies in, then writes "BPD".
+        const flyT = easeOutCubic(clamp((t - 1.4) / 0.6));
+        const writeT = clamp((t - 2.0) / 1.7);
+        pencilRig.visible = t > 1.4;
+        const tip = writeT > 0 ? writeTo(writeT) : writeStart;
+        if (writeT === 0) writeTo(0);
+        pencilRig.position.lerpVectors(flyFrom, tip, flyT);
+        pencilRig.rotation.z = (1 - flyT) * 1.2;
+
+        // 3. Done: pencil lifts off and moves aside so "BPD" reads clearly, then hovers.
+        if (t > 3.8) {
+          const s = t - 3.8;
+          const away = easeOutCubic(clamp(s / 0.7));
+          pencilRig.position.x += away * 0.9;
+          pencilRig.position.y += away * 0.9 + Math.sin(s * 1.6) * 0.04;
+          pencilRig.position.z += away * 0.4;
+        }
+        cyan.position.x = -5 + Math.sin(t * 0.4) * 1.5;
+        purple.position.x = 5 + Math.cos(t * 0.4) * 1.5;
+      };
+      return rig;
+    }
+
+    // ---------- Concept 6: the real BPD logo mark lights up ----------
+    // Geometry: exact paths from BPT Logo.pdf (same artwork as BPT Logo.svg).
+    // Colours: gradient stops copied verbatim from BPT Logo.svg. No text.
+    const LOGO = {"blueLayer":[[["M",320.0,449.83],["L",318.99,585.5],["C",318.22,689.34,403.02,774.93,507.43,775.7],["L",652.07,776.76],["C",676.33,776.93,696.97,773.06,718.41,764.87],["C",713.86,758.26,698.09,745.83,694.79,743.3],["C",650.11,709.05,629.61,708.48,578.02,700.01],["C",444.08,678.01,374.83,516.57,465.01,413.46],["C",542.88,324.44,686.16,339.79,742.19,444.02],["C",775.6,506.17,747.69,566.99,798.57,625.72],["C",806.41,634.77,815.13,639.97,823.51,647.67],["C",825.89,649.87,827.97,652.64,831.04,654.54],["C",838.8,634.22,843.13,612.26,843.3,589.34],["L",844.31,453.67],["C",845.08,349.82,760.28,264.23,655.87,263.47],["L",511.23,262.41],["C",510.76,262.4,510.29,262.4,509.82,262.4],["C",406.05,262.4,320.76,346.45,320.0,449.83]],[["M",821.42,686.16],["L",814.78,693.04],["C",810.05,697.94,802.53,698.49,797.12,694.68],["L",796.29,695.54],["C",799.75,701.55,799.07,709.32,794.0,714.57],["L",786.19,722.67],["C",781.12,727.92,773.35,728.92,767.17,725.72],["L",766.18,726.75],["C",769.65,732.76,768.97,740.52,763.9,745.78],["L",761.38,748.39],["C",757.13,752.79,750.98,754.18,745.46,752.66],["C",745.83,755.72,747.82,758.57,751.16,759.65],["L",789.1,771.89],["C",794.92,773.76,801.31,772.35,805.79,768.2],["L",825.88,749.57],["L",841.2,731.55],["C",844.98,727.12,846.15,721.04,844.31,715.53],["L",831.39,676.89],["C",830.24,673.46,827.21,671.49,824.01,671.24],["C",826.21,676.13,825.38,682.06,821.42,686.16]]],"colourLayer":[[["M",318.03,448.87],["L",317.02,585.28],["C",316.25,689.69,401.05,775.74,505.46,776.51],["L",650.1,777.57],["C",698.64,776.88,715.04,805.09,737.01,814.6],["C",749.81,795.9,709.52,747.12,706.68,744.08],["C",664.78,699.26,632.87,706.34,576.95,691.23],["C",412.7,646.87,398.86,515.73,461.9,393.64],["C",513.22,294.24,743.9,235.0,844.37,446.53],["C",842.65,346.9,756.32,262.26,653.9,261.5],["L",509.26,260.44],["C",508.8,260.44,508.32,260.43,507.85,260.43],["C",404.07,260.43,318.8,344.93,318.03,448.87]]],"pencil":[[["M",855.96,787.74],["L",824.3,779.61],["C",820.7,778.68,819.43,774.22,822.0,771.54],["L",843.17,749.48],["C",845.68,746.86,850.08,747.82,851.27,751.25],["L",861.76,781.45],["C",863.03,785.11,859.72,788.71,855.96,787.74]],[["M",728.53,737.21],["L",562.8,578.17],["C",557.27,572.87,557.09,564.08,562.4,558.56],["C",567.7,553.03,576.48,552.85,582.01,558.15],["L",747.74,717.19],["C",753.26,722.49,753.45,731.27,748.14,736.8],["C",742.84,742.33,734.05,742.51,728.53,737.21]],[["M",756.75,707.79],["L",526.67,486.99],["C",521.14,481.69,520.96,472.9,526.26,467.38],["C",531.57,461.85,540.35,461.67,545.88,466.97],["L",775.97,687.77],["C",781.49,693.08,781.67,701.86,776.37,707.39],["C",771.07,712.91,762.28,713.1,756.75,707.79]],[["M",784.98,678.38],["L",619.26,519.34],["C",613.73,514.03,613.55,505.25,618.86,499.73],["C",624.16,494.2,632.94,494.02,638.47,499.32],["L",804.2,658.36],["C",809.72,663.66,809.9,672.44,804.6,677.97],["C",799.29,683.5,790.51,683.68,784.98,678.38]]]};
+    const BLUE_GRAD = { p0: [318.99, 519.58], p1: [845.17, 519.58], stops: [
+      [0.518, '#0671B3'], [0.5978, '#0B74B6'], [0.7063, '#167EBD'], [0.8307, '#218ECB'], [0.9489, '#2DA4DD']] };
+    const BODY_GRAD = { p0: [456.06, 838.24], p1: [627.03, 312.06], stops: [
+      [0, '#3E3C91'], [0.0729, '#593C91'], [0.2301, '#8F3A91'], [0.2938, '#A43A91'], [0.3504, '#AB3790'],
+      [0.4417, '#BB308D'], [0.5555, '#D61E89'], [0.6048, '#E30E87'], [0.6412, '#E42287'], [0.6949, '#E54086'],
+      [0.7593, '#E86083'], [0.832, '#EC8279'], [0.9107, '#F3A764'], [0.9432, '#F7B853']] };
+    const PENCIL_HEX = '#231F20';
+
+    function buildLogo() {
+      const rig = new SceneRig('Concept 6 — BPD logo. The real logo mark: the bulb flickers on and fills with light, then the pencil strokes draw in. Ends face-on, identical to the logo.');
+      rig.camera.position.set(0, 0, 9);
+      const clamp = (v) => Math.min(Math.max(v, 0), 1);
+      const hexToVec = (h) => new THREE.Vector3(parseInt(h.slice(1, 3), 16) / 255, parseInt(h.slice(3, 5), 16) / 255, parseInt(h.slice(5, 7), 16) / 255);
+
+      function toShape(loop) {
+        const s = new THREE.Shape();
+        for (const c of loop) {
+          if (c[0] === 'M') s.moveTo(c[1], c[2]);
+          else if (c[0] === 'L') s.lineTo(c[1], c[2]);
+          else s.bezierCurveTo(c[1], c[2], c[3], c[4], c[5], c[6]);
+        }
+        s.closePath();
+        return s;
+      }
+      const extrude = (shapes, depth) => new THREE.ExtrudeGeometry(shapes, { depth, bevelEnabled: false, curveSegments: 24 });
+
+      // Artwork is in SVG units (y down). Flip and scale it into the scene, centred on the mark.
+      const S = 0.0078, CX = 590, CY = 527;
+      const art = new THREE.Group();
+      art.scale.set(S, -S, S);
+      art.position.set(-CX * S, CY * S, 0);
+      const stage = new THREE.Group();
+      stage.add(art);
+      rig.scene.add(stage);
+
+      // Linear-gradient fill matching SVG semantics: stops in sRGB, clamped at the ends.
+      // Writes raw sRGB so the hex values land on screen unchanged.
+      const VERT = 'varying vec2 vP; void main() { vP = position.xy; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }';
+      function gradientMaterial(grad) {
+        const off = new Array(16).fill(1), col = new Array(16).fill(0).map(() => new THREE.Vector3());
+        grad.stops.forEach(([o, h], i) => { off[i] = o; col[i] = hexToVec(h); });
+        const d = [grad.p1[0] - grad.p0[0], grad.p1[1] - grad.p0[1]];
+        return new THREE.ShaderMaterial({
+          uniforms: {
+            uP0: { value: new THREE.Vector2(...grad.p0) }, uD: { value: new THREE.Vector2(...d) },
+            uOff: { value: off }, uCol: { value: col }, uN: { value: grad.stops.length }, uOn: { value: 0 },
+          },
+          vertexShader: VERT,
+          fragmentShader: `
+            uniform vec2 uP0; uniform vec2 uD; uniform float uOff[16]; uniform vec3 uCol[16]; uniform int uN; uniform float uOn;
+            varying vec2 vP;
+            void main() {
+              float t = clamp(dot(vP - uP0, uD) / dot(uD, uD), 0.0, 1.0);
+              vec3 c = uCol[0];
+              for (int i = 1; i < 16; i++) {
+                if (i >= uN) break;
+                if (t >= uOff[i - 1]) c = mix(uCol[i - 1], uCol[i], clamp((t - uOff[i - 1]) / max(uOff[i] - uOff[i - 1], 1e-5), 0.0, 1.0));
+              }
+              gl_FragColor = vec4(c * mix(0.1, 1.0, uOn), 1.0);
+            }`,
+          side: THREE.DoubleSide,
+        });
+      }
+
+      // --- bulb interior: white in the logo; here it's the light that switches on ---
+      // Traced from the inner bulb edge of BPT Logo.svg's blue path (relative c's made absolute),
+      // closed across the bulb's opening between the tail and the pencil collar.
+      const BULB = new THREE.Vector2(590, 545);
+      const tileShape = new THREE.Shape();
+      tileShape.moveTo(823.51, 647.68);
+      tileShape.bezierCurveTo(815.13, 639.98, 806.41, 634.77, 798.57, 625.72);
+      tileShape.bezierCurveTo(747.70, 567.00, 775.60, 506.17, 742.19, 444.02);
+      tileShape.bezierCurveTo(686.16, 339.79, 542.88, 324.44, 465.01, 413.47);
+      tileShape.bezierCurveTo(374.83, 516.58, 444.07, 678.02, 578.02, 700.01);
+      tileShape.bezierCurveTo(629.61, 708.48, 650.11, 709.06, 694.80, 743.31);
+      tileShape.bezierCurveTo(698.09, 745.83, 713.87, 758.26, 718.42, 764.88);
+      tileShape.closePath();
+      const tileMat = new THREE.ShaderMaterial({
+        uniforms: { uC: { value: BULB }, uR: { value: 0 }, uWarm: { value: 1 } },
+        vertexShader: VERT,
+        fragmentShader: `
+          uniform vec2 uC; uniform float uR; uniform float uWarm; varying vec2 vP;
+          void main() {
+            float d = length(vP - uC) / 430.0;
+            float lit = 1.0 - smoothstep(uR - 0.22, uR, d);
+            vec3 white = mix(vec3(1.0), vec3(1.0, 0.94, 0.8), uWarm * (1.0 - d * 0.6));
+            gl_FragColor = vec4(mix(vec3(0.06, 0.06, 0.075), white, lit), 1.0);
+          }`,
+        side: THREE.DoubleSide,
+      });
+      const tile = new THREE.Mesh(extrude([tileShape], 8), tileMat);
+      tile.position.z = -2;
+      art.add(tile);
+
+      // Soft light around the tile (additive, camera-facing, no textures).
+      const haloMat = new THREE.ShaderMaterial({
+        uniforms: { uStrength: { value: 0 } },
+        vertexShader: 'varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
+        fragmentShader: 'uniform float uStrength; varying vec2 vUv; void main() { float d = length(vUv - 0.5) * 2.0; float a = pow(max(1.0 - d, 0.0), 2.0) * uStrength; gl_FragColor = vec4(vec3(1.0, 0.93, 0.78) * a, a); }',
+        transparent: true, blending: THREE.AdditiveBlending, depthWrite: false,
+      });
+      const halo = new THREE.Mesh(new THREE.PlaneGeometry(1500, 1500), haloMat);
+      halo.position.set(BULB.x, BULB.y, -60);
+      art.add(halo);
+
+      // --- the logo mark: blue layer, colour layer on top, then the pencil ---
+      const blueMat = gradientMaterial(BLUE_GRAD);
+      const bodyMat = gradientMaterial(BODY_GRAD);
+      const blue = new THREE.Mesh(extrude(LOGO.blueLayer.map(toShape), 8), blueMat);
+      blue.position.z = 2;
+      const body = new THREE.Mesh(extrude(LOGO.colourLayer.map(toShape), 8), bodyMat);
+      body.position.z = 10;
+      art.add(blue, body);
+
+      // Pencil: each bar grows along its own axis from its top-left end; the tip pops in last.
+      const pencilMat = new THREE.MeshBasicMaterial({ color: PENCIL_HEX, side: THREE.DoubleSide });
+      const AXIS = new THREE.Vector2(165.73, 159.04).normalize();
+      const angle = Math.atan2(AXIS.y, AXIS.x);
+      const bars = [], [tipLoop, ...barLoops] = LOGO.pencil;
+      for (const loop of barLoops) {
+        const pts = loop.flatMap((c) => (c[0] === 'C' ? [[c[5], c[6]]] : [[c[1], c[2]]]));
+        const start = pts.reduce((a, p) => (p[0] * AXIS.x + p[1] * AXIS.y < a[0] * AXIS.x + a[1] * AXIS.y ? p : a));
+        const geo = extrude([toShape(loop)], 8);
+        geo.translate(-start[0], -start[1], 0);
+        const mesh = new THREE.Mesh(geo, pencilMat);
+        mesh.rotation.z = -angle;
+        const pivot = new THREE.Group();
+        pivot.position.set(start[0], start[1], 18);
+        pivot.rotation.z = angle;
+        pivot.add(mesh);
+        pivot.scale.x = 0.0001;
+        art.add(pivot);
+        bars.push(pivot);
+      }
+      const tipPts = tipLoop.map((c) => (c[0] === 'C' ? [c[5], c[6]] : [c[1], c[2]]));
+      const tipC = tipPts.reduce((a, p) => [a[0] + p[0] / tipPts.length, a[1] + p[1] / tipPts.length], [0, 0]);
+      const tipGeo = extrude([toShape(tipLoop)], 8);
+      tipGeo.translate(-tipC[0], -tipC[1], 0);
+      // In the logo the tip is #231F20 on white paper. With no paper behind it here it would
+      // vanish into the dark background, so it takes the dark-background variant: white.
+      const tip = new THREE.Mesh(tipGeo, new THREE.MeshBasicMaterial({ color: '#FFFFFF', side: THREE.DoubleSide }));
+      tip.position.set(tipC[0], tipC[1], 18);
+      tip.scale.setScalar(0.0001);
+      art.add(tip);
+
+      const flicker = [[0.35, 1], [0.42, 0], [0.5, 1], [0.55, 0.15], [0.68, 1], [0.74, 0.4], [0.8, 1]];
+
+      rig.tick = (t) => {
+        // 1. Lights off → the bulb flickers on: interior glows, logo colours switch on.
+        let f = 0;
+        for (const [at, v] of flicker) if (t >= at) f = v;
+        const on = t < 0.8 ? f : 1;
+        blueMat.uniforms.uOn.value = on;
+        bodyMat.uniforms.uOn.value = on;
+
+        // 2. Light floods outward from the bulb until the whole tile is white "paper".
+        const flood = easeOutCubic(clamp((t - 0.85) / 0.75));
+        tileMat.uniforms.uR.value = t < 0.85 ? on * 0.42 : 0.42 + flood * 1.4;
+        tileMat.uniforms.uWarm.value = 1 - easeOutCubic(clamp((t - 1.3) / 0.8));
+        haloMat.uniforms.uStrength.value = on * (t < 1.6 ? 0.9 : 0.9 - 0.55 * clamp((t - 1.6) / 0.8));
+
+        // 3. The pencil: three strokes draw in, staggered, then the graphite tip pops on.
+        bars.forEach((b, i) => {
+          const grow = easeOutCubic(clamp((t - 1.5 - i * 0.18) / 0.45));
+          b.visible = grow > 0.002; // a near-zero-scale bar still rasterises as a hairline
+          b.scale.x = Math.max(0.0001, grow);
+        });
+        const pop = clamp((t - 2.2) / 0.3);
+        tip.visible = pop > 0;
+        tip.scale.setScalar(Math.max(0.0001, pop < 1 ? easeOutCubic(pop) * 1.15 : 1));
+
+        // Entrance: swings in from a slight angle and settles exactly face-on.
+        stage.rotation.y = -0.55 * (1 - easeOutCubic(clamp(t / 1.4)));
+        stage.rotation.x = 0.18 * (1 - easeOutCubic(clamp(t / 1.4)));
+      };
+      return rig;
+    }
+
+    // ---------- Concept 7: the logo's own pencil draws the logo ----------
+    // Same artwork/colours as concept 6. The pencil traces the mark's outline, colour pours in
+    // along each gradient's real direction, the bulb lights, and the pencil slides into place.
+    function buildLogoDraw() {
+      const rig = new SceneRig('Concept 7 — Pencil draws the logo. The logo\'s own pencil traces the outline, the colours pour in along their real gradient directions, the bulb lights up, and the pencil settles into place.');
+      rig.camera.position.set(0, 0, 9);
+      const clamp = (v) => Math.min(Math.max(v, 0), 1);
+      const hexToVec = (h) => new THREE.Vector3(parseInt(h.slice(1, 3), 16) / 255, parseInt(h.slice(3, 5), 16) / 255, parseInt(h.slice(5, 7), 16) / 255);
+      function toShape(loop) {
+        const s = new THREE.Shape();
+        for (const c of loop) {
+          if (c[0] === 'M') s.moveTo(c[1], c[2]);
+          else if (c[0] === 'L') s.lineTo(c[1], c[2]);
+          else s.bezierCurveTo(c[1], c[2], c[3], c[4], c[5], c[6]);
+        }
+        s.closePath();
+        return s;
+      }
+      const extrude = (shapes, depth) => new THREE.ExtrudeGeometry(shapes, { depth, bevelEnabled: false, curveSegments: 24 });
+      const VERT = 'varying vec2 vP; void main() { vP = position.xy; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }';
+
+      const S = 0.0078, CX = 590, CY = 527;
+      const art = new THREE.Group();
+      art.scale.set(S, -S, S);
+      art.position.set(-CX * S, CY * S, 0);
+      const stage = new THREE.Group();
+      stage.add(art);
+      rig.scene.add(stage);
+
+      // Gradient fill (SVG stops, raw sRGB out) that is only visible where t < uFill —
+      // so animating uFill pours the colour in along the gradient's own direction.
+      function pouringMaterial(grad) {
+        const off = new Array(16).fill(1), col = new Array(16).fill(0).map(() => new THREE.Vector3());
+        grad.stops.forEach(([o, h], i) => { off[i] = o; col[i] = hexToVec(h); });
+        return new THREE.ShaderMaterial({
+          uniforms: {
+            uP0: { value: new THREE.Vector2(...grad.p0) },
+            uD: { value: new THREE.Vector2(grad.p1[0] - grad.p0[0], grad.p1[1] - grad.p0[1]) },
+            uOff: { value: off }, uCol: { value: col }, uN: { value: grad.stops.length }, uFill: { value: -0.1 },
+          },
+          vertexShader: VERT,
+          fragmentShader: `
+            uniform vec2 uP0; uniform vec2 uD; uniform float uOff[16]; uniform vec3 uCol[16]; uniform int uN; uniform float uFill;
+            varying vec2 vP;
+            void main() {
+              float raw = dot(vP - uP0, uD) / dot(uD, uD);
+              float vis = 1.0 - smoothstep(uFill - 0.04, uFill, raw);
+              if (vis < 0.01) discard;
+              float t = clamp(raw, 0.0, 1.0);
+              vec3 c = uCol[0];
+              for (int i = 1; i < 16; i++) {
+                if (i >= uN) break;
+                if (t >= uOff[i - 1]) c = mix(uCol[i - 1], uCol[i], clamp((t - uOff[i - 1]) / max(uOff[i] - uOff[i - 1], 1e-5), 0.0, 1.0));
+              }
+              gl_FragColor = vec4(c, vis);
+            }`,
+          transparent: true, side: THREE.DoubleSide,
+        });
+      }
+
+      // Layers, back to front: bulb interior (light), blue layer, colour layer, pencil.
+      const interiorShape = new THREE.Shape();
+      interiorShape.moveTo(823.51, 647.68);
+      interiorShape.bezierCurveTo(815.13, 639.98, 806.41, 634.77, 798.57, 625.72);
+      interiorShape.bezierCurveTo(747.70, 567.00, 775.60, 506.17, 742.19, 444.02);
+      interiorShape.bezierCurveTo(686.16, 339.79, 542.88, 324.44, 465.01, 413.47);
+      interiorShape.bezierCurveTo(374.83, 516.58, 444.07, 678.02, 578.02, 700.01);
+      interiorShape.bezierCurveTo(629.61, 708.48, 650.11, 709.06, 694.80, 743.31);
+      interiorShape.bezierCurveTo(698.09, 745.83, 713.87, 758.26, 718.42, 764.88);
+      interiorShape.closePath();
+      const interiorMat = new THREE.ShaderMaterial({
+        uniforms: { uOn: { value: 0 }, uWarm: { value: 1 } },
+        vertexShader: VERT,
+        fragmentShader: 'uniform float uOn; uniform float uWarm; varying vec2 vP; void main() { vec3 lit = mix(vec3(1.0), vec3(1.0, 0.94, 0.8), uWarm); gl_FragColor = vec4(lit, uOn); }',
+        transparent: true, side: THREE.DoubleSide,
+      });
+      const interior = new THREE.Mesh(extrude([interiorShape], 8), interiorMat);
+      interior.position.z = -2;
+      art.add(interior);
+
+      const haloMat = new THREE.ShaderMaterial({
+        uniforms: { uStrength: { value: 0 } },
+        vertexShader: 'varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
+        fragmentShader: 'uniform float uStrength; varying vec2 vUv; void main() { float d = length(vUv - 0.5) * 2.0; float a = pow(max(1.0 - d, 0.0), 2.0) * uStrength; gl_FragColor = vec4(vec3(1.0, 0.93, 0.78) * a, a); }',
+        transparent: true, blending: THREE.AdditiveBlending, depthWrite: false,
+      });
+      const halo = new THREE.Mesh(new THREE.PlaneGeometry(1500, 1500), haloMat);
+      halo.position.set(590, 545, -60);
+      art.add(halo);
+
+      const blueMat = pouringMaterial(BLUE_GRAD), bodyMat = pouringMaterial(BODY_GRAD);
+      const blue = new THREE.Mesh(extrude(LOGO.blueLayer.map(toShape), 8), blueMat);
+      blue.position.z = 2;
+      const body = new THREE.Mesh(extrude(LOGO.colourLayer.map(toShape), 8), bodyMat);
+      body.position.z = 10;
+      art.add(blue, body);
+
+      // The outline the pencil traces: the mark's full silhouette (outer edge, tail and the
+      // bulb's inner edge), sampled at even spacing so the pencil moves at a steady speed.
+      const outline = toShape(LOGO.blueLayer[0]).getSpacedPoints(700).map((p) => new THREE.Vector3(p.x, p.y, 24));
+      const traceGeo = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(outline, true), 1400, 2.6, 6, true);
+      const traceMat = new THREE.MeshBasicMaterial({ color: '#9BD8F7', transparent: true, opacity: 1 });
+      const trace = new THREE.Mesh(traceGeo, traceMat);
+      traceGeo.setDrawRange(0, 0);
+      art.add(trace);
+      const traceTotal = traceGeo.index.count;
+
+      // The logo's pencil (three bars + graphite tip), grouped at its true logo position so a
+      // zero offset = exactly in place. Light while drawing on dark; logo #231F20 once home.
+      const pencil = new THREE.Group();
+      pencil.position.z = 18;
+      art.add(pencil);
+      const barMat = new THREE.MeshBasicMaterial({ color: '#E9E9EE', side: THREE.DoubleSide });
+      const [tipLoop, ...barLoops] = LOGO.pencil;
+      for (const loop of barLoops) pencil.add(new THREE.Mesh(extrude([toShape(loop)], 8), barMat));
+      pencil.add(new THREE.Mesh(extrude([toShape(tipLoop)], 8), new THREE.MeshBasicMaterial({ color: '#FFFFFF', side: THREE.DoubleSide })));
+      const AXIS = new THREE.Vector2(165.73, 159.04).normalize();
+      const tipPts = tipLoop.map((c) => (c[0] === 'C' ? [c[5], c[6]] : [c[1], c[2]]));
+      const apex = tipPts.reduce((a, p) => (p[0] * AXIS.x + p[1] * AXIS.y > a[0] * AXIS.x + a[1] * AXIS.y ? p : a));
+      const darkPencil = new THREE.Color('#231F20'), lightPencil = new THREE.Color('#E9E9EE');
+      const home = new THREE.Vector3(0, 0, 0);
+      const offsetAt = (p) => new THREE.Vector3(p.x - apex[0], p.y - apex[1], 0);
+
+      const TRACE_START = 0.25, TRACE_END = 1.75;
+      rig.tick = (t) => {
+        // 1. Trace: the pencil's graphite apex rides the outline; the line draws behind it.
+        const traceT = clamp((t - TRACE_START) / (TRACE_END - TRACE_START));
+        traceGeo.setDrawRange(0, Math.floor((traceTotal * traceT) / 3) * 3);
+        const along = outline[Math.min(outline.length - 1, Math.floor(traceT * (outline.length - 1)))];
+
+        // 2. Pencil: rides the outline, then slides home into its place in the logo.
+        const homeT = easeInOutQuad(clamp((t - 1.75) / 0.65));
+        pencil.position.copy(offsetAt(along).lerp(home, homeT));
+        pencil.position.z = 18;
+        pencil.visible = t > 0.1;
+        barMat.color.lerpColors(lightPencil, darkPencil, clamp((t - 2.15) / 0.3));
+
+        // 3. Colour pours in along each gradient: blue sweeps left→right, body rises bottom→top.
+        blueMat.uniforms.uFill.value = -0.1 + 1.25 * easeInOutQuad(clamp((t - 1.3) / 0.6));
+        bodyMat.uniforms.uFill.value = -0.1 + 1.25 * easeInOutQuad(clamp((t - 1.65) / 0.75));
+
+        // 4. The bulb lights up (a quick flicker), and the guide line fades away.
+        const flick = t < 2.2 ? 0 : t < 2.27 ? 1 : t < 2.33 ? 0.25 : 1;
+        interiorMat.uniforms.uOn.value = flick * clamp((t - 2.2) / 0.25 + 0.6);
+        interiorMat.uniforms.uWarm.value = 1 - clamp((t - 2.5) / 0.6);
+        haloMat.uniforms.uStrength.value = flick * (t < 2.8 ? 0.8 : 0.8 - 0.5 * clamp((t - 2.8) / 0.8));
+        traceMat.opacity = 1 - clamp((t - 2.3) / 0.45);
+        trace.visible = traceMat.opacity > 0.01;
+
+        // Gentle 3D settle to exactly face-on as the logo completes.
+        const settle = 1 - easeOutCubic(clamp(t / 2.6));
+        stage.rotation.y = -0.35 * settle;
+        stage.rotation.x = 0.12 * settle;
+      };
+      return rig;
+    }
+
+    const scenes = { aperture: buildAperture, blueprint: buildBlueprint, network: buildNetwork, mix: buildMix, bulb: buildBulb, logo: buildLogo, logodraw: buildLogoDraw };
+    let current = null;
+    function activate(name) {
+      if (current) current.unmount();
+      current = scenes[name]();
+      current.mount();
+      document.querySelectorAll('.tab-btn[data-scene]').forEach((b) => b.classList.toggle('active', b.dataset.scene === name));
+    }
+    document.querySelectorAll('.tab-btn[data-scene]').forEach((b) => b.addEventListener('click', () => activate(b.dataset.scene)));
+    document.getElementById('replay-btn').addEventListener('click', () => { if (current) current.restart(); });
+
+    activate('logodraw');
+  </script>
+
+</body>
+</html>
