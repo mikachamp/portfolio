@@ -17,6 +17,13 @@ Plain HTML, CSS and JavaScript, no build step. The 3D parts use three.js (loaded
 
 To run it locally, serve the folder with any static server (for example `npx http-server`) and open it in a browser.
 
+## Related repos
+
+- [mika-os](https://github.com/mikachamp/mika-os): the agent system shown in the Mika OS screenshots, with its build story.
+- [mika-os-knowledge-base](https://github.com/mikachamp/mika-os-knowledge-base): the vault template behind it.
+- [web-lab](https://github.com/mikachamp/web-lab) and [concept-sites](https://github.com/mikachamp/concept-sites): web and 3D work.
+- [dog-breed-identification](https://github.com/mikachamp/dog-breed-identification): a machine-learning course project.
+
 ## Licence
 
 Code is MIT. Images and content are (c) Mika Williamson. See `LICENSE`.
