@@ -1,167 +1,38 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><link rel="icon" href="data:,"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Mika Williamson Systems Portfolio</title>
-<meta name="description" content="Mika Williamson, Cape Town. CNC and 3D-printing production, robotics and ML, and agentic AI systems." />
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
-<style>
-  :root {
-    --bg: #0b0c0e; --bg-2: #121418; --card: #16181d; --fg: #eeece6; --fg-2: #c3c5ca; --muted: #8b8e95;
-    --line: rgba(255,255,255,.09); --amber: #ff9d42; --amber-ink: #ffb46b;
-    --f: "Schibsted Grotesk", "Segoe UI", system-ui, sans-serif; --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
-  }
-  * { box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
-  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
-  body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.6 var(--f); }
-  a { color: inherit; }
-  :focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; }
-  .wrap { max-width: 1160px; margin: 0 auto; padding: 0 22px; }
-  .eyebrow { font: 700 11px var(--mono); letter-spacing: .16em; text-transform: uppercase; color: var(--amber); margin: 0 0 10px; }
-  h1, h2, h3 { margin: 0; letter-spacing: -.02em; line-height: 1.08; }
-  h2 { font-size: clamp(28px, 3.6vw, 40px); }
-  section { padding: 84px 0; }
-  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 20px; border-radius: 12px; font-weight: 700; text-decoration: none; border: 1px solid var(--line); transition: background .15s, border-color .15s; }
-  .btn.primary { background: var(--amber); color: #111; border-color: var(--amber); }
-  .btn.primary:hover { background: var(--amber-ink); }
-  .btn:not(.primary):hover { border-color: var(--fg-2); }
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; frame-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>Mika Williamson | Systems Portfolio: CNC, 3D printing, robotics and agentic AI</title>
+<meta name="description" content="Mika Williamson, Cape Town. CNC and 3D-printing production, robotics and ML, and agentic AI systems including Mika OS and Agent Chat.">
+<meta name="author" content="Mika Williamson">
+<meta name="theme-color" content="#0b0c0e">
+<meta name="color-scheme" content="dark">
+<link rel="canonical" href="https://mikachamp.github.io/portfolio/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Mika Williamson">
+<meta property="og:title" content="Mika Williamson | Systems Portfolio">
+<meta property="og:description" content="I optimise systems, physical and digital, and build AI that runs them. CNC and 3D printing, robotics, ML and agentic AI.">
+<meta property="og:url" content="https://mikachamp.github.io/portfolio/">
+<meta property="og:image" content="https://mikachamp.github.io/portfolio/media/og-card.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Mika Williamson: I optimise systems, physical and digital, and build AI that runs them.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Mika Williamson | Systems Portfolio">
+<meta name="twitter:description" content="CNC and 3D printing, robotics, ML and agentic AI.">
+<meta name="twitter:image" content="https://mikachamp.github.io/portfolio/media/og-card.jpg">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230b0c0e'/%3E%3Cpath d='M7 24V8l9 10 9-10v16' fill='none' stroke='%23ff9d42' stroke-width='3'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/site.css">
+</head>
+<body>
 
-  /* Hero: the career-flow workshop runs behind the copy; the copy is real HTML on top */
-  .hero { position: relative; min-height: min(92vh, 860px); display: flex; align-items: center; overflow: hidden; border-bottom: 1px solid var(--line); }
-  .hero iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; pointer-events: none; }
-  .hero::after { content: ""; position: absolute; inset: 0; pointer-events: none;
-    background: linear-gradient(90deg, rgba(11,12,14,.96) 0%, rgba(11,12,14,.86) 34%, rgba(11,12,14,0) 62%), linear-gradient(0deg, var(--bg) 0%, rgba(11,12,14,0) 22%); }
-  .hero .wrap { position: relative; z-index: 2; width: 100%; padding-top: 84px; padding-bottom: 40px; }
-  .hero-copy { max-width: 520px; }
-  .hero h1 { font-size: clamp(36px, 4.4vw, 58px); margin-bottom: 18px; }
-  .hero h1 em { font-style: normal; color: var(--amber); }
-  .hero p.lede { font-size: 19px; color: var(--fg-2); margin: 0 0 26px; max-width: 46ch; }
-  .cta { display: flex; gap: 12px; flex-wrap: wrap; }
-  .story { display: inline-block; margin-top: 8px; font: 600 13px var(--mono); color: var(--amber); text-decoration: none; border-bottom: 1px solid rgba(255,157,66,.4); }
-  .story:hover { border-color: var(--amber); }
-  .now { margin-top: 26px; font: 500 12px var(--mono); color: var(--muted); min-height: 1.6em; }
-  .now b { color: var(--fg-2); font-weight: 700; }
-  .now i { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #3ee08f; margin-right: 8px; box-shadow: 0 0 8px #3ee08f; }
-  @media (max-width: 760px) {
-    .hero { min-height: 0; padding: 0; display: block; }
-    .hero iframe { position: relative; height: 52vh; min-height: 300px; }
-    .hero::after { background: linear-gradient(0deg, var(--bg) 0%, rgba(11,12,14,0) 30%); height: 52vh; min-height: 300px; }
-    .hero .wrap { padding-top: 6px; padding-bottom: 46px; }
-  }
-
-  /* Proof strip */
-  .proof { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; }
-  .proof div { background: var(--bg-2); padding: 26px 24px; }
-  .proof b { display: block; font-size: clamp(30px, 3.6vw, 44px); letter-spacing: -.03em; color: var(--amber); }
-  .proof span { color: var(--fg-2); font-size: 14.5px; }
-  @media (max-width: 760px) { .proof { grid-template-columns: 1fr 1fr; } }
-
-  /* Work */
-  .work { display: grid; gap: 22px; margin-top: 30px; }
-  .project { display: grid; grid-template-columns: 1.1fr .9fr; gap: 0; background: var(--card); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; }
-  .project:nth-child(even) { grid-template-columns: .9fr 1.1fr; }
-  .project:nth-child(even) .shot { order: 2; }
-  .shot { background: #0f1013; display: grid; place-items: center; overflow: hidden; min-height: 280px; }
-  .shot img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .shot.phone img { width: auto; height: 100%; max-height: 420px; object-fit: contain; padding: 18px 0; }
-  .info { padding: 30px 30px 28px; display: flex; flex-direction: column; gap: 12px; }
-  .info h3 { font-size: 26px; }
-  .info .problem { color: var(--fg-2); margin: 0; }
-  .info ul { margin: 0; padding-left: 18px; color: var(--fg-2); font-size: 15px; }
-  .stack { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
-  .stack span { font: 600 11.5px var(--mono); padding: 4px 9px; border-radius: 99px; border: 1px solid var(--line); color: var(--fg-2); }
-  .info .links { margin-top: auto; padding-top: 8px; display: flex; gap: 14px; flex-wrap: wrap; font-weight: 700; font-size: 14.5px; }
-  .info .links a { color: var(--amber); text-decoration: none; }
-  .info .links a:hover { text-decoration: underline; }
-  .tag { font: 700 10.5px var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
-  @media (max-width: 860px) { .project, .project:nth-child(even) { grid-template-columns: 1fr; } .project:nth-child(even) .shot { order: 0; } }
-
-  /* Lab strip */
-  .lab { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 26px; }
-  .lab a { display: block; padding: 20px; border-radius: 14px; border: 1px solid var(--line); background: var(--bg-2); text-decoration: none; transition: border-color .15s, transform .15s; }
-  .lab a:hover { border-color: var(--amber); transform: translateY(-2px); }
-  .lab b { display: block; font-size: 17px; margin-bottom: 4px; }
-  .lab span { color: var(--muted); font-size: 14px; }
-  @media (max-width: 1000px) { .lab { grid-template-columns: repeat(2, 1fr); } }
-  @media (max-width: 760px) { .lab { grid-template-columns: 1fr; } }
-
-  /* Experience */
-  .timeline { margin-top: 30px; border-left: 2px solid var(--line); padding-left: 26px; display: grid; gap: 28px; }
-  .role { position: relative; }
-  .role::before { content: ""; position: absolute; left: -33px; top: 7px; width: 12px; height: 12px; border-radius: 50%; background: var(--bg); border: 2px solid var(--amber); }
-  .role .when { font: 600 12px var(--mono); color: var(--muted); }
-  .role h3 { font-size: 21px; margin: 2px 0 6px; }
-  .role h3 small { font-weight: 600; color: var(--fg-2); font-size: 16px; }
-  .role ul { margin: 0; padding-left: 18px; color: var(--fg-2); font-size: 15px; }
-
-  /* Skills + education */
-  .grid2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 28px; }
-  .grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 28px; }
-  .box { background: var(--bg-2); border: 1px solid var(--line); border-radius: 16px; padding: 22px; }
-  .box h3 { font-size: 17px; margin-bottom: 10px; }
-  .box p { margin: 0; color: var(--fg-2); font-size: 14.5px; }
-  .edu .box .when { font: 600 12px var(--mono); color: var(--muted); }
-  .edu .box.hl { border-color: rgba(255,157,66,.45); }
-  .badge { display: inline-block; margin-top: 8px; font: 700 11px var(--mono); padding: 4px 9px; border-radius: 99px; background: rgba(255,157,66,.14); color: var(--amber); }
-  .badge.prog { background: rgba(255,255,255,.07); color: var(--fg-2); }
-  @media (max-width: 860px) { .grid4 { grid-template-columns: 1fr 1fr; } }
-  @media (max-width: 560px) { .grid2, .grid4 { grid-template-columns: 1fr; } }
-
-  /* Contact */
-  .contact { text-align: center; padding: 96px 0 70px; }
-  .contact p { color: var(--fg-2); }
-  .contact .cta { justify-content: center; margin-top: 22px; }
-  footer { border-top: 1px solid var(--line); padding: 22px 0 34px; color: var(--muted); font-size: 13px; }
-  footer .wrap { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-  nav.top { position: fixed; top: 0; left: 0; right: 0; z-index: 20; transition: background .2s, border-color .2s; border-bottom: 1px solid transparent; }
-  nav.top.solid { background: rgba(11,12,14,.86); backdrop-filter: blur(10px); border-color: var(--line); }
-  nav.top .wrap { display: flex; align-items: center; justify-content: space-between; height: 60px; }
-  nav.top .name { font-weight: 800; text-decoration: none; letter-spacing: -.01em; }
-  nav.top .links { display: flex; gap: 18px; font-size: 14.5px; font-weight: 600; }
-  nav.top .links a { text-decoration: none; color: var(--fg-2); } nav.top .links a:hover { color: var(--fg); }
-  @media (max-width: 600px) { nav.top .links a:not(.keep) { display: none; } }
-
-  /* ── Phones: tighter rhythm, readable proof numbers, screenshots shown whole ── */
-  @media (max-width: 760px) {
-    .wrap { padding-left: max(18px, env(safe-area-inset-left, 0px)); padding-right: max(18px, env(safe-area-inset-right, 0px)); }
-    section { padding: 56px 0; }
-    nav.top .wrap { height: 54px; }
-    nav.top { padding-top: env(safe-area-inset-top, 0px); }
-    nav.top .links a[href="#work"] { display: inline; }
-    .hero h1 { font-size: clamp(31px, 8.6vw, 38px); margin-bottom: 14px; }
-    .hero p.lede { font-size: 16.5px; margin-bottom: 22px; }
-    .cta .btn { flex: 1 1 140px; justify-content: center; }
-    .now { font-size: 11.5px; line-height: 1.5; }
-    .proof div { padding: 18px 16px; }
-    .proof b { font-size: clamp(22px, 6.4vw, 28px); white-space: nowrap; }
-    .proof span { font-size: 13.5px; line-height: 1.45; display: block; margin-top: 4px; }
-    h2 { font-size: 27px; }
-    .work { gap: 18px; margin-top: 22px; }
-    .shot { min-height: 0; aspect-ratio: 16 / 10; }
-    .shot img { object-fit: cover; object-position: top center; }
-    .shot.phone { aspect-ratio: auto; padding: 8px 0; }
-    .shot.phone img { max-height: 380px; padding: 10px 0; }
-    .info { padding: 22px 20px 22px; gap: 10px; }
-    .info h3 { font-size: 23px; }
-    .info .problem { font-size: 15.5px; }
-    .info ul { font-size: 14.5px; }
-    .info .links { font-size: 15px; }
-    .info .links a { min-height: 44px; display: inline-flex; align-items: center; }
-    .lab a { padding: 18px; }
-    .timeline { padding-left: 20px; gap: 24px; }
-    .role::before { left: -27px; }
-    .role h3 { font-size: 19px; }
-    .role ul, .box p { font-size: 14.5px; }
-    .grid4, .grid2 { gap: 12px; margin-top: 22px; }
-    .box { padding: 18px; }
-    .contact { padding: 64px 0 52px; }
-    footer .wrap { flex-direction: column; gap: 6px; }
-    footer { padding-bottom: calc(30px + env(safe-area-inset-bottom, 0px)); }
-  }
-</style>
-
-
-
+<a class="skip" href="#main">Skip to content</a>
 <nav class="top" id="nav" aria-label="Main">
   <div class="wrap">
     <a class="name" href="#top">Mika Williamson</a>
@@ -177,14 +48,14 @@
       <h1>I optimise systems — <em>physical and digital</em> — and build AI that runs them.</h1>
       <p class="lede">From CNC routers and 3D-print production to robotics, machine learning and agentic AI.</p>
       <div class="cta"><a class="btn primary" href="#work">View work</a><a class="btn" href="https://www.linkedin.com/in/mika-williamson-07992a142/" target="_blank" rel="noopener">LinkedIn</a></div>
-      <p class="now" id="now" aria-live="polite"></p>
+      <p class="now" id="now" aria-live="off"></p>
       <a class="story" href="Concepts/career-flow-detailed.html">Watch the full story →</a>
     </div>
   </div>
 </header>
 
-<main>
-  <section aria-label="Results">
+<main id="main">
+  <section aria-label="Results" class="results">
     <div class="wrap">
       <div class="proof">
         <div><b>3×</b><span>production throughput at Blueprint Digital</span></div>
@@ -195,13 +66,13 @@
     </div>
   </section>
 
-  <section id="work" style="padding-top:20px">
+  <section id="work" class="work-sec" aria-labelledby="work-h">
     <div class="wrap">
       <p class="eyebrow">Selected work</p>
-      <h2>Things I've built</h2>
+      <h2 id="work-h">Things I've built</h2>
       <div class="work">
         <article class="project">
-          <div class="shot"><img src="media/champ-os-dashboard.jpg" alt="Mika OS command center: the AI Core figure, agent overview and the Director panel" loading="lazy" width="1440" height="900" /></div>
+          <div class="shot"><img src="media/champ-os-dashboard.jpg" alt="Mika OS command center: the AI Core figure, agent overview and the Director panel" loading="lazy" decoding="async" width="1440" height="900" /></div>
           <div class="info">
             <span class="tag">Project · 2026</span>
             <h3>Mika OS</h3>
@@ -210,6 +81,7 @@
               <li>15 agents (Node/PM2) running on local LLMs via LM Studio, with cloud fallback.</li>
               <li>A Director agent that checks in on launch, reports progress and runs jobs on request.</li>
               <li>Electron desktop app with a Three.js AI core and a 3D knowledge graph of an Obsidian vault.</li>
+              <li>An offline chat page with streamed replies and a Stop button (see below).</li>
             </ul>
             <div class="stack"><span>Electron</span><span>Node</span><span>PM2</span><span>LM Studio</span><span>Three.js</span><span>Obsidian</span></div>
             <div class="links"><a href="media/champ-os-knowledge-graph.jpg">See the knowledge graph →</a><a href="https://github.com/mikachamp/mika-os" target="_blank" rel="noopener">Code and build story →</a></div>
@@ -217,7 +89,24 @@
         </article>
 
         <article class="project">
-          <div class="shot phone"><img src="media/bpd-dashboard.jpg" alt="BPD Capture Android app: active jobs list with CE numbers and due dates" loading="lazy" width="540" height="1200" /></div>
+          <div class="shot"><img src="media/agent-chat-approvals.jpg" alt="Agent Chat, a task thread in demo data: only the signed approval line from Mika shows the green lock badge, while a copied line, a negated line and a line for another task are not counted" loading="lazy" decoding="async" width="1440" height="900" /></div>
+          <div class="info">
+            <span class="tag">Project · 2026 · Desktop app</span>
+            <h3>Agent Chat</h3>
+            <p class="problem">A desktop chat app where I talk to my agents and Claude, and where nothing counts as my approval unless I really signed it.</p>
+            <ul>
+              <li>Approvals are HMAC-SHA256 signed in the app's main process. Only a verifying line from me in the form <code>approve T-xxxx action</code> counts; agent, command-line and hand-typed lines are advice only.</li>
+              <li>A live Agents panel built from task files shows who is working, finished or blocked, and is labelled "unverified".</li>
+              <li>Served from a custom <code>app://</code> protocol with Electron fuses set: no run-as-node, no inspect flags, asar integrity on. 42 unit tests and 20 end-to-end checks pass.</li>
+              <li>Security re-check of version 1.1.3: 0 High in both the Electron and the AI-agent review (an earlier round found 2 High, since fixed or accepted).</li>
+            </ul>
+            <div class="stack"><span>Electron</span><span>Node</span><span>HMAC-SHA256</span><span>CSP</span><span>LM Studio</span></div>
+            <div class="links"><a href="media/agent-chat-agents-panel.jpg">See the Agents panel →</a><a href="media/agent-chat-phone.jpg">Narrow-window layout →</a></div>
+          </div>
+        </article>
+
+        <article class="project">
+          <div class="shot phone"><img src="media/bpd-dashboard.jpg" alt="BPD Capture Android app: active jobs list with job numbers and due dates, client details blurred" loading="lazy" decoding="async" width="540" height="1200" /></div>
           <div class="info">
             <span class="tag">Project · 2026 · Blueprint Digital</span>
             <h3>BPD Capture</h3>
@@ -233,7 +122,7 @@
         </article>
 
         <article class="project">
-          <div class="shot"><img src="media/dime3-h2d-winder.jpg" alt="3D render: a Bambu Lab H2D presenting a printed gyro watch winder ring set" loading="lazy" width="1440" height="900" /></div>
+          <div class="shot"><img src="media/dime3-h2d-winder.jpg" alt="3D render: a Bambu Lab H2D presenting a printed gyro watch winder ring set" loading="lazy" decoding="async" width="1440" height="900" /></div>
           <div class="info">
             <span class="tag">Dime3 · Co-Founder · 11/2023 – present</span>
             <h3>Dime3 hardware</h3>
@@ -247,6 +136,58 @@
             <div class="links"><a href="Concepts/06-h2d-printer.html">Print it yourself (interactive) →</a></div>
           </div>
         </article>
+
+        <article class="project">
+          <div class="shot"><img src="media/gyro-winder-v2.jpg" alt="3D scroll piece: an exploded gyro watch winder with labelled parts, a heat-tinted steel ring and a glass-crystal watch head" loading="lazy" decoding="async" width="1440" height="900" /></div>
+          <div class="info">
+            <span class="tag">Web 3D · 2026</span>
+            <h3>Gyro Winder Live v2</h3>
+            <p class="problem">A scroll-driven 3D piece that takes a gyro watch winder apart, with materials that behave like the real ones.</p>
+            <ul>
+              <li>Organic parts (the cradle and the posts) are melted from simple shapes with signed distance fields, traced and extruded.</li>
+              <li>A heat-tint steel ring and a sapphire-style crystal (IOR 1.77) with dispersion.</li>
+              <li>A quality ladder switches effects off below 40 fps. 9 unit tests; 0 console errors and 0 sideways scroll at 1440 and 390; reduced motion respected.</li>
+            </ul>
+            <div class="stack"><span>Three.js</span><span>TypeScript</span><span>Vite</span><span>Signed distance fields</span></div>
+          </div>
+        </article>
+      </div>
+
+      <h3 class="sub">Also built recently</h3>
+      <div class="minis">
+        <article class="mini">
+          <span class="tag">Security · 2026</span>
+          <h4>Five security reviewer roles</h4>
+          <p>Read-only sub-agents for my agent team. Each has a written test and a limit that says what it may never touch.</p>
+          <ul>
+            <li><b>sql-security</b>: injection, secrets and database permissions; never queries real data.</li>
+            <li><b>ai-agent-security</b>: prompt injection, tool permissions and approval bypasses, tested only in a sandboxed copy.</li>
+            <li><b>electron-security</b>: the Electron checklist, pass or fail with file and line.</li>
+            <li><b>dependency-auditor</b>: audit counts, lockfiles and unpinned CDN scripts; installs nothing.</li>
+            <li><b>web-security</b>: headers, CSP, forms and third-party scripts before launch.</li>
+          </ul>
+        </article>
+        <article class="mini">
+          <span class="tag">Mika OS · 2026</span>
+          <h4>Offline chat</h4>
+          <p>Chat with a local model: no cloud and no API key.</p>
+          <ul>
+            <li>Replies stream in, with a Stop button that closes the connection.</li>
+            <li>The chosen model is remembered between launches.</li>
+            <li>A guarded llama-server start: local addresses only, fixed arguments, no shell.</li>
+            <li>11 unit and 33 end-to-end checks pass. The Start button was tested against a stand-in server.</li>
+          </ul>
+        </article>
+        <article class="mini">
+          <span class="tag">Manufacturing software · in progress</span>
+          <h4>Nesting plugin engine</h4>
+          <p>Packs parts onto sheets and now exports cut sheets. Tested on fictional sample files only.</p>
+          <ul>
+            <li>SVG, DXF and PDF cut-sheet export, plus an independent check that the cut paths equal the placements.</li>
+            <li>16 of 16 synthetic jobs pass; worst deviation 0.00007 mm against a 0.01 mm tolerance.</li>
+            <li>Tests grew from 23 to 57. The Illustrator panel waits for testing on real jobs.</li>
+          </ul>
+        </article>
       </div>
 
       <div class="lab">
@@ -258,10 +199,10 @@
     </div>
   </section>
 
-  <section id="experience" style="background:var(--bg-2);border-block:1px solid var(--line)">
+  <section id="experience" class="alt" aria-labelledby="exp-h">
     <div class="wrap">
       <p class="eyebrow">Experience</p>
-      <h2>Where I've worked</h2>
+      <h2 id="exp-h">Where I've worked</h2>
       <div class="timeline">
         <div class="role"><div class="when">04/2025 – present</div><h3>CNC Operator <small>· Blueprint Digital</small></h3>
           <ul><li>Increased production throughput 3× through machining-time and workflow optimisation.</li>
@@ -280,23 +221,23 @@
     </div>
   </section>
 
-  <section id="skills">
+  <section id="skills" aria-labelledby="skills-h">
     <div class="wrap">
       <p class="eyebrow">Skills</p>
-      <h2>What I work with</h2>
+      <h2 id="skills-h">What I work with</h2>
       <div class="grid4">
-        <div class="box"><h3>AI / ML</h3><p>Deep learning, model evaluation, computer vision, feature engineering, hyperparameter tuning, ReAct frameworks, prompt engineering, agentic workflows with MCP.</p></div>
+        <div class="box"><h3>AI / ML</h3><p>Deep learning, model evaluation, computer vision, feature engineering, hyperparameter tuning, ReAct frameworks, prompt engineering, agentic workflows with MCP, approval gates and security reviews for agent systems.</p></div>
         <div class="box"><h3>Manufacturing</h3><p>CAD, 3D modelling for manufacturing, 3D printing (FDM &amp; SLA), CNC router setup &amp; operation, toolpath creation &amp; optimisation, reverse engineering.</p></div>
         <div class="box"><h3>Systems</h3><p>Linux (Ubuntu/Raspbian), SSH, PLC (C++ &amp; ladder logic), control systems (MATLAB/PID), C++/Arduino, SQL (MySQL), network security, VMware/Hyper-V.</p></div>
-        <div class="box"><h3>Tools</h3><p>Python, TensorFlow, Scikit-learn, NumPy, Pandas, Fusion 360, VCarve Pro, Rayjet, CorelDRAW, Bambu Lab Studio, Creality Print, Claude Code, Cursor, LM Studio.</p></div>
+        <div class="box"><h3>Tools</h3><p>Python, TensorFlow, Scikit-learn, NumPy, Pandas, Fusion 360, VCarve Pro, Rayjet, CorelDRAW, Bambu Lab Studio, Creality Print, Claude Code, Cursor, LM Studio, Electron, Three.js.</p></div>
       </div>
     </div>
   </section>
 
-  <section id="education" class="edu" style="padding-top:0">
+  <section id="education" class="edu" aria-labelledby="edu-h">
     <div class="wrap">
       <p class="eyebrow">Education</p>
-      <h2>Study</h2>
+      <h2 id="edu-h">Study</h2>
       <div class="grid2">
         <div class="box hl"><div class="when">04/2021 – 03/2022 · Eduvos, Cape Town</div><h3>Higher Certificate IT: Robotics</h3><span class="badge">Cum Laude · Top Achiever Award</span></div>
         <div class="box"><div class="when">03/2022 – 11/2024 · Eduvos, Cape Town</div><h3>BSc Information Technology: Robotics &amp; Intelligent Systems</h3><p>ML projects: dog-breed classifier, heart-disease and bulldozer-price prediction (TensorFlow/Keras, Scikit-learn).</p></div>
@@ -308,10 +249,10 @@
     </div>
   </section>
 
-  <section id="contact" class="contact" style="background:var(--bg-2);border-top:1px solid var(--line)">
+  <section id="contact" class="contact" aria-labelledby="contact-h">
     <div class="wrap">
       <p class="eyebrow">Contact</p>
-      <h2>Let's build something that runs itself.</h2>
+      <h2 id="contact-h">Let's build something that runs itself.</h2>
       <p>Contact via LinkedIn. References available on request.</p>
       <div class="cta"><a class="btn primary" href="https://www.linkedin.com/in/mika-williamson-07992a142/" target="_blank" rel="noopener">LinkedIn</a><a class="btn" href="https://github.com/mikachamp" target="_blank" rel="noopener">GitHub</a></div>
     </div>
@@ -320,20 +261,6 @@
 
 <footer><div class="wrap"><span>© 2026 Mika Williamson · Cape Town</span><span>Built with Three.js. More machines to try in the Lab.</span></div></footer>
 
-<script>
-// Hero scene: pause the animation when the hero is off-screen or the tab is hidden; show what it's machining
-const frame = document.getElementById('heroScene'), now = document.getElementById('now'), nav = document.getElementById('nav')
-let visible = true
-const post = (type) => { try { frame.contentWindow.postMessage({ type }, '*') } catch {} }
-new IntersectionObserver(([e]) => { visible = e.isIntersecting; post(visible && !document.hidden ? 'resume' : 'pause') }, { threshold: .05 }).observe(frame)
-document.addEventListener('visibilitychange', () => post(document.hidden || !visible ? 'pause' : 'resume'))
-addEventListener('message', (e) => {
-  if (e.source !== frame.contentWindow || e.data?.type !== 'career-stage') return
-  const b = document.createElement('b'); b.textContent = String(e.data.n)
-  const dot = document.createElement('i'); if (e.data.ai) dot.style.cssText = 'background:#7fd6ff;box-shadow:0 0 8px #7fd6ff'
-  now.replaceChildren(dot, String(e.data.y) + ' · ', b, ' — ' + String(e.data.k))
-})
-addEventListener('scroll', () => nav.classList.toggle('solid', scrollY > 40), { passive: true })
-</script>
-
+<script src="js/site.js"></script>
+</body>
 </html>
