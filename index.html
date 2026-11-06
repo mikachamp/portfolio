@@ -41,7 +41,7 @@
 </nav>
 
 <header class="hero" id="top">
-  <iframe id="heroScene" src="Concepts/career-flow-hero.html" title="Animation of Mika's career as a workshop: robots load a CNC router and a laser cutter, a 3D printer prints, the parts are assembled, and the product becomes an AI agent network" aria-hidden="true" tabindex="-1" loading="eager"></iframe>
+  <iframe id="heroScene" src="Concepts/career-flow-hero.html" sandbox="allow-scripts" title="Animation of Mika's career as a workshop: robots load a CNC router and a laser cutter, a 3D printer prints, the parts are assembled, and the product becomes an AI agent network" aria-hidden="true" tabindex="-1" loading="eager"></iframe>
   <div class="wrap">
     <div class="hero-copy">
       <p class="eyebrow">Mika Williamson · Cape Town</p>
@@ -106,7 +106,7 @@
         </article>
 
         <article class="project">
-          <div class="shot phone"><img src="media/bpd-dashboard.jpg" alt="BPD Capture Android app: active jobs list with job numbers and due dates, client details blurred" loading="lazy" decoding="async" width="540" height="1200" /></div>
+          <div class="shot phone"><img src="media/bpd-dashboard.jpg" alt="BPD Capture Android app: active jobs list with titles and due dates; the detail lines under each job are blurred" loading="lazy" decoding="async" width="540" height="1200" /></div>
           <div class="info">
             <span class="tag">Project · 2026 · Blueprint Digital</span>
             <h3>BPD Capture</h3>
@@ -170,7 +170,7 @@
         <article class="mini">
           <span class="tag">Mika OS · 2026</span>
           <h4>Offline chat</h4>
-          <p>Chat with a local model: no cloud and no API key.</p>
+          <p>Chat with a local model: replies stream in, there is a Stop button, and the app only talks to local addresses.</p>
           <ul>
             <li>Replies stream in, with a Stop button that closes the connection.</li>
             <li>The chosen model is remembered between launches.</li>
@@ -181,7 +181,7 @@
         <article class="mini">
           <span class="tag">Manufacturing software · in progress</span>
           <h4>Nesting plugin engine</h4>
-          <p>Packs parts onto sheets and now exports cut sheets. Tested on fictional sample files only.</p>
+          <p>Nests parts onto sheets and exports cut sheets. Tested on fictional sample files only.</p>
           <ul>
             <li>SVG, DXF and PDF cut-sheet export, plus an independent check that the cut paths equal the placements.</li>
             <li>16 of 16 synthetic jobs pass; worst deviation 0.00007 mm against a 0.01 mm tolerance.</li>

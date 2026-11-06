@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Mika Williamson — CNC Router (concept D2)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -130,8 +132,8 @@
 
 <script type="importmap">
 { "imports": {
-  "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
-  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
+  "three": "../vendor/three/three.module.js",
+  "three/addons/": "../vendor/three/addons/"
 } }
 </script>
 <script type="module">
@@ -803,7 +805,7 @@ if (/hero/.test(location.search) && innerWidth < 760) {
   let hi = 0, waiting = false
   const nextJob = () => {
     const j = JOBS[hi++ % JOBS.length]; loadJob(j); run(); waiting = false
-    try { parent.postMessage({ type: 'nest-hero-job', file: j.file, title: j.title }, '*') } catch (e) {}
+    try { parent.postMessage({ type: 'nest-hero-job', file: j.file, title: j.title }, (document.referrer ? new URL(document.referrer).origin : '*')) } catch (e) {}
   }
   nextJob()
   setInterval(() => { if (finished && !waiting) { waiting = true; setTimeout(nextJob, 2600) } }, 500)

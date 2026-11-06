@@ -1,5 +1,7 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<html lang="en"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Career Flow (hero, detailed)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,8 +17,8 @@ html, body { margin: 0; height: 100%; background: #0b0c0e; overflow: hidden; }
 
 <script type="importmap">
 { "imports": {
-  "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
-  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
+  "three": "../vendor/three/three.module.js",
+  "three/addons/": "../vendor/three/addons/"
 } }
 </script>
 <script type="module">
@@ -39,7 +41,7 @@ let shown = -1
 function updUI(t) {
   const si = stageAt(t); if (si === shown) return; shown = si
   const s = STAGES[si]
-  try { parent.postMessage({ type: 'career-stage', y: s.y, n: s.n, k: s.k, ai: !!s.ai }, '*') } catch (e) {}
+  try { parent.postMessage({ type: 'career-stage', y: s.y, n: s.n, k: s.k, ai: !!s.ai }, (document.referrer ? new URL(document.referrer).origin : '*')) } catch (e) {}
 }
 
 /* ---------- renderer ---------- */
