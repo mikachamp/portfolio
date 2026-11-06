@@ -179,6 +179,9 @@ code { font: 500 .88em var(--mono); background: rgba(255,255,255,.07); padding: 
   .mini { padding: 20px 18px; }
   .skip:focus { top: 8px; }
 }
+/* Whole-window app screenshot: crop from the left so the sidebar and the approval lines stay in view */
+.shot.ui { background: #0c0c0c; }
+.shot.ui img { object-fit: cover; object-position: left top; }
 @media (hover: none) { .lab a:hover { transform: none; } }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; }

@@ -81,7 +81,7 @@
               <li>15 agents (Node/PM2) running on local LLMs via LM Studio, with cloud fallback.</li>
               <li>A Director agent that checks in on launch, reports progress and runs jobs on request.</li>
               <li>Electron desktop app with a Three.js AI core and a 3D knowledge graph of an Obsidian vault.</li>
-              <li>An offline chat page with streamed replies and a Stop button (see below).</li>
+              <li>An offline chat page with streamed replies and a Stop button (built and tested; see below).</li>
             </ul>
             <div class="stack"><span>Electron</span><span>Node</span><span>PM2</span><span>LM Studio</span><span>Three.js</span><span>Obsidian</span></div>
             <div class="links"><a href="media/champ-os-knowledge-graph.jpg">See the knowledge graph →</a><a href="https://github.com/mikachamp/mika-os" target="_blank" rel="noopener">Code and build story →</a></div>
@@ -89,7 +89,7 @@
         </article>
 
         <article class="project">
-          <div class="shot"><img src="media/agent-chat-approvals.jpg" alt="Agent Chat, a task thread in demo data: only the signed approval line from Mika shows the green lock badge, while a copied line, a negated line and a line for another task are not counted" loading="lazy" decoding="async" width="1440" height="900" /></div>
+          <div class="shot ui"><img src="media/agent-chat-approvals.jpg" alt="Agent Chat, a task thread in demo data: only the signed approval line from Mika gets the green Approval badge, while a copied line, a negated line and a line naming another task are not counted" loading="lazy" decoding="async" width="1440" height="900" /></div>
           <div class="info">
             <span class="tag">Project · 2026 · Desktop app</span>
             <h3>Agent Chat</h3>
@@ -97,8 +97,8 @@
             <ul>
               <li>Approvals are HMAC-SHA256 signed in the app's main process. Only a verifying line from me in the form <code>approve T-xxxx action</code> counts; agent, command-line and hand-typed lines are advice only.</li>
               <li>A live Agents panel built from task files shows who is working, finished or blocked, and is labelled "unverified".</li>
-              <li>Served from a custom <code>app://</code> protocol with Electron fuses set: no run-as-node, no inspect flags, asar integrity on. 42 unit tests and 20 end-to-end checks pass.</li>
-              <li>Security re-check of version 1.1.3: 0 High in both the Electron and the AI-agent review (an earlier round found 2 High, since fixed or accepted).</li>
+              <li>Served from a custom <code>app://</code> protocol with Electron fuses set: no run-as-node, no inspect flags, asar integrity on. 44 unit tests pass, plus end-to-end runs of 20 checks on the Agents panel, 28 on the app and 9 on the built exe.</li>
+              <li>Security re-check of version 1.1.3: 0 High in both the Electron and the AI-agent review. The earlier round found 2 High in the AI-agent review: the open debug port is fixed, and the signing secret being readable by any process running as me is documented as a known limit.</li>
             </ul>
             <div class="stack"><span>Electron</span><span>Node</span><span>HMAC-SHA256</span><span>CSP</span><span>LM Studio</span></div>
             <div class="links"><a href="media/agent-chat-agents-panel.jpg">See the Agents panel →</a><a href="media/agent-chat-phone.jpg">Narrow-window layout →</a></div>
@@ -175,7 +175,7 @@
             <li>Replies stream in, with a Stop button that closes the connection.</li>
             <li>The chosen model is remembered between launches.</li>
             <li>A guarded llama-server start: local addresses only, fixed arguments, no shell.</li>
-            <li>11 unit and 33 end-to-end checks pass. The Start button was tested against a stand-in server.</li>
+            <li>13 unit and 33 end-to-end checks pass. The Start button was tested against a stand-in server, not yet with my real llama-server. Built in a working copy and not yet merged into my main build.</li>
           </ul>
         </article>
         <article class="mini">
