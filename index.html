@@ -36,7 +36,7 @@
 <nav class="top" id="nav" aria-label="Main">
   <div class="wrap">
     <a class="name" href="#top">Mika Williamson</a>
-    <div class="links"><a href="#work">Work</a><a href="#experience">Experience</a><a href="#skills">Skills</a><a class="keep" href="#contact">Contact</a></div>
+    <div class="links"><a href="#work">Work</a><a href="#progress">In progress</a><a href="#experience">Experience</a><a href="#skills">Skills</a><a class="keep" href="#contact">Contact</a></div>
   </div>
 </nav>
 
@@ -93,14 +93,15 @@
           <div class="info">
             <span class="tag">Project · 2026 · Desktop app</span>
             <h3>Agent Chat</h3>
-            <p class="problem">A desktop chat app where I talk to my agents and Claude, and where nothing counts as my approval unless I really signed it.</p>
+            <p class="problem">A desktop chat app where I talk to my agents and Claude, and where nothing counts as my approval unless it is exactly what I typed.</p>
             <ul>
-              <li>Approvals are HMAC-SHA256 signed in the app's main process. Only a verifying line from me in the form <code>approve T-xxxx action</code> counts; agent, command-line and hand-typed lines are advice only.</li>
+              <li>Strict approvals: only a line from me in the form <code>approve T-xxxx action</code> gets the green Approval badge. Agent lines, copied lines, negated lines and lines naming another task are advice only.</li>
               <li>A live Agents panel built from task files shows who is working, finished or blocked, and is labelled "unverified".</li>
-              <li>Served from a custom <code>app://</code> protocol with Electron fuses set: no run-as-node, no inspect flags, asar integrity on. 44 unit tests pass, plus end-to-end runs of 20 checks on the Agents panel, 28 on the app and 9 on the built exe.</li>
-              <li>Security re-check of version 1.1.3: 0 High in both the Electron and the AI-agent review. The earlier round found 2 High in the AI-agent review: the open debug port is fixed, and the signing secret being readable by any process running as me is documented as a known limit.</li>
+              <li>Hardened desktop build. Tests: 44 unit, plus end-to-end runs of 20 checks on the Agents panel, 28 on the app and 9 on the built exe.</li>
+              <li>Security re-check of version 1.1.3: 0 High in both the Electron review and the AI-agent review.</li>
+              <li>In progress: version 1.2, a UX redesign from a UX audit. It is queued and not started.</li>
             </ul>
-            <div class="stack"><span>Electron</span><span>Node</span><span>HMAC-SHA256</span><span>CSP</span><span>LM Studio</span></div>
+            <div class="stack"><span>Electron</span><span>Node</span><span>CSP</span><span>LM Studio</span></div>
             <div class="links"><a href="media/agent-chat-agents-panel.jpg">See the Agents panel →</a><a href="media/agent-chat-phone.jpg">Narrow-window layout →</a></div>
           </div>
         </article>
@@ -187,6 +188,92 @@
             <li>16 of 16 synthetic jobs pass; worst deviation 0.00007 mm against a 0.01 mm tolerance.</li>
             <li>Tests grew from 23 to 57. The Illustrator panel waits for testing on real jobs.</li>
           </ul>
+        </article>
+      </div>
+
+      <h3 class="sub" id="progress">In progress now</h3>
+      <p class="sublede">Work I am busy with. Each item says what is done and what is not. None of it is published or shipped yet.</p>
+      <div class="work">
+        <article class="project">
+          <div class="shot ui"><img src="media/design-playground.jpg" alt="Design Playground: a live preview of a dark amber theme with a nav, a hero, cards and buttons, driven by design tokens" loading="lazy" decoding="async" width="1100" height="840" /></div>
+          <div class="info">
+            <span class="tag">Local tool · Nov 2026 · in progress</span>
+            <h3>Design Playground</h3>
+            <p class="problem">A tool for trying palettes, fonts and styles together on one live page before I commit to a design.</p>
+            <ul>
+              <li>Mix a palette, heading, body and accent font and a style, or load a ready-made theme. Everything on the preview is driven by CSS variables.</li>
+              <li>Live contrast checks at 4.5:1, a warning for accents that are only safe for large text, side-by-side compare, a type scale and motion controls with a reduced-motion simulation.</li>
+              <li>Research data behind it: 30 themes, 89 palettes, 50 fonts (all open licence) and 18 styles, each with its source. Studies of other people's sites are tagged "not for publishing" and left out of this screenshot.</li>
+              <li>Checks: all 30 themes cycled at 1440 and 390 with 0 console errors, 0 CSP violations, 0 failed requests and 0 sideways scroll. Security review: 0 High. It is a local tool and not hosted.</li>
+            </ul>
+            <div class="stack"><span>HTML</span><span>CSS variables</span><span>JavaScript</span><span>JSON data</span></div>
+          </div>
+        </article>
+      </div>
+
+      <div class="minis">
+        <article class="mini">
+          <span class="tag">Mika OS · in progress</span>
+          <h4>Sub-agent roster</h4>
+          <p>The same team as my Mika OS agents, as on-demand specialist roles I can launch for one task at a time.</p>
+          <ul>
+            <li>29 roles in one registry: 19 active and 10 proposed.</li>
+            <li>Every one of the 15 Mika OS agents has at least one matching role. The offline model backend is not a role.</li>
+            <li>A proposed role can only do notes or read-only work until I approve it once. No role can change the common limits: never publish, push, send, delete or contact anyone.</li>
+          </ul>
+        </article>
+        <article class="mini">
+          <span class="tag">Notes · Nov 2026 · in progress</span>
+          <h4>UX Psychology Playbook</h4>
+          <p>A playbook for reviewing my sites and apps, and a ux-psychologist role that uses it. The role is proposed and not yet approved.</p>
+          <ul>
+            <li>47 principles in 8 groups: attention, cognitive load, action, memory, decisions, trust, emotion and colour, accessibility.</li>
+            <li>An ethics line: 14 banned dark patterns and a 4-question test, so persuasion stays honest.</li>
+            <li>A reusable audit checklist that keeps each brand's identity. Not finished: 11 academic references still need checking before I quote them.</li>
+          </ul>
+        </article>
+        <article class="mini">
+          <span class="tag">Manufacturing review · Nov 2026</span>
+          <h4>Gyro winder: can it be made?</h4>
+          <p>A manufacturing review of the gyro winder 3D model, using numbers measured from its script and exported parts.</p>
+          <ul>
+            <li>Verdict: a good visual concept that cannot be made or assembled as drawn.</li>
+            <li>Four blockers: the drive pod collides with the gimbals, the posts overhang the base, the outer ring cannot fit between the posts, and nothing drives it.</li>
+            <li>Written up: a bill of materials, a print, CNC and laser route per part, 12 fits and an 8-step assembly order. Four drive options wait for my decision.</li>
+          </ul>
+        </article>
+        <article class="mini wide">
+          <span class="tag">Unofficial concepts · not commissioned · in progress</span>
+          <h4>Concept sites for small businesses</h4>
+          <p>Three website concepts I built on my own initiative. None is commissioned, approved by its owner or live. They carry no real contact details, no photos of people and no logos, so none is shown here.</p>
+          <div class="cols">
+            <div>
+              <b>Craft and 3D-printing shop concept</b>
+              <ul>
+                <li>A 3D printer prints a chilli in the hero, with print-in product reveals.</li>
+                <li>Added a workshop section, a five-question FAQ, a skip link and visible focus.</li>
+                <li>Placeholders still wait for the owner: logo, photos, opening hours.</li>
+                <li>0 console errors and 0 sideways scroll at 1440 and 390; a still frame under reduced motion. A security fix pass was paused and is not done.</li>
+              </ul>
+            </div>
+            <div>
+              <b>Catering concept</b>
+              <ul>
+                <li>Ember-lit hero that shows food only, a phone booking bar and a demo planner that sends nothing.</li>
+                <li>Founder names, bios, photos and testimonials are placeholders.</li>
+                <li>136 to 147 fps at 1440 and 160 at 390; embers pause off-screen; 0 console errors.</li>
+              </ul>
+            </div>
+            <div>
+              <b>A church website concept</b>
+              <ul>
+                <li>A skippable animated intro, a visit section and a demo contact form that sends and saves nothing.</li>
+                <li>Photos of people and phone numbers removed.</li>
+                <li>Waiting on the leadership's answer, so it is not named here.</li>
+                <li>0 console errors and 0 sideways scroll at 1440 and 390, with reduced motion.</li>
+              </ul>
+            </div>
+          </div>
         </article>
       </div>
 

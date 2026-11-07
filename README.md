@@ -6,7 +6,7 @@ I optimise systems, physical and digital, and I build AI that runs them. This is
 
 ## What's inside
 
-- `index.html`: the portfolio. Selected work (Mika OS, BPD Capture, Dime3 hardware), work history, skills and education.
+- `index.html`: the portfolio. Selected work (Mika OS, Agent Chat, BPD Capture, Dime3 hardware), an "In progress now" section (Design Playground, sub-agent roster, UX Psychology Playbook, gyro winder manufacturing review, unofficial concept sites), work history, skills and education.
 - `BPD-Capture/`: a case study of the offline Android and Windows field-photo app I built for Blueprint Digital, plus the interactive startup-animation gallery and the colour-scheme comparison. Client names and job numbers in the demos and screenshots are replaced with placeholders.
 - `Concepts/`: four interactive three.js pieces. A career flow (hero and detailed), a career graph, a CNC router controller you can run and a dual-nozzle 3D printer that prints each project.
 - `media/`: screenshots used on the page.

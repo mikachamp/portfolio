@@ -187,3 +187,12 @@ code { font: 500 .88em var(--mono); background: rgba(255,255,255,.07); padding: 
   *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; }
   .lab a:hover { transform: none; }
 }
+
+/* T-0081: in-progress section */
+.sublede { margin: 8px 0 0; color: var(--fg-2); max-width: 70ch; }
+.work-sec .sublede + .work { margin-top: 22px; }
+.work-sec .work + .minis { margin-top: 22px; }
+.mini.wide { grid-column: 1 / -1; }
+.mini .cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; margin-top: 6px; }
+.mini .cols b { display: block; margin-bottom: 6px; font-size: 15.5px; }
+@media (max-width: 1000px) { .mini .cols { grid-template-columns: 1fr; gap: 16px; } }
