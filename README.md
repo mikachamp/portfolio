@@ -13,7 +13,7 @@ I optimise systems, physical and digital, and I build AI that runs them. This is
 
 ## How it's built and tested
 
-Plain HTML, CSS and JavaScript, no build step. The 3D parts use three.js (loaded from a CDN) and fall back gracefully when WebGL is not available. Every page is checked in headless Chrome at 1440x900 and 390x844 for console errors, failed requests, images that don't load and sideways scrolling, both from `file://` and over a local web server. All links are relative so it works from a GitHub Pages sub-path.
+Plain HTML, CSS and JavaScript, no build step. The 3D parts use three.js (vendored in the repo, no CDN) and fall back gracefully when WebGL is not available. Every page is checked in headless Chrome at 1440x900 and 390x844 for console errors, failed requests, images that don't load and sideways scrolling, both from `file://` and over a local web server. All links are relative so it works from a GitHub Pages sub-path.
 
 To run it locally, serve the folder with any static server (for example `npx http-server`) and open it in a browser.
 
