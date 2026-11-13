@@ -242,3 +242,58 @@ nav.top .ddmenu a:first-child { color: var(--amber); }
   .js-reveal .rv.rv-in { opacity: 1; transform: none; }
   .js-reveal .rv.rv-now { transition: none; }
 }
+
+/* T-0102: calmer home */
+.hero h1 { font-size: clamp(32px, 3.9vw, 52px); }
+.hero-copy { max-width: 560px; }
+section.work-sec { padding-top: 96px; }
+.feat { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; margin-top: 34px; }
+.fcard { background: var(--card); border: 1px solid var(--line); border-radius: 20px; overflow: hidden; display: flex; flex-direction: column; }
+.fcard .shot { min-height: 0; aspect-ratio: 16 / 10; }
+.fcard .shot.phone { aspect-ratio: 16 / 10; padding: 0; }
+.fcard .shot.phone img { max-height: 100%; padding: 12px 0; object-fit: contain; }
+.shot.stat { text-align: center; align-content: center; }
+.shot.stat b { display: block; font-size: clamp(44px, 5vw, 64px); letter-spacing: -.03em; color: var(--amber); line-height: 1; }
+.shot.stat span { display: block; margin-top: 8px; font: 600 12px var(--mono); color: var(--muted); letter-spacing: .08em; text-transform: uppercase; }
+.fcard .info h3 { font-size: 23px; }
+.more { margin: 30px 0 0; font-weight: 700; }
+.more a { color: var(--amber); text-decoration: none; padding: 10px 0; display: inline-block; }
+.more a:hover { text-decoration: underline; }
+.grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 28px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chips span { font-size: 14px; padding: 6px 12px; border-radius: 99px; border: 1px solid var(--line); color: var(--fg-2); }
+.role p { margin: 0; color: var(--fg-2); font-size: 15px; }
+.eduline { margin: 44px 0 0; color: var(--fg-2); max-width: 78ch; }
+.eduline b { color: var(--fg); }
+section.alt + section { padding-top: 96px; }
+.pcard .links.two { display: flex; gap: 16px; flex-wrap: wrap; }
+@media (max-width: 1000px) { .feat, .grid3 { grid-template-columns: 1fr; } }
+@media (max-width: 760px) {
+  .hero iframe { height: 28vh; min-height: 190px; }
+  .hero::after { height: 28vh; min-height: 190px; }
+  .hero .wrap { padding-bottom: 36px; }
+  .hero p.lede { font-size: 16px; }
+  .now { margin-top: 18px; }
+  section.work-sec { padding-top: 56px; }
+  section.alt + section { padding-top: 56px; }
+  .eduline { margin-top: 32px; }
+  .fcard .info { padding: 20px 18px; }
+  .chips span { font-size: 13.5px; }
+}
+
+/* T-0102 fix pass */
+.cvnote { margin: 12px 0 0; font-size: 13px; color: var(--muted); }
+.tag { font-size: 12px; }
+.stack span { font-size: 12px; }
+@media (max-width: 760px) {
+  nav.top .links { gap: 0; }
+  nav.top .links a { min-height: 44px; display: inline-flex; align-items: center; padding: 0 8px; }
+  nav.top .name { min-height: 44px; display: inline-flex; align-items: center; }
+  .hero h1 { font-size: clamp(30px, 8.2vw, 36px); }
+}
+@media (max-width: 760px) {
+  nav.top .name { white-space: nowrap; font-size: 15px; }
+  nav.top .links { align-items: center; font-size: 14px; }
+  nav.top .links a { padding: 0 6px; }
+}
+@media (max-width: 760px) { nav.top .links a[href="#work"] { display: inline-flex; } }

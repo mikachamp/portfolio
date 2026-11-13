@@ -8,6 +8,7 @@ addEventListener('message', (e) => {
   if (e.source !== frame.contentWindow || e.data?.type !== 'career-stage') return
   const b = document.createElement('b'); b.textContent = String(e.data.n)
   const dot = document.createElement('i'); if (e.data.ai) dot.className = 'ai'
+  if (!now) return
   now.replaceChildren(dot, String(e.data.y) + ' · ', b, ' — ' + String(e.data.k))
 })
 addEventListener('scroll', () => nav.classList.toggle('solid', scrollY > 40), { passive: true })
