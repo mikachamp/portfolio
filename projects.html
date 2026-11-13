@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; frame-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>All projects | Mika Williamson</title>
+<meta name="description" content="Every project in Mika Williamson's portfolio with its status: live, in progress, concept, or practice and study.">
+<meta name="author" content="Mika Williamson">
+<meta name="theme-color" content="#0b0c0e">
+<meta name="color-scheme" content="dark">
+<link rel="canonical" href="https://mikachamp.github.io/portfolio/projects.html">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230b0c0e'/%3E%3Cpath d='M7 24V8l9 10 9-10v16' fill='none' stroke='%23ff9d42' stroke-width='3'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/site.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<nav class="top solid" id="nav" aria-label="Main">
+  <div class="wrap">
+    <a class="name" href="index.html">Mika Williamson</a>
+    <div class="links"><a href="index.html#work">Work</a><div class="dd"><button class="ddbtn" type="button" aria-expanded="false" aria-controls="ddmenu" aria-haspopup="true">Projects<span aria-hidden="true"> &#9662;</span></button><div class="ddmenu" id="ddmenu" hidden><a class="keep" href="projects.html">All projects</a><a class="keep" href="projects.html#mika-os">CHAMP OS + Agent Chat</a><a class="keep" href="projects.html#bpd-capture">BPD Capture</a><a class="keep" href="projects.html#dog-breed">Dog Breed Classifier</a><a class="keep" href="projects.html#chillipepper">Chillipepper 3D concept</a><a class="keep" href="projects.html#fire-co">Fire &amp; Co concepts</a><a class="keep" href="projects.html#grapevine">Grapevine Church</a><a class="keep" href="projects.html#gyro-winder">Gyro Winder Live</a><a class="keep" href="projects.html#playground">Design Playground + Site Tuner</a><a class="keep" href="projects.html#nest-plugin">Illustrator Nest plugin</a><a class="keep" href="projects.html#spotlight-shelf">Spotlight Shelf study</a></div></div><a class="keep" href="index.html#contact">Contact</a></div>
+  </div>
+</nav>
+<main id="main" class="pj">
+  <div class="wrap">
+    <p class="eyebrow">All projects</p>
+    <h1>Everything I'm building</h1>
+    <p class="lede">Live means built and working (some run only on my own machines). Concept sites are unofficial and not commissioned. Where a write-up does not exist yet, the card says so.</p>
+    <div class="filters" role="group" aria-label="Filter projects by status">
+      <button type="button" class="on" data-f="all" aria-pressed="true">All</button><button type="button" data-f="live" aria-pressed="false">Live</button><button type="button" data-f="progress" aria-pressed="false">In progress</button><button type="button" data-f="concept" aria-pressed="false">Concept</button><button type="button" data-f="study" aria-pressed="false">Practice/Study</button>
+    </div>
+    <div class="pgrid">
+        <article class="pcard" id="mika-os" data-status="progress">
+          <div class="ptop"><span class="badge s-progress">In progress</span></div>
+          <h3>CHAMP OS + Agent Chat</h3>
+          <p>Personal AI operating system: a fleet of agents on local models, plus a desktop chat app with an approval gate for risky actions.</p>
+          <div class="stack"><span>Electron</span><span>Node</span><span>PM2</span><span>LM Studio</span><span>Three.js</span><span>Obsidian</span></div>
+          <div class="links"><a href="index.html#work">See it in Selected work &rarr;</a></div>
+        </article>
+        <article class="pcard" id="bpd-capture" data-status="progress">
+          <div class="ptop"><span class="badge s-progress">In progress</span></div>
+          <h3>BPD Capture</h3>
+          <p>Offline job-documentation app for field work: photos, due dates and notes per job. Shown with dummy data only.</p>
+          <div class="stack"><span>Expo / React Native</span><span>Electron</span><span>Vite + React</span><span>Three.js</span></div>
+          <div class="links"><a href="BPD-Capture/index.html">Read the case study &rarr;</a></div>
+        </article>
+        <article class="pcard" id="dog-breed" data-status="study">
+          <div class="ptop"><span class="badge s-study">Practice/Study</span></div>
+          <h3>Dog Breed Classifier</h3>
+          <p>ZTM course project: classifies 120 dog breeds; best validation accuracy 78.1% with a frozen MobileNetV2 base.</p>
+          <div class="stack"><span>Python</span><span>TensorFlow</span><span>MobileNetV2</span><span>Jupyter</span></div>
+          <div class="links"><span class="soon">Write-up coming</span></div>
+        </article>
+        <article class="pcard" id="chillipepper" data-status="concept">
+          <div class="ptop"><span class="badge s-concept">Concept</span><span class="tag">Unofficial concept</span></div>
+          <h3>Chillipepper 3D concept</h3>
+          <p>Three website directions for a filament supplier, with a printing-chilli idea in 3D.</p>
+          <div class="stack"><span>HTML</span><span>CSS</span><span>JavaScript</span><span>Three.js</span></div>
+          <div class="links"><span class="soon">Write-up coming</span></div>
+        </article>
+        <article class="pcard" id="fire-co" data-status="concept">
+          <div class="ptop"><span class="badge s-concept">Concept</span><span class="tag">Unofficial concept</span></div>
+          <h3>Fire &amp; Co concepts</h3>
+          <p>Three improvement directions (Ember, Harvest Table, Booking First) for a fire-and-smoke catering business.</p>
+          <div class="stack"><span>HTML</span><span>CSS</span><span>JavaScript</span></div>
+          <div class="links"><span class="soon">Write-up coming</span></div>
+        </article>
+        <article class="pcard" id="grapevine" data-status="concept">
+          <div class="ptop"><span class="badge s-concept">Concept</span><span class="tag">Unofficial concept</span></div>
+          <h3>Grapevine Church</h3>
+          <p>One church website concept with a skippable logo intro, a visit section and a demo form that sends nothing.</p>
+          <div class="stack"><span>HTML</span><span>CSS</span><span>JavaScript</span></div>
+          <div class="links"><span class="soon">Write-up coming</span></div>
+        </article>
+        <article class="pcard" id="gyro-winder" data-status="live">
+          <div class="ptop"><span class="badge s-live">Live</span></div>
+          <h3>Gyro Winder Live</h3>
+          <p>Scroll-driven 3D piece that takes a gyro watch winder apart, with materials that behave like the real ones.</p>
+          <div class="stack"><span>Three.js</span><span>TypeScript</span><span>Vite</span><span>Signed distance fields</span></div>
+          <div class="links"><a href="index.html#work">See it in Selected work &rarr;</a></div>
+        </article>
+        <article class="pcard" id="playground" data-status="progress">
+          <div class="ptop"><span class="badge s-progress">In progress</span></div>
+          <h3>Design Playground and Site Tuner</h3>
+          <p>Local tool to mix palettes, fonts and styles with contrast checks; the Site Tuner adds motion and feature switches.</p>
+          <div class="stack"><span>HTML/CSS/JS</span><span>JSON</span></div>
+          <div class="links"><a href="projects/design-playground/index.html">Open the page &rarr;</a></div>
+        </article>
+        <article class="pcard" id="nest-plugin" data-status="progress">
+          <div class="ptop"><span class="badge s-progress">In progress</span></div>
+          <h3>Illustrator Nest plugin</h3>
+          <p>Nests parts onto sheets and exports cut sheets; engine tested on fictional files, Illustrator panel awaits real jobs.</p>
+          <div class="stack"><span>Python</span><span>Electron</span></div>
+          <div class="links"><a href="index.html#work">See it in Also built recently &rarr;</a></div>
+        </article>
+        <article class="pcard" id="spotlight-shelf" data-status="study">
+          <div class="ptop"><span class="badge s-study">Study</span></div>
+          <h3>Spotlight Shelf</h3>
+          <p>Interaction study inspired by Ascenta Studio&#x27;s PLUIE concept; images AI-generated by Mika</p>
+          <div class="stack"><span>HTML</span><span>CSS</span><span>JavaScript</span></div>
+          <div class="links"><a href="projects/spotlight-shelf/index.html">Open the page &rarr;</a></div>
+        </article>
+    </div>
+  </div>
+</main>
+<footer><div class="wrap"><span>&copy; 2026 Mika Williamson &middot; Cape Town</span><span><a href="index.html">Back to the portfolio</a></span></div></footer>
+<script src="js/nav.js"></script>
+</body>
+</html>

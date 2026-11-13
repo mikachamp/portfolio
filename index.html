@@ -6,7 +6,7 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; frame-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <title>Mika Williamson | Systems Portfolio: CNC, 3D printing, robotics and agentic AI</title>
-<meta name="description" content="Mika Williamson, Cape Town. CNC and 3D-printing production, robotics and ML, and agentic AI systems including Mika OS and Agent Chat.">
+<meta name="description" content="Mika Williamson, Cape Town. CNC and 3D-printing production, robotics and ML, and agentic AI systems including CHAMP OS and Agent Chat.">
 <meta name="author" content="Mika Williamson">
 <meta name="theme-color" content="#0b0c0e">
 <meta name="color-scheme" content="dark">
@@ -36,7 +36,7 @@
 <nav class="top" id="nav" aria-label="Main">
   <div class="wrap">
     <a class="name" href="#top">Mika Williamson</a>
-    <div class="links"><a href="#work">Work</a><a href="#progress">In progress</a><a href="#experience">Experience</a><a href="#skills">Skills</a><a class="keep" href="#contact">Contact</a></div>
+    <div class="links"><a href="#work">Work</a><a href="#progress">In progress</a><div class="dd"><button class="ddbtn" type="button" aria-expanded="false" aria-controls="ddmenu" aria-haspopup="true">Projects<span aria-hidden="true"> &#9662;</span></button><div class="ddmenu" id="ddmenu" hidden><a class="keep" href="projects.html">All projects</a><a class="keep" href="projects.html#mika-os">CHAMP OS + Agent Chat</a><a class="keep" href="projects.html#bpd-capture">BPD Capture</a><a class="keep" href="projects.html#dog-breed">Dog Breed Classifier</a><a class="keep" href="projects.html#chillipepper">Chillipepper 3D concept</a><a class="keep" href="projects.html#fire-co">Fire &amp; Co concepts</a><a class="keep" href="projects.html#grapevine">Grapevine Church</a><a class="keep" href="projects.html#gyro-winder">Gyro Winder Live</a><a class="keep" href="projects.html#playground">Design Playground + Site Tuner</a><a class="keep" href="projects.html#nest-plugin">Illustrator Nest plugin</a><a class="keep" href="projects.html#spotlight-shelf">Spotlight Shelf study</a></div></div><a href="#experience">Experience</a><a href="#skills">Skills</a><a class="keep" href="#contact">Contact</a></div>
   </div>
 </nav>
 
@@ -72,10 +72,10 @@
       <h2 id="work-h">Things I've built</h2>
       <div class="work">
         <article class="project">
-          <div class="shot"><img src="media/champ-os-dashboard.jpg" alt="Mika OS command center: the AI Core figure, agent overview and the Director panel" loading="lazy" decoding="async" width="1440" height="900" /></div>
+          <div class="shot"><img src="media/champ-os-dashboard.jpg" alt="CHAMP OS command center: the AI Core figure, agent overview and the Director panel" loading="lazy" decoding="async" width="1440" height="900" /></div>
           <div class="info">
             <span class="tag">Project · 2026</span>
-            <h3>Mika OS</h3>
+            <h3>CHAMP OS</h3>
             <p class="problem">A personal AI operating system: a fleet of agents that runs my day, my vault and my machines' upkeep — on local models.</p>
             <ul>
               <li>15 agents (Node/PM2) running on local LLMs via LM Studio, with cloud fallback.</li>
@@ -99,7 +99,7 @@
               <li>A live Agents panel built from task files shows who is working, finished or blocked, and is labelled "unverified".</li>
               <li>Hardened desktop build. Tests: 44 unit, plus end-to-end runs of 20 checks on the Agents panel, 28 on the app and 9 on the built exe.</li>
               <li>Security re-check of version 1.1.3: 0 High in both the Electron review and the AI-agent review.</li>
-              <li>In progress: version 1.2, a UX redesign from a UX audit. The groundwork is built; the new screens are on hold for now.</li>
+              <li>In progress: version 1.2, a UX redesign from a UX audit, now being built.</li>
             </ul>
             <div class="stack"><span>Electron</span><span>Node</span><span>CSP</span><span>LM Studio</span></div>
             <div class="links"><a href="media/agent-chat-agents-panel.jpg">See the Agents panel →</a><a href="media/agent-chat-phone.jpg">Narrow-window layout →</a></div>
@@ -169,7 +169,7 @@
           </ul>
         </article>
         <article class="mini">
-          <span class="tag">Mika OS · 2026</span>
+          <span class="tag">CHAMP OS · 2026</span>
           <h4>Offline chat</h4>
           <p>Chat with a local model: replies stream in, there is a Stop button, and the app only talks to local addresses.</p>
           <ul>
@@ -213,12 +213,12 @@
 
       <div class="minis">
         <article class="mini">
-          <span class="tag">Mika OS · in progress</span>
+          <span class="tag">CHAMP OS · in progress</span>
           <h4>Sub-agent roster</h4>
-          <p>The same team as my Mika OS agents, as on-demand specialist roles I can launch for one task at a time.</p>
+          <p>The same team as my CHAMP OS agents, as on-demand specialist roles I can launch for one task at a time.</p>
           <ul>
             <li>32 roles in one registry: 23 active and 9 proposed.</li>
-            <li>Each of the 14 Mika OS agents has at least one matching role. The 15th, the offline model backend, is not a role.</li>
+            <li>Each of the 14 CHAMP OS agents has at least one matching role. The 15th, the offline model backend, is not a role.</li>
             <li>A proposed role can only do notes or read-only work until I approve it once. No role can change the common limits: never publish, push, send, delete or contact anyone.</li>
           </ul>
         </article>
@@ -349,5 +349,6 @@
 <footer><div class="wrap"><span>© 2026 Mika Williamson · Cape Town</span><span>Built with Three.js. More machines to try in the Lab.</span></div></footer>
 
 <script src="js/site.js"></script>
+<script src="js/nav.js"></script>
 </body>
 </html>

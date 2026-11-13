@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; frame-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Design Playground and Site Tuner</title>
+<meta name="description" content="A local tool for mixing themes, palettes and fonts, checking contrast, and live-tuning my real websites before saving.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../project.css">
+</head>
+<body>
+<main>
+<section class="col">
+<a class="back" href="../../index.html">&larr; All work</a>
+<p class="eyebrow">Tool · Front end · Built with my AI agents</p>
+<h1>Design Playground and Site Tuner</h1>
+<p><span class="badge">In progress</span></p>
+<p class="lede">Every new site started with the same hour of picking colours and fonts. I built a tool that turns those decisions into a few clicks, saves the good combinations, and lets me tune my live sites without touching the code by hand.</p>
+<div class="meta"><div><b>Role</b><span>Product owner: specified, directed and reviewed</span></div><div><b>Built with</b><span>My AI agent team (CHAMP OS)</span></div><div><b>Stack</b><span>HTML, CSS, JavaScript, JSON data bundle</span></div><div><b>Library</b><span>30 themes · 89 palettes · 5 project profiles</span></div><div><b>Status</b><span>Working locally, in active use</span></div></div>
+</section>
+
+<figure><img src="media/playground.jpg" alt="Design Playground with a sidebar of theme, palette and font controls and a live sample web page on the right" loading="lazy">
+<figcaption>Pick a theme, palette, fonts and style on the left; the sample page on the right updates instantly. Desktop or phone width.</figcaption></figure>
+
+<section class="col"><p class="n">01 · What it does</p><h2>Design decisions in one place</h2>
+<ul><li><b>Mix:</b> theme, palette, heading, body and accent fonts, and a style (corners, shadows, spacing).</li>
+<li><b>Check:</b> live WCAG AA contrast check, a type scale specimen and motion preview.</li>
+<li><b>Licences:</b> every font and palette shows its licence, so nothing unusable slips into a client site.</li>
+<li><b>Compare:</b> save any mix as A or B and view them side by side.</li>
+<li><b>Keep:</b> favourite a mix, pick it for a project, copy the CSS variables or export a tokens.css file.</li></ul></section>
+
+<figure><img src="media/compare.jpg" alt="Compare view showing two versions of the same sample page side by side" loading="lazy"><figcaption>Compare view: two mixes side by side before choosing.</figcaption></figure>
+
+<section class="col"><p class="n">02 · Site Tuner</p><h2>Tune a real site, safely</h2>
+<p>The Site Tuner loads one of my actual websites and steps through Look, Motion and Features. Every change is preview-only until I press Save; before saving I can review exactly what will change in the file, undo, or reset to how the page was built.</p></section>
+<figure class="col"><img src="media/site-tuner.jpg" alt="Site Tuner panel with numbered steps Look, Motion, Features and Save, and Undo, Reset, Review and Save buttons" loading="lazy" class="w420"><figcaption>The tuner panel: preview only, with a review step before anything is written.</figcaption></figure>
+
+<section class="col"><p class="n">03 · How it was built</p>
+<p>I wrote the requirements and acceptance tests, and my agent team built it in small tasks. Each task went through a reviewer and a privacy check before I approved it. My job was the product decisions: what it should do, what "done" means, and what to cut.</p>
+<p class="note">Honest bug note: the export button once fired the same download about 16 times. I found it, cleaned up, and logged the fix as a task.</p></section>
+<footer class="col">Mika Williamson · <a href="https://github.com/mikachamp">github.com/mikachamp</a></footer>
+</main>
+</body>
+</html>
