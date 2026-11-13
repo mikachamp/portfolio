@@ -235,3 +235,10 @@ nav.top .ddmenu a:first-child { color: var(--amber); }
 .soon { color: var(--muted); font: 600 12.5px var(--mono); }
 @media (max-width: 1000px) { .pgrid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 640px) { .pgrid { grid-template-columns: 1fr; } .pj { padding-top: 90px; } }
+
+/* scroll reveal (js/reveal.js): hidden only when JS has added .js-reveal */
+@media (prefers-reduced-motion: no-preference) {
+  .js-reveal .rv { opacity: 0; transform: translateY(20px); transition: opacity .6s ease-out var(--rv-d, 0ms), transform .6s ease-out var(--rv-d, 0ms); }
+  .js-reveal .rv.rv-in { opacity: 1; transform: none; }
+  .js-reveal .rv.rv-now { transition: none; }
+}

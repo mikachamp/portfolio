@@ -33,3 +33,10 @@ ul{margin:0;padding-left:1.2em;display:grid;gap:6px}
 footer{border-top:1px solid var(--line);padding-top:20px;font:400 .85rem var(--f-head);color:var(--muted)}
 .w420{max-width:420px}.w380{max-width:380px;margin-inline:auto}
 .nums.one{grid-template-columns:1fr}.nums .big{font-size:1.1rem}
+
+/* scroll reveal (js/reveal.js): hidden only when JS has added .js-reveal */
+@media (prefers-reduced-motion: no-preference) {
+  .js-reveal .rv { opacity: 0; transform: translateY(20px); transition: opacity .6s ease-out var(--rv-d, 0ms), transform .6s ease-out var(--rv-d, 0ms); }
+  .js-reveal .rv.rv-in { opacity: 1; transform: none; }
+  .js-reveal .rv.rv-now { transition: none; }
+}
