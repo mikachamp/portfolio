@@ -52,7 +52,7 @@ body { margin: 0; background: var(--bg); color: var(--fg); font: 15px/1.5 var(--
 }
 </style>
 <link rel="icon" href="data:,">
-</head><body>
+<link rel="stylesheet" href="../css/back.css"><body><nav class="pgback shift" aria-label="Page navigation"><a href="../projects.html#lab" data-back>&larr; Back</a><a href="../index.html">Home</a></nav>
 <canvas id="scene" role="img" aria-label="Animation of Mika's career as a workshop: two robot arms load a CNC router and a CO2 laser cutter, both cut while a 3D printer prints a ring, the parts are assembled into a gyro watch winder, and the product becomes an AI agent network that runs every machine"></canvas>
 <div class="ui">
   <div class="top">
@@ -788,4 +788,4 @@ addEventListener('message', (e) => { const d = e.data || {}; if (d.type === 'pau
 if (reduce) { T = STAGES[3].t1 - 2; draw() } else { apply(0, 0, true); updUI(0); requestAnimationFrame(loop) }
 window.__cf = { set: (t) => { T = t; clearChips(); apply(T, .016, true); R.render(scene, cam); updUI(T) }, pause: () => { playing = false; setPlayBtn() } }
 </script>
-</body></html>
+<script src="../js/back.js"></script></html>

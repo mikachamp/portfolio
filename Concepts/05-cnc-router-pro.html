@@ -98,8 +98,8 @@
   .hero-m header, .hero-m .pendant, .hero-m .card, .hero-m .label, .hero-m .views { display: none !important; }
 </style>
 <link rel="icon" href="data:,">
-</head>
-<body>
+<link rel="stylesheet" href="../css/back.css">
+<body><nav class="pgback shift" aria-label="Page navigation"><a href="../projects.html#lab" data-back>&larr; Back</a><a href="../index.html">Home</a></nav>
 <div id="stage" aria-hidden="true"></div>
 
 <header>
@@ -811,5 +811,5 @@ if (/hero/.test(location.search) && innerWidth < 760) {
   setInterval(() => { if (finished && !waiting) { waiting = true; setTimeout(nextJob, 2600) } }, 500)
 }
 </script>
-</body>
+<script src="../js/back.js"></script>
 </html>

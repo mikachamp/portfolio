@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; frame-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AI-Assisted CAD: Twisted Cloud Plinth</title>
+<meta name="description" content="How I used an AI agent connected to Fusion 360 to design a 315 mm display plinth and get it print-ready for my 3D printer in one afternoon.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../project.css">
+<link rel="stylesheet" href="../../css/back.css"></head>
+<body><nav class="pgback pad" aria-label="Page navigation"><a href="../../projects.html#plinth" data-back>&larr; Back</a><a href="../../index.html">Home</a></nav>
+<main>
+<section class="col">
+
+<p class="eyebrow">AI-assisted CAD · Fusion 360 · 3D printing</p>
+<h1>Designing in Fusion 360 with AI</h1>
+<p><span class="badge">In progress</span></p>
+<p class="lede">A retail display plinth for a sneaker launch: a soft, twisted "cloud" column that a single shoe sits on. I connected an AI agent to Fusion 360, directed it in plain language through four design rounds, and ended the same afternoon with a parametric Fusion model that prints in one piece on my Bambu H2D.</p>
+<div class="meta"><div><b>My role</b><span>Design direction, review, print prep</span></div><div><b>AI + CAD</b><span>Claude agent driving Fusion 360 through its API connector</span></div><div><b>Machine</b><span>Bambu Lab H2D, one piece</span></div><div><b>Size</b><span>Ø315 × 320 mm</span></div><div><b>Time</b><span>One afternoon, brief to print file</span></div></div>
+</section>
+
+<figure class="col"><img src="media/final-iso.jpg" alt="Grey Fusion render of a short round plinth made of five thick tubes twisting upward, with a flat flower-shaped top" width="700" height="830" loading="lazy">
+<figcaption>Final model in Fusion: five equal Ø120 mm tubes twisting 180° around a solid core, cut flat top and bottom.</figcaption></figure>
+
+<section class="col"><p class="n">01 · The workflow</p><h2>I direct, the AI drafts, Fusion holds the model</h2>
+<p>The AI agent had a live connection to Fusion 360 on my laptop. It wrote and ran the modelling scripts itself, took screenshots of the result, and I judged each one. I never typed a sketch dimension by hand. My job was the part AI can't do alone: knowing what looks right and what my printer can actually make.</p>
+<div class="pair">
+<div class="nums one"><div><b class="big">What I did</b><span>Set the size, finish and printer limits · judged every render · gave the design feedback · decided when it was done</span></div></div>
+<div class="nums one"><div><b class="big">What the AI did</b><span>Wrote and ran the Fusion scripts · rebuilt the shape after each note · measured overhangs · exported the STL</span></div></div>
+</div></section>
+
+<section class="col"><p class="n">02 · The brief</p><h2>A soft shape that still prints clean</h2>
+<p>The reference was a puffy, rope-like column. The sample had to be 315 mm wide and 320 mm high, white, and printed in one piece on the H2D, which only just fits that diameter. So the design had to look soft while staying inside a tight build volume, with no support marks on a white surface.</p></section>
+
+<section class="col"><p class="n">03 · Directing the AI</p><h2>Four rounds of plain-language feedback</h2>
+<ul><li><b>Smooth sweep:</b> the first lofts rippled between sections, so the AI rebuilt it as one twisted sweep. Clean, but plain.</li>
+<li><b>"Double the swirls":</b> more twist turned it into a screw thread, and the undersides went nearly flat, which would need supports.</li>
+<li><b>"Not threads, make it flow up like the render":</b> the AI generated the surface in Python so the twist could vary up the height. My note back: the tubes looked squeezed.</li>
+<li><b>"The tubes must be a consistent diameter":</b> five true round tubes of equal size. That was the look, and it stays printable.</li></ul></section>
+<div class="strip">
+<figure><img src="media/iter-1-sweep.jpg" alt="Iteration 1: four-lobe twisted sweep with a round lofted top" loading="lazy"><figcaption>1. Twisted sweep</figcaption></figure>
+<figure><img src="media/iter-2-triple.jpg" alt="Iteration 2: tight triple twist that looks like a screw thread" loading="lazy"><figcaption>2. Triple twist: too thread-like</figcaption></figure>
+<figure><img src="media/iter-3-flow.jpg" alt="Iteration 3: organic variable-twist lobes" loading="lazy"><figcaption>3. Variable flow: tubes squeezed</figcaption></figure>
+<figure><img src="media/iter-4-tubes.jpg" alt="Iteration 4: five equal round tubes twisting up" loading="lazy"><figcaption>4. Equal round tubes: the final look</figcaption></figure>
+</div>
+
+<section class="col"><p class="n">04 · Making it printable</p><h2>Checked by numbers, not by eye</h2>
+<p>For every version the AI measured how much of the side surface faces downward more steeply than 45°, the usual limit for printing without supports. The final shape scores zero, so it prints with no supports and no scars to sand off a white finish.</p>
+<div class="nums"><div><b>0%</b><span>side area steeper than 45°</span></div><div><b>315 mm</b><span>exact max diameter</span></div><div><b>1 piece</b><span>fits the H2D, no seams</span></div><div><b>Parametric</b><span>tube size and twist are editable</span></div></div></section>
+
+<section class="col"><p class="n">05 · Native CAD</p><h2>AI-written, but a real Fusion model</h2>
+<p>A generated mesh prints fine but is hard to edit, so I had the AI rebuild the final version as native Fusion features: five helix paths, a circular tube swept along each, joined to a centre core, then trimmed flat. The client can now ask for thicker tubes or more twist, and it's a one-number change.</p></section>
+<figure class="col"><img src="media/final-top.jpg" alt="Top view of the plinth showing a five-lobed flower outline" width="600" height="600" loading="lazy" class="w380"><figcaption>Top view: the five-lobe flat face the shoe stands on.</figcaption></figure>
+
+<section class="col"><p class="n">What I'd do next</p>
+<p>Print the sample on the H2D, check the first layer and the lobe undersides on the real machine, then fillet the top edge if the client wants it softer.</p>
+<p class="note">Client and brand are deliberately not named. Publish only with the client's written OK.</p></section>
+<footer class="col">Mika Williamson · <a href="https://github.com/mikachamp">github.com/mikachamp</a></footer>
+</main>
+<script src="../../js/back.js"></script></body>
+</html>

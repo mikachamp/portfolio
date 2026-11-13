@@ -16,7 +16,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/site.css">
-</head>
+<link rel="stylesheet" href="css/back.css">
 <body>
 <a class="skip" href="#main">Skip to content</a>
 <nav class="top solid" id="nav" aria-label="Main">
@@ -27,14 +27,21 @@
 </nav>
 <main id="main" class="pj">
   <div class="wrap">
+    <nav class="pgback inline" aria-label="Page navigation"><a href="index.html" data-back>&larr; Back</a><a href="index.html">Home</a></nav>
     <p class="eyebrow">All projects</p>
     <h1>Everything I'm building</h1>
     <p class="lede">Live means built and working (some run only on my own machines). Concept sites are unofficial and not commissioned. Where a write-up does not exist yet, the card says so.</p>
+    <section class="gsec" aria-labelledby="graph-h">
+      <h2 id="graph-h">How it connects</h2>
+      <p class="gintro">Projects, the skill areas they use and where I learned them. Hover a node to see its links; click a project to open it.</p>
+      <div class="graph" id="graph" role="img" aria-label="Graph linking each project to its skill areas and learning sources"></div>
+    </section>
     <div class="filters" role="group" aria-label="Filter projects by status">
       <button type="button" class="on" data-f="all" aria-pressed="true">All</button><button type="button" data-f="live" aria-pressed="false">Live</button><button type="button" data-f="progress" aria-pressed="false">In progress</button><button type="button" data-f="concept" aria-pressed="false">Concept</button><button type="button" data-f="study" aria-pressed="false">Practice/Study</button>
     </div>
     <div class="pgrid">
         <article class="pcard" id="mika-os" data-status="progress">
+          <img class="pthumb" src="media/thumbs/mika-os.jpg" alt="CHAMP OS command center with the agent overview and Director panel" width="640" height="400" loading="lazy" decoding="async">
           <div class="ptop"><span class="badge s-progress">In progress</span></div>
           <h3>CHAMP OS + Agent Chat</h3>
           <p>Personal AI operating system: a fleet of agents on local models, plus a desktop chat app with an approval gate for risky actions.</p>
@@ -42,6 +49,7 @@
           <div class="links two"><a href="media/champ-os-knowledge-graph.jpg">See the knowledge graph &rarr;</a><a href="https://github.com/mikachamp/mika-os" target="_blank" rel="noopener">Code and build story &rarr;</a></div>
         </article>
         <article class="pcard" id="bpd-capture" data-status="progress">
+          <img class="pthumb" src="media/thumbs/bpd-capture.jpg" alt="BPD Capture Android app showing a jobs list with dummy data" width="640" height="400" loading="lazy" decoding="async">
           <div class="ptop"><span class="badge s-progress">In progress</span></div>
           <h3>BPD Capture</h3>
           <p>Offline job-documentation app for field work: photos, due dates and notes per job. Shown with dummy data only.</p>
@@ -49,6 +57,7 @@
           <div class="links"><a href="BPD-Capture/index.html">Read the case study &rarr;</a></div>
         </article>
         <article class="pcard" id="dog-breed" data-status="study">
+          <img class="pthumb" src="media/thumbs/dog-breed.jpg" alt="Title card for the Dog Breed Classifier project: transfer learning with MobileNetV2, 120 breeds" width="640" height="400" loading="lazy" decoding="async">
           <div class="ptop"><span class="badge s-study">Practice/Study</span></div>
           <h3>Dog Breed Classifier</h3>
           <p>ZTM course project: classifies 120 dog breeds; best validation accuracy 78.1% with a frozen MobileNetV2 base.</p>
@@ -56,6 +65,7 @@
           <div class="links"><span class="soon">Write-up coming</span></div>
         </article>
         <article class="pcard" id="chillipepper" data-status="concept">
+          <img class="pthumb" src="media/thumbs/chillipepper.jpg" alt="Chillipepper concept site, Ember direction: dark page with molten orange accents" width="640" height="400" loading="lazy" decoding="async">
           <div class="ptop"><span class="badge s-concept">Concept</span><span class="tag">Unofficial concept</span></div>
           <h3>Chillipepper 3D concept</h3>
           <p>Three website directions for a filament supplier, with a printing-chilli idea in 3D.</p>
@@ -63,6 +73,7 @@
           <div class="links"><span class="soon">Write-up coming</span></div>
         </article>
         <article class="pcard" id="fire-co" data-status="concept">
+          <img class="pthumb" src="media/thumbs/fire-co.jpg" alt="Fire and Co concept site, Ember direction, shown with photos removed: dark page with orange headline" width="640" height="400" loading="lazy" decoding="async">
           <div class="ptop"><span class="badge s-concept">Concept</span><span class="tag">Unofficial concept</span></div>
           <h3>Fire &amp; Co concepts</h3>
           <p>Three improvement directions (Ember, Harvest Table, Booking First) for a fire-and-smoke catering business.</p>
@@ -70,6 +81,7 @@
           <div class="links"><span class="soon">Write-up coming</span></div>
         </article>
         <article class="pcard" id="grapevine" data-status="concept">
+          <img class="pthumb" src="media/thumbs/grapevine.jpg" alt="Grapevine Church concept site shown with photos removed: black and yellow layout" width="640" height="400" loading="lazy" decoding="async">
           <div class="ptop"><span class="badge s-concept">Concept</span><span class="tag">Unofficial concept</span></div>
           <h3>Grapevine Church</h3>
           <p>One church website concept with a skippable logo intro, a visit section and a demo form that sends nothing.</p>
@@ -77,6 +89,7 @@
           <div class="links"><span class="soon">Write-up coming</span></div>
         </article>
         <article class="pcard" id="gyro-winder" data-status="live">
+          <img class="pthumb" src="media/thumbs/gyro-winder.jpg" alt="Gyro watch winder taken apart in 3D, with part labels" width="640" height="400" loading="lazy" decoding="async">
           <div class="ptop"><span class="badge s-live">Live</span></div>
           <h3>Gyro Winder Live v2</h3>
           <p>Scroll-driven 3D piece that takes a gyro watch winder apart, with materials that behave like the real ones.</p>
@@ -84,6 +97,7 @@
           <div class="links"><span class="soon">Write-up coming</span></div>
         </article>
         <article class="pcard" id="playground" data-status="progress">
+          <img class="pthumb" src="media/thumbs/playground.jpg" alt="Design Playground with theme, palette and font controls and a live sample page" width="640" height="400" loading="lazy" decoding="async">
           <div class="ptop"><span class="badge s-progress">In progress</span></div>
           <h3>Design Playground and Site Tuner</h3>
           <p>Local tool to mix palettes, fonts and styles with contrast checks; the Site Tuner adds motion and feature switches.</p>
@@ -91,20 +105,31 @@
           <div class="links"><a href="projects/design-playground/index.html">Open the page &rarr;</a></div>
         </article>
         <article class="pcard" id="nest-plugin" data-status="progress">
+          <img class="pthumb" src="media/thumbs/nest-plugin.jpg" alt="Title card for the Illustrator Nest plugin: nests parts onto sheets and exports cut sheets" width="640" height="400" loading="lazy" decoding="async">
           <div class="ptop"><span class="badge s-progress">In progress</span></div>
           <h3>Illustrator Nest plugin</h3>
           <p>Nests parts onto sheets and exports cut sheets; engine tested on fictional files, Illustrator panel awaits real jobs.</p>
           <div class="stack"><span>Python</span><span>Electron</span></div>
-          <div class="links"><span class="soon">Write-up coming</span></div>
+          <div class="links"><a href="projects/nest-plugin/index.html">See the project &rarr;</a></div>
         </article>
         <article class="pcard" id="spotlight-shelf" data-status="study">
+          <img class="pthumb" src="media/thumbs/spotlight-shelf.jpg" alt="Spotlight Shelf demo: an interactive product shelf study" width="640" height="400" loading="lazy" decoding="async">
           <div class="ptop"><span class="badge s-study">Study</span></div>
           <h3>Spotlight Shelf</h3>
           <p>Interaction study inspired by Ascenta Studio&#x27;s PLUIE concept; images AI-generated by Mika</p>
           <div class="stack"><span>HTML</span><span>CSS</span><span>JavaScript</span></div>
           <div class="links"><a href="projects/spotlight-shelf/index.html">Open the page &rarr;</a></div>
         </article>
+        <article class="pcard" id="plinth" data-status="progress">
+          <img class="pthumb" src="media/thumbs/plinth.jpg" alt="3D-printable display plinth designed in Fusion 360, isometric view" width="640" height="400" loading="lazy" decoding="async">
+          <div class="ptop"><span class="badge s-progress">In progress</span></div>
+          <h3>Designing in Fusion 360 with AI</h3>
+          <p>Directed an AI agent driving Fusion 360 to design a 3D-printable display plinth</p>
+          <div class="stack"><span>Claude + Fusion 360 API</span><span>Bambu H2D</span></div>
+          <div class="links"><a href="projects/fusion-plinth/index.html">Open the page &rarr;</a></div>
+        </article>
         <article class="pcard" id="dime3" data-status="live">
+          <img class="pthumb" src="media/thumbs/dime3.jpg" alt="Dime3 H2D winder, the gyro watch winder hardware" width="640" height="400" loading="lazy" decoding="async">
           <div class="ptop"><span class="badge s-live">Live</span></div>
           <h3>Dime3 hardware</h3>
           <p>Rapid prototyping, reverse engineering and affordable custom manufacturing: tooling, moulds and hardware such as a gyro watch winder, jigs and brackets.</p>
@@ -112,34 +137,31 @@
           <div class="links"><a href="Concepts/06-h2d-printer.html">Print it yourself (interactive) &rarr;</a></div>
         </article>
         <article class="pcard" id="offline-chat" data-status="progress">
+          <img class="pthumb" src="media/thumbs/offline-chat.jpg" alt="CHAMP OS Agent Chat agents panel" width="640" height="400" loading="lazy" decoding="async">
           <div class="ptop"><span class="badge s-progress">In progress</span></div>
           <h3>CHAMP OS offline chat</h3>
           <p>Chat with a local model: replies stream in with a Stop button, and the app only talks to local addresses. 13 unit and 33 end-to-end checks pass; not yet merged into my main build.</p>
           <div class="stack"><span>Electron</span><span>Node</span><span>LM Studio</span></div>
-          <div class="links"><span class="soon">Write-up coming</span></div>
+          <div class="links"><a href="projects/offline-chat/index.html">See the project &rarr;</a></div>
         </article>
         <article class="pcard" id="security-roles" data-status="progress">
+          <img class="pthumb" src="media/thumbs/security-roles.jpg" alt="Title card for the five security reviewer roles" width="640" height="400" loading="lazy" decoding="async">
           <div class="ptop"><span class="badge s-progress">In progress</span></div>
           <h3>Five security reviewer roles</h3>
           <p>Read-only sub-agents for my agent team (SQL, AI-agent, Electron, dependency and web security). Each has a written test and a limit that says what it may never touch.</p>
           <div class="stack"><span>Node</span><span>Agents</span></div>
-          <div class="links"><span class="soon">Write-up coming</span></div>
+          <div class="links"><a href="projects/security-roles/index.html">See the project &rarr;</a></div>
         </article>
         <article class="pcard" id="subagents" data-status="progress">
+          <img class="pthumb" src="media/thumbs/subagents.jpg" alt="Title card for the sub-agent roster: 32 roles in one registry" width="640" height="400" loading="lazy" decoding="async">
           <div class="ptop"><span class="badge s-progress">In progress</span></div>
           <h3>Sub-agent roster</h3>
           <p>32 on-demand specialist roles in one registry (23 active, 9 proposed). No role can change the common limits: never publish, push, send, delete or contact anyone.</p>
           <div class="stack"><span>Node</span><span>JSON</span></div>
-          <div class="links"><span class="soon">Write-up coming</span></div>
-        </article>
-        <article class="pcard" id="ux-playbook" data-status="progress">
-          <div class="ptop"><span class="badge s-progress">In progress</span></div>
-          <h3>UX Psychology Playbook</h3>
-          <p>47 principles in 8 groups, an ethics line of 14 banned dark patterns, and a reusable audit checklist. Not finished: 11 academic references still need checking.</p>
-          <div class="stack"><span>Notes</span></div>
-          <div class="links"><span class="soon">Write-up coming</span></div>
+          <div class="links"><a href="projects/subagents/index.html">See the project &rarr;</a></div>
         </article>
         <article class="pcard" id="gyro-review" data-status="study">
+          <img class="pthumb" src="media/thumbs/gyro-review.jpg" alt="Exploded 3D view of the gyro winder model used for the manufacturing review" width="640" height="400" loading="lazy" decoding="async">
           <div class="ptop"><span class="badge s-study">Study</span></div>
           <h3>Gyro winder: can it be made?</h3>
           <p>A manufacturing review of the gyro winder 3D model: a good visual concept that cannot be made as drawn, with four blockers, a bill of materials and a route per part.</p>
@@ -147,6 +169,7 @@
           <div class="links"><span class="soon">Write-up coming</span></div>
         </article>
         <article class="pcard" id="lab" data-status="study">
+          <img class="pthumb" src="media/thumbs/lab.jpg" alt="Career flow animation: a workshop of robots, a CNC router and a 3D printer" width="640" height="400" loading="lazy" decoding="async">
           <div class="ptop"><span class="badge s-study">Practice/Study</span></div>
           <h3>Lab pieces</h3>
           <p>Interactive pieces behind the home-page hero: the career flow, a CNC router controller, a 3D print studio and a career graph.</p>
@@ -158,5 +181,6 @@
 <footer><div class="wrap"><span>&copy; 2026 Mika Williamson &middot; Cape Town</span><span><a href="index.html">Back to the portfolio</a></span></div></footer>
 <script src="js/nav.js"></script>
 <script src="js/reveal.js" defer></script>
-</body>
+<script src="js/back.js"></script>
+<script type="module" src="js/graph.js"></script>
 </html>

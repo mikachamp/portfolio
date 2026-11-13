@@ -70,8 +70,8 @@
   }
 </style>
 <link rel="icon" href="data:,">
-</head>
-<body>
+<link rel="stylesheet" href="../css/back.css">
+<body><nav class="pgback shift" aria-label="Page navigation"><a href="../projects.html#dime3" data-back>&larr; Back</a><a href="../index.html">Home</a></nav>
 <div id="stage" aria-hidden="true"></div>
 <header>
   <p class="eyebrow">Mika Williamson · Dime3</p>
@@ -477,5 +477,5 @@ function frame(now) {
 function showCard(j) { card.innerHTML = `<div class="k">Printed · ${j.file}</div><h2>${j.title}</h2><div class="when">${j.when}</div><ul>${j.points.map(p => `<li>${p}</li>`).join('')}</ul>`; card.classList.add('show') }
 requestAnimationFrame(frame)
 </script>
-</body>
+<script src="../js/back.js"></script>
 </html>

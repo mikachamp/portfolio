@@ -1,0 +1,10 @@
+/* Back + Home bar (js/back.js). Fixed top-left, 44px tall targets, small enough to leave scene controls free. */
+.pgback { position: fixed; top: max(10px, env(safe-area-inset-top)); left: max(10px, env(safe-area-inset-left)); z-index: 2147483000; display: flex; gap: 6px; font: 600 14px/1 "JetBrains Mono", ui-monospace, Consolas, monospace; }
+.pgback a { display: inline-flex; align-items: center; min-height: 44px; min-width: 44px; padding: 0 14px; border-radius: 12px; background: rgba(11,12,14,.82); color: #eeece6; border: 1px solid rgba(255,255,255,.18); text-decoration: none; -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); justify-content: center; }
+.pgback a:hover { border-color: #ff9d42; color: #ffb46b; }
+.pgback a:focus-visible { outline: 2px solid #ff9d42; outline-offset: 2px; }
+.pgback.inline { position: static; margin: 0 0 18px; }
+@media print { .pgback { display: none; } }
+.pgback.shift ~ header { margin-top: 58px; }
+.pgback.shift ~ .ui .top { margin-top: 58px; }
+.pgback.pad ~ main { padding-top: 58px; }
