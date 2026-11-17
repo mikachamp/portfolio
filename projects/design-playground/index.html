@@ -3,45 +3,423 @@
 <head>
 <meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; frame-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Design Playground and Site Tuner</title>
-<meta name="description" content="A local tool for mixing themes, palettes and fonts, checking contrast, and live-tuning my real websites before saving.">
+<title>Design Playground case study</title>
+<meta name="description" content="A local tool for mixing themes, palettes and fonts, checking contrast, and live-tuning my real websites in a sandboxed preview before a validated save. Architecture, data flow, tuning workflow and the security design.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500&family=JetBrains+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="../project.css">
-<link rel="stylesheet" href="../../css/back.css">
+<link rel="stylesheet" href="design-playground.css">
+<link rel="stylesheet" href="../../css/back.css">
+</head>
 <body><nav class="pgback pad" aria-label="Page navigation"><a href="../../projects.html#playground" data-back>&larr; Back</a><a href="../../index.html">Home</a></nav>
 <main>
-<section class="col">
-<a class="back" href="../../index.html">&larr; All work</a>
-<p class="eyebrow">Tool · Front end · Built with my AI agents</p>
+
+<header class="col">
+<p class="eyebrow">Case study &middot; Front-end tool &middot; 2026</p>
 <h1>Design Playground and Site Tuner</h1>
-<p><span class="badge">In progress</span></p>
-<p class="lede">Every new site started with the same hour of picking colours and fonts. I built a tool that turns those decisions into a few clicks, saves the good combinations, and lets me tune my live sites without touching the code by hand.</p>
-<div class="meta"><div><b>Role</b><span>Product owner: specified, directed and reviewed</span></div><div><b>Built with</b><span>My AI agent team (CHAMP OS)</span></div><div><b>Stack</b><span>HTML, CSS, JavaScript, JSON data bundle</span></div><div><b>Library</b><span>30 themes · 89 palettes · 5 project profiles</span></div><div><b>Status</b><span>Working locally, in active use</span></div></div>
+<p><span class="badge">In progress</span><span class="badge warn">Save server hardening in progress</span></p>
+<p class="lede">Every new site started with the same hour of picking colours and fonts. This local tool turns those decisions into a few clicks, keeps the good combinations, and lets me tune my real websites in a sandboxed preview. Nothing is written until I have read what will change.</p>
+<div class="meta">
+<div><b>My role</b><span>Designed and directed; AI coding agents built much of it</span></div>
+<div><b>Stack</b><span>HTML &middot; CSS &middot; plain JavaScript &middot; JSON &middot; Node scripts &middot; Python server</span></div>
+<div><b>Library</b><span>30 themes &middot; 89 palettes &middot; 50 fonts &middot; 18 styles</span></div>
+<div><b>Status</b><span>Working locally, in active use</span></div>
+</div>
+</header>
+
+<figure class="hero-shot"><img src="media/playground.jpg" alt="Design Playground with a sidebar of theme, palette and font controls and a live sample web page on the right" width="1400" height="875">
+<figcaption>Pick a theme, palette, fonts and style on the left; the sample page on the right updates at once, at desktop or phone width.</figcaption></figure>
+
+<section class="col" aria-labelledby="s1">
+<p class="n">01 &middot; Brief</p>
+<h2 id="s1">What it is for, and my part in it</h2>
+<div class="brief">
+<div><b>Problem</b><p>Each new site meant re-deciding colours, fonts, corners and motion by hand, then nudging CSS in the real page to see if it worked. The choices were not saved anywhere I could reuse.</p></div>
+<div><b>My role</b><p>I designed the tool and its rules and directed the build; AI coding agents built much of it in small tasks. Each task went through review, a design and UX check and a security review before I approved it.</p></div>
+<div><b>What it does</b><p>A design library in plain JSON, a playground to mix and check it, and a Site Tuner that changes motion, layout and look on five of my sites in a live preview, then saves only a small settings block.</p></div>
+<div><b>Status</b><p>Runs on my PC through a small local server. Save server hardening is in progress, and the tuned pages are still in working copies, not on the live sites.</p></div>
+</div>
 </section>
 
-<figure><img src="media/playground.jpg" alt="Design Playground with a sidebar of theme, palette and font controls and a live sample web page on the right" loading="lazy">
-<figcaption>Pick a theme, palette, fonts and style on the left; the sample page on the right updates instantly. Desktop or phone width.</figcaption></figure>
+<section class="col" aria-labelledby="s2">
+<p class="n">02 &middot; What it does</p>
+<h2 id="s2">Design decisions in one place</h2>
+<ul class="feat">
+<li><b>Mix</b>Theme, palette, heading, body and accent fonts, and a style for corners, shadows and spacing. Or pick a saved project profile.</li>
+<li><b>Check</b>A live WCAG AA contrast check, a type scale specimen and a motion preview.</li>
+<li><b>Licences</b>Every font and palette shows its licence, so nothing unusable slips into a client site. All 50 fonts are OFL.</li>
+<li><b>Compare</b>Save any mix as A or B and view them side by side.</li>
+<li><b>Keep</b>Favourite a mix, pick it for a project, copy the CSS variables or export a <code>tokens.css</code> file.</li>
+<li><b>Real page</b>Load one of my sites in a sandboxed frame and apply the mix to the CSS variables that page already uses.</li>
+</ul>
+</section>
 
-<section class="col"><p class="n">01 · What it does</p><h2>Design decisions in one place</h2>
-<ul><li><b>Mix:</b> theme, palette, heading, body and accent fonts, and a style (corners, shadows, spacing).</li>
-<li><b>Check:</b> live WCAG AA contrast check, a type scale specimen and motion preview.</li>
-<li><b>Licences:</b> every font and palette shows its licence, so nothing unusable slips into a client site.</li>
-<li><b>Compare:</b> save any mix as A or B and view them side by side.</li>
-<li><b>Keep:</b> favourite a mix, pick it for a project, copy the CSS variables or export a tokens.css file.</li></ul></section>
+<figure class="hero-shot"><img src="media/compare.jpg" alt="Compare view showing two versions of the same sample page side by side" width="1400" height="875" loading="lazy"><figcaption>Compare view: two mixes side by side before choosing.</figcaption></figure>
 
-<figure><img src="media/compare.jpg" alt="Compare view showing two versions of the same sample page side by side" loading="lazy"><figcaption>Compare view: two mixes side by side before choosing.</figcaption></figure>
+<section class="wide" aria-labelledby="s3">
+<div class="col">
+<p class="n">03 &middot; Architecture</p>
+<h2 id="s3">A page, a data library, two sandboxed frames and one small server</h2>
+<p>The playground is a single page with no framework. It reads the library from JSON files, or from a generated bundle when opened straight from disk. Site pages only ever run inside sandboxed frames. A Python server on this PC serves the pages and has exactly one write route, for Site Tuner saves.</p>
+</div>
+<p class="dg-hint" id="h-arch">Diagram is wide: scroll it sideways.</p>
+<div class="dg" tabindex="0" role="region" aria-label="Architecture diagram, scrolls sideways on small screens" aria-describedby="h-arch">
+<svg viewBox="0 0 1040 640" role="img" aria-labelledby="arch-t arch-d" xmlns="http://www.w3.org/2000/svg">
+<title id="arch-t">Design Playground architecture</title>
+<desc id="arch-d">The Design Playground page runs in my browser and has three parts: Mix and check, the Site Tuner, and Exports. It loads its data library from five JSON files written by my research agents, or from a built and validated bundle when opened from disk. The Mix panels set matching CSS variables inside a real-page frame that is sandboxed with no scripts. The Site Tuner talks by postMessage, in both directions, to a second frame that runs scripts but never shares the playground's origin; inside it, each of five hooked sites carries a small tuner hook that listens only when the page is opened with ?tuner=1 and clamps every value. A Python server, serve.py, bound to 127.0.0.1 port 8000, serves only the playground and the tuned sites, checks the Host header and lists no folders. Its one write route, the save endpoint, takes settings JSON from the Site Tuner, makes a diff first, then writes only after strict checks, with a backup and an atomic replace, into the tuner-settings block of a site's working copy.</desc>
+<defs>
+<marker id="am" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk"/></marker>
+<marker id="aa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-a"/></marker>
+<marker id="ac" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-c"/></marker>
+</defs>
 
-<section class="col"><p class="n">02 · Site Tuner</p><h2>Tune a real site, safely</h2>
-<p>The Site Tuner loads one of my actual websites and steps through Look, Motion and Features. Every change is preview-only until I press Save; before saving I can review exactly what will change in the file, undo, or reset to how the page was built.</p></section>
-<figure class="col"><img src="media/site-tuner.jpg" alt="Site Tuner panel with numbered steps Look, Motion, Features and Save, and Undo, Reset, Review and Save buttons" loading="lazy" class="w420"><figcaption>The tuner panel: preview only, with a review step before anything is written.</figcaption></figure>
+<rect class="grp" x="20" y="44" width="300" height="330" rx="12"/>
+<text class="tt" x="36" y="70">Design Playground</text>
+<text class="ts" x="36" y="88">index.html &middot; in my browser</text>
+<rect class="bx" x="36" y="104" width="268" height="76" rx="8"/>
+<text class="t" x="48" y="128">Mix and check</text>
+<text class="ts" x="48" y="148">profiles &middot; palette &middot; fonts &middot; style</text>
+<text class="ts" x="48" y="164">AA contrast &middot; type scale &middot; A/B</text>
+<rect class="bx-a" x="36" y="192" width="268" height="76" rx="8"/>
+<text class="t" x="48" y="216">Site Tuner</text>
+<text class="ts" x="48" y="236">Look &middot; Motion &middot; Features &middot; Save</text>
+<text class="ts" x="48" y="252">Undo &middot; Reset &middot; Review</text>
+<rect class="bx" x="36" y="280" width="268" height="76" rx="8"/>
+<text class="t" x="48" y="304">Exports</text>
+<text class="ts" x="48" y="324">tokens.css &middot; CSS variables</text>
+<text class="ts" x="48" y="340">picks.json &middot; settings JSON</text>
 
-<section class="col"><p class="n">03 · How it was built</p>
-<p>I wrote the requirements and acceptance tests, and my agent team built it in small tasks. Each task went through a reviewer and a privacy check before I approved it. My job was the product decisions: what it should do, what "done" means, and what to cut.</p>
-<p class="note">Honest bug note: the export button once fired the same download about 16 times. I found it, cleaned up, and logged the fix as a task.</p></section>
-<footer class="col">Mika Williamson · <a href="https://github.com/mikachamp">github.com/mikachamp</a></footer>
+<rect class="grp" x="20" y="430" width="300" height="150" rx="12"/>
+<text class="tt" x="36" y="456">Data library</text>
+<rect class="bx" x="36" y="470" width="128" height="94" rx="8"/>
+<text class="t" x="48" y="494">data/*.json</text>
+<text class="ts" x="48" y="514">5 files,</text>
+<text class="ts" x="48" y="530">written by my</text>
+<text class="ts" x="48" y="546">research agents</text>
+<path class="ln" d="M164,517 H188" marker-end="url(#am)"/>
+<rect class="bx" x="192" y="470" width="112" height="94" rx="8"/>
+<text class="t" x="204" y="494">bundle.js</text>
+<text class="ts" x="204" y="514">built and</text>
+<text class="ts" x="204" y="530">validated,</text>
+<text class="ts" x="204" y="546">for file://</text>
+<path class="ln" d="M170,430 V378" marker-end="url(#am)"/>
+<text class="ts" x="180" y="408">loads JSON, else bundle</text>
+
+<path class="ln-a" d="M304,142 H412" marker-end="url(#aa)"/>
+<text class="ts ta" x="312" y="134">CSS vars</text>
+<path class="ln-c" d="M308,236 H412" marker-start="url(#ac)" marker-end="url(#ac)"/>
+<text class="ts tc" x="314" y="228">postMessage</text>
+
+<rect class="grp-c" x="400" y="44" width="290" height="330" rx="12"/>
+<text class="tt tc" x="416" y="70">Preview frames</text>
+<text class="ts" x="416" y="88">sandboxed iframes</text>
+<rect class="bx-c" x="416" y="104" width="258" height="76" rx="8"/>
+<text class="t" x="428" y="128">Real page view</text>
+<text class="ts" x="428" y="148">sandbox: no scripts</text>
+<text class="ts" x="428" y="164">matching CSS variables set</text>
+<rect class="bx-c" x="416" y="192" width="258" height="168" rx="8"/>
+<text class="t" x="428" y="216">Site Tuner view</text>
+<text class="ts" x="428" y="236">scripts on, never same-origin</text>
+<text class="ts" x="428" y="252">settings by postMessage only</text>
+<rect class="bx" x="432" y="266" width="226" height="80" rx="8"/>
+<text class="t" x="444" y="290">Site page + tuner hook</text>
+<text class="ts" x="444" y="310">listens only with ?tuner=1</text>
+<text class="ts" x="444" y="326">clamps every value</text>
+
+<path class="ln" d="M746,142 H696" marker-end="url(#am)"/>
+<text class="ts" x="697" y="134">pages</text>
+
+<rect class="grp-l" x="730" y="44" width="290" height="330" rx="12"/>
+<text class="tt ta" x="746" y="70">serve.py</text>
+<text class="ts" x="746" y="88">127.0.0.1:8000 &middot; this PC only</text>
+<rect class="bx" x="746" y="104" width="258" height="76" rx="8"/>
+<text class="t" x="758" y="128">Static files</text>
+<text class="ts" x="758" y="148">playground + tuned sites only</text>
+<text class="ts" x="758" y="164">Host check &middot; no folder listings</text>
+<rect class="bx-a" x="746" y="192" width="258" height="168" rx="8"/>
+<text class="t" x="758" y="216">Save endpoint</text>
+<text class="ts" x="758" y="236">POST /__tuner/save</text>
+<text class="ts" x="758" y="254">diff first, then write</text>
+<text class="ts" x="758" y="272">fixed target names, no paths</text>
+<text class="ts" x="758" y="290">strict schema &middot; 8 KB cap</text>
+<text class="ts" x="758" y="308">write needs the diff's hash</text>
+<text class="ts" x="758" y="326">backup &middot; atomic replace</text>
+
+<path class="ln-a" d="M304,256 H340 V392 H860 V364" marker-end="url(#aa)"/>
+<text class="ts ta" x="420" y="386">save: settings JSON (diff, then write)</text>
+
+<rect class="grp" x="400" y="430" width="290" height="150" rx="12"/>
+<text class="tt" x="416" y="456">Hooked sites (5)</text>
+<text class="ts" x="416" y="480">Grapevine Church &middot; Fire &amp; Co</text>
+<text class="ts" x="416" y="498">Chillipepper 3D (Ember)</text>
+<text class="ts" x="416" y="516">Portfolio &middot; Gyro winder</text>
+<text class="ts" x="416" y="540">applies saved settings on load</text>
+<text class="ts" x="416" y="558">listens only with ?tuner=1</text>
+
+<path class="ln-a" d="M940,360 V482" marker-end="url(#aa)"/>
+<text class="ts ta" x="948" y="406">write</text>
+<rect class="grp-l" x="730" y="430" width="290" height="150" rx="12"/>
+<text class="tt ta" x="746" y="456">Working copies</text>
+<text class="ts" x="746" y="474">site files in worktrees</text>
+<rect class="bx" x="746" y="486" width="180" height="80" rx="8"/>
+<text class="t" x="758" y="510">Site index.html</text>
+<text class="ts" x="758" y="530">only the settings</text>
+<text class="ts" x="758" y="546">block changes</text>
+<text class="ts" x="936" y="530">+ backup</text>
+
+<path class="ln-a" d="M36,612 H76"/><text class="ts" x="84" y="616">my code, stays on this PC</text>
+<path class="ln-c" d="M300,612 H340"/><text class="ts" x="348" y="616">sandboxed or untrusted content</text>
+<path class="ln" d="M600,612 H640"/><text class="ts" x="648" y="616">file load or page serve</text>
+</svg>
+</div>
+<div class="col">
+<p class="foot-note">Source: the playground's <code>index.html</code>, <code>js/app.js</code>, <code>js/tuner.js</code>, <code>hooks/tuner-core.js</code>, <code>tools/build-bundle.js</code> and <code>tools/serve.py</code>.</p>
+</div>
+</section>
+
+<section class="wide" aria-labelledby="s4">
+<div class="col">
+<p class="n">04 &middot; Data flow</p>
+<h2 id="s4">Where data comes from, what checks it, where it ends up</h2>
+<p>The library is plain JSON with a written schema. Every value is checked before it becomes CSS, and checked again on the way out. The only outside call the playground makes is for Google Fonts; there are no accounts, no analytics and no cloud storage.</p>
+</div>
+<p class="dg-hint" id="h-flow">Diagram is wide: scroll it sideways.</p>
+<div class="dg" tabindex="0" role="region" aria-label="Data flow diagram, scrolls sideways on small screens" aria-describedby="h-flow">
+<svg viewBox="0 0 1040 470" role="img" aria-labelledby="flow-t flow-d" xmlns="http://www.w3.org/2000/svg">
+<title id="flow-t">Design Playground data flow</title>
+<desc id="flow-d">Three sources feed the tool: research agents write palettes, fonts, styles and themes as JSON with sources; five draft project profiles name a theme plus overrides and a preview page; and I make picks and move sliders and switches. Each passes a check: the bundle is built and validated so every id resolves and a stale bundle fails with a fix line; the playground range-checks colours, sizes and easings and drops any value that fails; Site Tuner rules are checked three times, by the playground, by the page hook and by the save server. Results end up as files I export (tokens.css, picks.json, settings JSON), as favourites and project picks in this browser's localStorage, or in a site working copy's tuner-settings block with a backup. The only outside call the playground makes is to Google Fonts.</desc>
+<defs>
+<marker id="bm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk"/></marker>
+<marker id="ba" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-a"/></marker>
+</defs>
+<rect class="grp" x="20" y="44" width="290" height="380" rx="12"/>
+<text class="tt" x="36" y="70">Where data comes from</text>
+<rect class="bx" x="36" y="96" width="258" height="80" rx="8"/>
+<text class="t" x="48" y="120">Research agents</text>
+<text class="ts" x="48" y="140">write palettes, fonts, styles</text>
+<text class="ts" x="48" y="156">and themes, with sources</text>
+<rect class="bx" x="36" y="196" width="258" height="80" rx="8"/>
+<text class="t" x="48" y="220">Project profiles</text>
+<text class="ts" x="48" y="240">5 drafts: a theme plus</text>
+<text class="ts" x="48" y="256">overrides and a preview page</text>
+<rect class="bx" x="36" y="296" width="258" height="80" rx="8"/>
+<text class="t" x="48" y="320">Me</text>
+<text class="ts" x="48" y="340">picks, sliders, switches</text>
+<text class="ts" x="48" y="356">Calm &middot; Lively &middot; Bold presets</text>
+
+<path class="ln" d="M294,136 H382" marker-end="url(#bm)"/>
+<path class="ln" d="M294,236 H382" marker-end="url(#bm)"/>
+<path class="ln" d="M294,336 H382" marker-end="url(#bm)"/>
+
+<rect class="grp" x="370" y="44" width="300" height="380" rx="12"/>
+<text class="tt" x="386" y="70">Checks on the way</text>
+<rect class="bx-a" x="386" y="96" width="268" height="80" rx="8"/>
+<text class="t" x="398" y="120">Build + validate the bundle</text>
+<text class="ts" x="398" y="140">every id resolves</text>
+<text class="ts" x="398" y="156">stale bundle: exit 1 + Fix line</text>
+<rect class="bx-a" x="386" y="196" width="268" height="80" rx="8"/>
+<text class="t" x="398" y="220">Playground range checks</text>
+<text class="ts" x="398" y="240">colours, sizes, easings</text>
+<text class="ts" x="398" y="256">a value that fails is dropped</text>
+<rect class="bx-a" x="386" y="296" width="268" height="80" rx="8"/>
+<text class="t" x="398" y="320">Tuner rules, checked 3 times</text>
+<text class="ts" x="398" y="340">playground &middot; page hook</text>
+<text class="ts" x="398" y="356">save server rejects the rest</text>
+
+<path class="ln-a" d="M654,136 H742" marker-end="url(#ba)"/>
+<path class="ln-a" d="M654,236 H742" marker-end="url(#ba)"/>
+<path class="ln-a" d="M654,336 H742" marker-end="url(#ba)"/>
+
+<rect class="grp-l" x="730" y="44" width="290" height="380" rx="12"/>
+<text class="tt ta" x="746" y="70">Where it ends up</text>
+<rect class="bx" x="746" y="96" width="258" height="80" rx="8"/>
+<text class="t" x="758" y="120">Files I export</text>
+<text class="ts" x="758" y="140">tokens.css &middot; picks.json</text>
+<text class="ts" x="758" y="156">settings JSON (offline use)</text>
+<rect class="bx" x="746" y="196" width="258" height="80" rx="8"/>
+<text class="t" x="758" y="220">This browser only</text>
+<text class="ts" x="758" y="240">favourites and project picks</text>
+<text class="ts" x="758" y="256">localStorage on this device</text>
+<rect class="bx" x="746" y="296" width="258" height="80" rx="8"/>
+<text class="t" x="758" y="320">Site working copy</text>
+<text class="ts" x="758" y="340">the tuner-settings block</text>
+<text class="ts" x="758" y="356">+ a .bak-tuner backup</text>
+
+<path class="ln-a" d="M36,452 H76"/><text class="ts" x="84" y="456">stays on this PC</text>
+<path class="ln" d="M260,452 H300"/><text class="ts" x="308" y="456">input step</text>
+<text class="ts" x="460" y="456">Only outside call from the playground: Google Fonts.</text>
+</svg>
+</div>
+<div class="col">
+<p class="foot-note">Source: <code>data/SCHEMA.md</code>, <code>tools/build-bundle.js</code> and <code>validate-bundle.js</code>, the playground's CSP (<code>connect-src 'self'</code>) and the T-0084 security review.</p>
+</div>
+</section>
+
+<section class="wide" aria-labelledby="s5">
+<div class="col">
+<p class="n">05 &middot; Workflow</p>
+<h2 id="s5">Tuning a site, start to finish</h2>
+<p>The Site Tuner loads one of my sites in its sandboxed frame and steps through Look, Motion and Features. Every change is preview-only. Saving is two steps: the server first builds a diff and writes nothing, then a write is accepted only with the hash from that diff, so a stale review cannot be saved.</p>
+</div>
+<p class="dg-hint" id="h-wf">Diagram is wide: scroll it sideways.</p>
+<div class="dg" tabindex="0" role="region" aria-label="Workflow diagram, scrolls sideways on small screens" aria-describedby="h-wf">
+<svg viewBox="0 0 1040 520" role="img" aria-labelledby="wf-t wf-d" xmlns="http://www.w3.org/2000/svg">
+<title id="wf-t">Site Tuner workflow with the review and save steps</title>
+<desc id="wf-d">Four lanes: Me, Playground, Preview (sandboxed frame) and Save (serve.py). Step 1: I pick a site and move a slider or tick a section. Step 2: the playground waits 150 milliseconds, then sends the settings by postMessage. Step 3: the hook in the sandboxed page checks the sender and the message shape, clamps the values and applies them; the live preview updates. Step 4: I adjust, with Undo or Reset, until it is right. Step 5: Review shows a plain-language summary over the raw diff; the server builds the diff in diff mode, writes nothing and returns a hash. Step 6: I press Save, sending that hash. Step 7: the server checks the request is valid and the file still matches the hash. If not, it is refused with a 4xx error and nothing is written. Step 8: if yes, it makes a backup, then replaces only the settings block. Step 9: the preview and the plain site reload and show the saved settings.</desc>
+<defs>
+<marker id="cm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk"/></marker>
+<marker id="ca" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-a"/></marker>
+<marker id="cc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-c"/></marker>
+</defs>
+<rect class="lane" x="10" y="20" width="1020" height="110"/>
+<rect class="lane2" x="10" y="130" width="1020" height="110"/>
+<rect class="lane" x="10" y="240" width="1020" height="110"/>
+<rect class="lane2" x="10" y="350" width="1020" height="130"/>
+<path class="ln" d="M116,20 V480"/>
+<text class="tt" x="22" y="80">Me</text>
+<text class="tt" x="22" y="190">Playground</text>
+<text class="tt" x="22" y="292">Preview</text><text class="ts" x="22" y="310">sandboxed</text>
+<text class="tt" x="22" y="410">Save</text><text class="ts" x="22" y="428">serve.py</text>
+
+<rect class="bx" x="128" y="37" width="140" height="76" rx="8"/>
+<text class="t" x="140" y="61">1 &middot; Pick a site</text>
+<text class="ts" x="140" y="81">move a slider or</text>
+<text class="ts" x="140" y="97">tick a section</text>
+<path class="ln" d="M198,113 V185 H214" marker-end="url(#cm)"/>
+
+<rect class="bx" x="218" y="147" width="140" height="76" rx="8"/>
+<text class="t" x="230" y="171">2 &middot; Send</text>
+<text class="ts" x="230" y="191">150 ms debounce</text>
+<text class="ts" x="230" y="207">then postMessage</text>
+<path class="ln-c" d="M288,223 V295 H314" marker-end="url(#cc)"/>
+<text class="ts tc end" x="280" y="266">message</text>
+
+<rect class="bx-c" x="318" y="257" width="150" height="76" rx="8"/>
+<text class="t" x="330" y="281">3 &middot; Hook checks</text>
+<text class="ts" x="330" y="301">sender, shape</text>
+<text class="ts" x="330" y="317">clamp, then apply</text>
+<path class="ln" d="M468,295 H488 V117" marker-end="url(#cm)"/>
+<text class="ts" x="496" y="292">live preview</text>
+
+<rect class="bx" x="418" y="37" width="140" height="76" rx="8"/>
+<text class="t" x="430" y="61">4 &middot; Adjust</text>
+<text class="ts" x="430" y="81">Undo or Reset</text>
+<text class="ts" x="430" y="97">until it is right</text>
+<path class="ln" d="M558,75 H593 V143" marker-end="url(#cm)"/>
+
+<rect class="bx" x="518" y="147" width="150" height="76" rx="8"/>
+<text class="t" x="530" y="171">5 &middot; Review</text>
+<text class="ts" x="530" y="191">plain summary</text>
+<text class="ts" x="530" y="207">over the raw diff</text>
+<path class="ln" d="M593,227 V363" marker-start="url(#cm)" marker-end="url(#cm)"/>
+<text class="ts" x="601" y="300">diff mode</text>
+<rect class="bx" x="518" y="367" width="150" height="76" rx="8"/>
+<text class="t" x="530" y="391">Diff only</text>
+<text class="ts" x="530" y="411">nothing written</text>
+<text class="ts" x="530" y="427">returns a hash</text>
+<path class="ln" d="M668,185 H688 V117" marker-end="url(#cm)"/>
+
+<rect class="bx" x="618" y="37" width="140" height="76" rx="8"/>
+<text class="t" x="630" y="61">6 &middot; Save</text>
+<text class="ts" x="630" y="81">I press Save,</text>
+<text class="ts" x="630" y="97">with that hash</text>
+<path class="ln-a" d="M758,75 H790 V361" marker-end="url(#ca)"/>
+
+<polygon class="bx-g" points="715,405 790,365 865,405 790,445"/>
+<text class="t mid" x="790" y="402">7 &middot; Valid?</text>
+<text class="ts mid" x="790" y="420">same hash?</text>
+<path class="ln-a" d="M865,405 H886" marker-end="url(#ca)"/>
+<text class="ts ta" x="866" y="397">yes</text>
+<path class="ln-c" d="M790,445 V460"/>
+<text class="ts tc" x="800" y="472">no: refused (4xx), nothing written</text>
+
+<rect class="bx-a" x="890" y="367" width="130" height="76" rx="8"/>
+<text class="t" x="902" y="391">8 &middot; Write</text>
+<text class="ts" x="902" y="411">backup first,</text>
+<text class="ts" x="902" y="427">then the block</text>
+<path class="ln-a" d="M955,367 V117" marker-end="url(#ca)"/>
+
+<rect class="bx" x="890" y="37" width="130" height="76" rx="8"/>
+<text class="t" x="902" y="61">9 &middot; Reloaded</text>
+<text class="ts" x="902" y="81">preview and</text>
+<text class="ts" x="902" y="97">site show it</text>
+
+<path class="ln-a" d="M36,504 H76"/><text class="ts" x="84" y="508">save path</text>
+<path class="ln-c" d="M220,504 H260"/><text class="ts" x="268" y="508">message into the sandbox</text>
+<path class="ln" d="M500,504 H540"/><text class="ts" x="548" y="508">step</text>
+</svg>
+</div>
+<div class="side">
+<div class="col">
+<p>The panel is built for someone tuning by eye. Each slider shows its value with units and a one-line meaning, presets set several sliders at once, and the save bar keeps Undo, Reset, Review and Save in reach. Review shows a plain summary, such as &ldquo;Animation speed: 1.0&times; &rarr; 1.4&times;&rdquo;, with the raw diff under &ldquo;Technical detail&rdquo;.</p>
+<p>At the default settings each hooked page renders the same as before the hook, so adding the tuner changes nothing until I change something.</p>
+<p class="foot-note">Source: <code>js/tuner.js</code>, <code>hooks/tuner-core.js</code> and the <code>handle_save</code> route in <code>tools/serve.py</code>; T-0092 result notes.</p>
+</div>
+<figure><img src="media/site-tuner.jpg" alt="Site Tuner panel with numbered steps Look, Motion, Features and Save, and Undo, Reset, Review and Save buttons" width="700" height="900" loading="lazy"><figcaption>The tuner panel: preview only, with a review step before anything is written.</figcaption></figure>
+</div>
+</section>
+
+<section class="col" aria-labelledby="s6">
+<p class="n">06 &middot; Security and privacy</p>
+<h2 id="s6">How the trust boundaries are drawn</h2>
+<p>The tool loads my own sites, which run their own scripts, and it can write files. So the design keeps site code in sandboxes, treats every message as untrusted, and gives the server one narrow write route.</p>
+<ul class="sec-list">
+<li><span><span class="today">Today</span></span><b>Local-only server.</b> <code>serve.py</code> listens on <code>127.0.0.1</code> only and accepts only <code>localhost</code> Host headers, which blocks DNS-rebinding tricks from other websites. It serves only the playground and the tuned sites, refuses secret-looking files such as <code>.env</code> and <code>.git</code>, and never lists folders. It replaced a plain Python file server that a security review found was exposing too much.</li>
+<li><span><span class="today">Today</span></span><b>Sandboxed previews.</b> The real-page view runs the site with scripts switched off. The Site Tuner view runs scripts but never with <code>allow-same-origin</code>, so the framed page cannot reach into the playground. A code comment says never to combine the two.</li>
+<li><span><span class="today">Today</span></span><b>postMessage checks.</b> The playground accepts replies only from its own preview frame and only in the expected shape. The page hook listens only when the page is opened with <code>?tuner=1</code> and only to its parent. Every number is clamped. Easings, section ids and fonts must come from per-site allowlists, and colours must pass a pattern and the browser's own check. The hook builds CSS only from values it formats itself and never uses <code>innerHTML</code>.</li>
+<li><span><span class="today">Today</span></span><b>Validated saves.</b> One POST route, exact path. The Host, Origin and fetch-site headers must all be local, the body must be JSON under 8 KB, and the client names a target, never a file path. Unknown keys, wrong types and out-of-range values are refused. A write needs the hash from the diff step. The server makes a backup and swaps the file in one atomic step, and it changes only the settings block.</li>
+<li><span><span class="today">Today</span></span><b>Site CSPs kept strict.</b> Four sites needed no change. The portfolio's policy got only the hook's exact script hash, and the hook injects styles through a constructed stylesheet, so no <code>'unsafe-inline'</code> was added.</li>
+<li><span><span class="today">Today</span></span><b>Privacy.</b> No accounts, no analytics, no cloud storage. Favourites and picks stay in this browser's <code>localStorage</code>. Profile text is shown as plain text only, and exported <code>tokens.css</code> values are re-checked before they are written.</li>
+<li><span><span class="planned">In progress</span></span><b>Save server hardening in progress.</b> Further hardening of <code>serve.py</code> is being built and will get its own security review.</li>
+</ul>
+<p class="foot-note">Reviews: design &amp; UX and web-security gates on T-0084 and T-0092, plus a fix pass after each. Source: the T-0084 and T-0092 result and review notes.</p>
+</section>
+
+<section class="col" aria-labelledby="s7">
+<p class="n">07 &middot; Stack, results, limits, next</p>
+<h2 id="s7">The facts, with sources</h2>
+<div class="nums">
+<div><b>89</b><span>palettes, two mood colours and one accent each</span></div>
+<div><b>50</b><span>fonts, all OFL-licensed</span></div>
+<div><b>30</b><span>themes built from 18 styles</span></div>
+<div><b>5</b><span>sites hooked into the Site Tuner</span></div>
+</div>
+<h3>Stack</h3>
+<p>One HTML page with plain JavaScript and CSS, no framework. The library is JSON with a written schema, and Node scripts build and validate a bundle so the page also works when opened straight from disk. A small Python server using only the standard library serves the pages and handles saves. A Playwright test script drives headless Chromium through the tuner, including hostile messages and hostile save requests.</p>
+<h3>Results</h3>
+<ul>
+<li>Picking a look for a new site is now a few clicks against a shared library, and the choice can leave as a <code>tokens.css</code> file.</li>
+<li>The real-page view applied the library to each site's own CSS variables: Chillipepper 12 of 21, Fire &amp; Co 3 of 8, Grapevine 7 of 17, Portfolio 6 of 11, Gyro winder 5 of 8.</li>
+<li>The playground and sites showed 0 console errors, 0 CSP violations and no sideways scroll at 1440 px and 390 px.</li>
+</ul>
+<p class="note">Honest bug note: the export button once fired the same download about 16 times. I found it, cleaned up, and logged the fix as a task.</p>
+<h3>Limitations</h3>
+<ul>
+<li>The real-page view runs no scripts, so pages that reveal content with JavaScript look emptier than they really are.</li>
+<li>Opened straight from disk, the browser blocks live variables in the real-page view; it needs the local server.</li>
+<li>Matching the library to a page's variables is a name-based guess. The tool lists exactly which names it set.</li>
+<li>The tuner can only use fonts and styles each page can already render; adding a web font needs a CSP decision per site.</li>
+<li>Saves go to working copies only. Moving tuned pages to the live sites is a separate, reviewed merge that has not happened yet.</li>
+<li>Framed site pages still load their own assets, such as fonts, from wherever those pages point.</li>
+<li>All five project profiles are still drafts, and it is a single-user tool on one PC.</li>
+</ul>
+<h3>What's next</h3>
+<ul>
+<li>Finish the save server hardening and its security re-check.</li>
+<li>A clean, independent re-run of the full tuner test on an idle machine.</li>
+<li>Approve the five profiles, then merge the tuned pages into the live sites after review.</li>
+<li>Switch the playground's CSS value filter from a blocklist to an allowlist, as the first security review suggested.</li>
+</ul>
+</section>
+
+<footer class="col">
+<p>Design Playground is my own local tool. The screenshots show the sample page and my own concept sites. Built with AI coding agents under my direction.</p>
+<p><a href="../../projects.html#playground">&larr; All projects</a> &middot; <a href="https://github.com/mikachamp" target="_blank" rel="noopener">github.com/mikachamp</a></p>
+</footer>
+
 </main>
+<script src="../../js/back.js"></script>
 <script src="../../js/reveal.js" defer></script>
-<script src="../../js/back.js"></script>
+</body>
 </html>

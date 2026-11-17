@@ -1,5 +1,4 @@
-/* Images: dark + lit versions of the SAME generated scene (Higgsfield / Nano Banana Pro).
-   Swap these for local files once downloaded into ./media/ */
+/* Images: dark + lit versions of the SAME generated scene (Higgsfield / Nano Banana Pro), stored locally in ./media/ */
 const DARK='media/scene-0.jpg';
 const LIT ='media/scene-1.jpg';
 /* Bottle hit areas as fractions of the image (x,y = centre; w,h = size). Tune by eye. */

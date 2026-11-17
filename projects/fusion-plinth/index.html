@@ -1,64 +1,361 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; frame-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>AI-Assisted CAD: Twisted Cloud Plinth</title>
-<meta name="description" content="How I used an AI agent connected to Fusion 360 to design a 315 mm display plinth and get it print-ready for my 3D printer in one afternoon.">
+<meta name="description" content="How I directed an AI agent connected to Fusion 360 to design a 315 mm display plinth in one afternoon: architecture, design flow, the human review loop, printability checks, privacy and honest limits.">
 <meta name="robots" content="noindex, nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500&family=JetBrains+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="../project.css">
-<link rel="stylesheet" href="../../css/back.css"></head>
+<link rel="stylesheet" href="plinth.css">
+<link rel="stylesheet" href="../../css/back.css">
+</head>
 <body><nav class="pgback pad" aria-label="Page navigation"><a href="../../projects.html#plinth" data-back>&larr; Back</a><a href="../../index.html">Home</a></nav>
 <main>
-<section class="col">
 
-<p class="eyebrow">AI-assisted CAD · Fusion 360 · 3D printing</p>
-<h1>Designing in Fusion 360 with AI</h1>
-<p><span class="badge">In progress</span></p>
-<p class="lede">A retail display plinth for a sneaker launch: a soft, twisted "cloud" column that a single shoe sits on. I connected an AI agent to Fusion 360, directed it in plain language through four design rounds, and ended the same afternoon with a parametric Fusion model that prints in one piece on my Bambu H2D.</p>
-<div class="meta"><div><b>My role</b><span>Design direction, review, print prep</span></div><div><b>AI + CAD</b><span>Claude agent driving Fusion 360 through its API connector</span></div><div><b>Machine</b><span>Bambu Lab H2D, one piece</span></div><div><b>Size</b><span>Ø315 × 320 mm</span></div><div><b>Time</b><span>One afternoon, brief to print file</span></div></div>
+<header class="col">
+<p class="eyebrow">Case study &middot; AI-assisted CAD &middot; Fusion 360 &middot; 3D printing</p>
+<h1>Designing in Fusion 360 with an AI agent</h1>
+<p><span class="badge">In progress</span><span class="badge warn">Sample not printed yet</span></p>
+<p class="lede">A retail display plinth for a sneaker launch: a soft, twisted &ldquo;cloud&rdquo; column that a single shoe stands on. I connected an AI agent to Fusion 360, directed it in plain language through four design rounds, and ended the same afternoon with a parametric Fusion model that is set up to print in one piece on my Bambu Lab H2D.</p>
+<div class="meta">
+<div><b>My role</b><span>Design direction, review, print prep</span></div>
+<div><b>AI + CAD</b><span>Claude agent driving Fusion 360 through its API connector</span></div>
+<div><b>Machine</b><span>Bambu Lab H2D, one piece</span></div>
+<div><b>Size</b><span>&Oslash;315 &times; 320 mm</span></div>
+<div><b>Time</b><span>One afternoon, brief to print file</span></div>
+</div>
+</header>
+
+<figure class="hero-shot"><img src="media/final-iso.jpg" alt="Grey Fusion render of a short round plinth made of five thick tubes twisting upward, with a flat flower-shaped top" width="700" height="830">
+<figcaption>Final model in Fusion: five equal &Oslash;120 mm tubes twisting 180&deg; around a solid core, cut flat top and bottom.</figcaption></figure>
+
+<section class="col" aria-labelledby="s1">
+<p class="n">01 &middot; Brief</p>
+<h2 id="s1">A soft shape that still prints clean</h2>
+<div class="brief">
+<div><b>Problem</b><p>The reference was a puffy, rope-like column. The sample had to be 315 mm wide, 320 mm high and white, printed in one piece on the H2D, which only just fits that diameter. So it had to look soft inside a tight build volume, with no support marks on a white surface.</p></div>
+<div><b>My role</b><p>I set the size, finish and printer limits, judged every render, gave the design notes and decided when it was done. I never typed a sketch dimension by hand.</p></div>
+<div><b>What was built</b><p>A native, parametric Fusion 360 model: five helix paths, a round tube swept along each, joined to a centre core and trimmed flat. Plus an STL exported from it for printing.</p></div>
+<div><b>Status</b><p>In progress. The model and the print file are done. The next step is to print the sample and check it on the real machine.</p></div>
+</div>
 </section>
 
-<figure class="col"><img src="media/final-iso.jpg" alt="Grey Fusion render of a short round plinth made of five thick tubes twisting upward, with a flat flower-shaped top" width="700" height="830" loading="lazy">
-<figcaption>Final model in Fusion: five equal Ø120 mm tubes twisting 180° around a solid core, cut flat top and bottom.</figcaption></figure>
+<section class="wide" aria-labelledby="s2">
+<div class="col">
+<p class="n">02 &middot; Architecture</p>
+<h2 id="s2">I direct, the AI drafts, Fusion holds the model</h2>
+<p>The AI agent had a live connection to Fusion 360 on my laptop through Fusion's API connector. It wrote the modelling scripts and ran them inside Fusion. Then it took screenshots of the result and measured the overhangs. The model itself only ever lives in Fusion. The agent sees it through scripts and screenshots, and I see it in Fusion and in the renders.</p>
+</div>
+<p class="dg-hint" id="h-arch">Diagram is wide: scroll it sideways.</p>
+<div class="dg" tabindex="0" role="region" aria-label="Architecture diagram, scrolls sideways on small screens" aria-describedby="h-arch">
+<svg viewBox="0 0 800 580" role="img" aria-labelledby="arch-t arch-d" xmlns="http://www.w3.org/2000/svg">
+<title id="arch-t">Architecture: me, the AI agent, Fusion 360 and the printer</title>
+<desc id="arch-d">I give the AI agent plain-language notes and get renders and overhang numbers back. The AI agent is a cloud model. It writes modelling scripts and sends them through Fusion 360's API connector on my laptop, and gets screenshots and measurements back. The scripts run inside Fusion and build or edit a parametric CAD model: five helix paths, a 120 mm tube swept on each, joined to a solid core and trimmed flat top and bottom; tube size and twist are editable. The final model is exported as an STL file on the laptop. The next step, not done yet, is printing it in one piece without supports on a Bambu Lab H2D.</desc>
+<defs>
+<marker id="am" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk"/></marker>
+<marker id="aa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-a"/></marker>
+<marker id="ac" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-c"/></marker>
+</defs>
 
-<section class="col"><p class="n">01 · The workflow</p><h2>I direct, the AI drafts, Fusion holds the model</h2>
-<p>The AI agent had a live connection to Fusion 360 on my laptop. It wrote and ran the modelling scripts itself, took screenshots of the result, and I judged each one. I never typed a sketch dimension by hand. My job was the part AI can't do alone: knowing what looks right and what my printer can actually make.</p>
-<div class="pair">
-<div class="nums one"><div><b class="big">What I did</b><span>Set the size, finish and printer limits · judged every render · gave the design feedback · decided when it was done</span></div></div>
-<div class="nums one"><div><b class="big">What the AI did</b><span>Wrote and ran the Fusion scripts · rebuilt the shape after each note · measured overhangs · exported the STL</span></div></div>
-</div></section>
+<rect class="bx" x="20" y="40" width="250" height="96" rx="8"/>
+<text class="tt" x="36" y="66">Me (designer)</text>
+<text class="ts" x="36" y="88">sets size, finish, limits</text>
+<text class="ts" x="36" y="104">judge every render, give notes</text>
+<text class="ts" x="36" y="120">decide when it is done</text>
 
-<section class="col"><p class="n">02 · The brief</p><h2>A soft shape that still prints clean</h2>
-<p>The reference was a puffy, rope-like column. The sample had to be 315 mm wide and 320 mm high, white, and printed in one piece on the H2D, which only just fits that diameter. So the design had to look soft while staying inside a tight build volume, with no support marks on a white surface.</p></section>
+<path class="ln-c" d="M270,70 H534" marker-end="url(#ac)"/>
+<text class="ts tc" x="286" y="62">plain-language notes</text>
+<path class="ln-c" d="M540,112 H276" marker-end="url(#ac)"/>
+<text class="ts tc" x="286" y="130">renders + overhang %</text>
 
-<section class="col"><p class="n">03 · Directing the AI</p><h2>Four rounds of plain-language feedback</h2>
-<ul><li><b>Smooth sweep:</b> the first lofts rippled between sections, so the AI rebuilt it as one twisted sweep. Clean, but plain.</li>
-<li><b>"Double the swirls":</b> more twist turned it into a screw thread, and the undersides went nearly flat, which would need supports.</li>
-<li><b>"Not threads, make it flow up like the render":</b> the AI generated the surface in Python so the twist could vary up the height. My note back: the tubes looked squeezed.</li>
-<li><b>"The tubes must be a consistent diameter":</b> five true round tubes of equal size. That was the look, and it stays printable.</li></ul></section>
-<div class="strip">
-<figure><img src="media/iter-1-sweep.jpg" alt="Iteration 1: four-lobe twisted sweep with a round lofted top" loading="lazy"><figcaption>1. Twisted sweep</figcaption></figure>
-<figure><img src="media/iter-2-triple.jpg" alt="Iteration 2: tight triple twist that looks like a screw thread" loading="lazy"><figcaption>2. Triple twist: too thread-like</figcaption></figure>
-<figure><img src="media/iter-3-flow.jpg" alt="Iteration 3: organic variable-twist lobes" loading="lazy"><figcaption>3. Variable flow: tubes squeezed</figcaption></figure>
-<figure><img src="media/iter-4-tubes.jpg" alt="Iteration 4: five equal round tubes twisting up" loading="lazy"><figcaption>4. Equal round tubes: the final look</figcaption></figure>
+<rect class="grp-c" x="540" y="40" width="240" height="340" rx="12"/>
+<text class="tt tc" x="556" y="66">AI agent (cloud)</text>
+<text class="ts" x="556" y="84">Claude, via the connector</text>
+<rect class="bx-c" x="556" y="100" width="208" height="60" rx="8"/>
+<text class="t" x="568" y="124">Writes the scripts</text>
+<text class="ts" x="568" y="144">Fusion API &middot; Python</text>
+<rect class="bx-c" x="556" y="170" width="208" height="60" rx="8"/>
+<text class="t" x="568" y="194">Rebuilds the shape</text>
+<text class="ts" x="568" y="214">after each of my notes</text>
+<rect class="bx-c" x="556" y="240" width="208" height="60" rx="8"/>
+<text class="t" x="568" y="264">Measures overhang</text>
+<text class="ts" x="568" y="284">side area steeper than 45&deg;</text>
+<rect class="bx-c" x="556" y="310" width="208" height="60" rx="8"/>
+<text class="t" x="568" y="334">Exports the STL</text>
+<text class="ts" x="568" y="354">from the final model</text>
+
+<rect class="grp-l" x="20" y="166" width="494" height="214" rx="12"/>
+<text class="tt ta" x="36" y="192">My laptop (local)</text>
+<text class="ts" x="36" y="210">Fusion 360 runs here</text>
+<rect class="bx-a" x="36" y="226" width="226" height="138" rx="8"/>
+<text class="t" x="48" y="250">Parametric CAD model</text>
+<text class="ts" x="48" y="272">5 helix paths</text>
+<text class="ts" x="48" y="290">&Oslash;120 mm tube on each</text>
+<text class="ts" x="48" y="308">joined to a solid core</text>
+<text class="ts" x="48" y="326">trimmed flat top + base</text>
+<text class="ts ta" x="48" y="348">edit: tube size, twist</text>
+<rect class="bx-a" x="290" y="226" width="208" height="62" rx="8"/>
+<text class="t" x="302" y="250">API connector</text>
+<text class="ts" x="302" y="270">scripts in, screenshots out</text>
+<rect class="bx" x="290" y="302" width="208" height="62" rx="8"/>
+<text class="t" x="302" y="326">Scripts run in Fusion</text>
+<text class="ts" x="302" y="346">agent-written code</text>
+<path class="ln-c" d="M552,257 H502" marker-start="url(#ac)" marker-end="url(#ac)"/>
+<path class="ln" d="M394,288 V298" marker-end="url(#am)"/>
+<path class="ln-a" d="M290,333 H266" marker-end="url(#aa)"/>
+
+<path class="ln-a" d="M149,364 V446" marker-end="url(#aa)"/>
+<text class="ts ta" x="158" y="420">export</text>
+<rect class="bx-a" x="36" y="450" width="226" height="60" rx="8"/>
+<text class="t" x="48" y="474">STL file (local)</text>
+<text class="ts" x="48" y="494">one solid, from the model</text>
+<path class="ln-n" d="M262,480 H316" marker-end="url(#am)"/>
+<rect class="bx-n" x="320" y="450" width="290" height="60" rx="8"/>
+<text class="t" x="334" y="474">Bambu Lab H2D</text>
+<text class="ts" x="334" y="494">one piece, no supports &middot; next step</text>
+
+<path class="ln-a" d="M20,546 H60"/><text class="ts" x="68" y="550">on my laptop</text>
+<path class="ln-c" d="M190,546 H230"/><text class="ts" x="238" y="550">to or from the cloud AI agent</text>
+<path class="ln-n" d="M470,546 H510"/><text class="ts" x="518" y="550">next step, not done yet</text>
+</svg>
+</div>
+<div class="col">
+<p class="foot-note">The agent never edits a mesh file behind Fusion&rsquo;s back: every change is a script run inside Fusion, so the result is a normal Fusion design I can open and edit.</p>
+</div>
+</section>
+
+<section class="wide" aria-labelledby="s3">
+<div class="col">
+<p class="n">03 &middot; Design flow</p>
+<h2 id="s3">From brief to parameters, model, export and print</h2>
+<p>The brief turned into a handful of numbers. Those numbers drive the model, and the model is checked before anything is exported. When a check or my eye said no, the loop went back to the parameters with one note.</p>
+</div>
+<p class="dg-hint" id="h-flow">Diagram is wide: scroll it sideways.</p>
+<div class="dg" tabindex="0" role="region" aria-label="Design flow diagram, scrolls sideways on small screens" aria-describedby="h-flow">
+<svg viewBox="0 0 800 450" role="img" aria-labelledby="flow-t flow-d" xmlns="http://www.w3.org/2000/svg">
+<title id="flow-t">Design flow from brief to print</title>
+<desc id="flow-d">Step 1, the brief: 315 mm maximum diameter, 320 mm high, white, one piece, fits the H2D, no support marks, a soft rope-like look. Step 2, the parameters: 5 tubes, 120 mm each, a 180 degree twist, a solid centre core, flat top and bottom. Step 3, the model: native Fusion features, a helix path per tube with a tube swept on each, joined and trimmed; round 3 was a Python-generated surface instead. Step 4, the checks: the share of side area steeper than 45 degrees, which is 0 percent on the final model, the 315 mm maximum diameter, and my review of the renders. If a check fails, my note goes back to the parameters for the next round; there were 4 rounds. Step 5: the agent exports an STL from the final model after I sign off. Step 6, not done yet: print it in one piece on the Bambu Lab H2D with no supports.</desc>
+<defs>
+<marker id="bm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk"/></marker>
+<marker id="ba" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-a"/></marker>
+<marker id="bc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-c"/></marker>
+</defs>
+
+<rect class="bx" x="20" y="30" width="236" height="140" rx="8"/>
+<text class="t" x="34" y="54">1 &middot; Brief</text>
+<text class="ts" x="34" y="76">&Oslash;315 &times; 320 mm max</text>
+<text class="ts" x="34" y="94">white, one piece</text>
+<text class="ts" x="34" y="112">fits the H2D</text>
+<text class="ts" x="34" y="130">no support marks</text>
+<text class="ts" x="34" y="148">soft, rope-like look</text>
+<path class="ln" d="M256,100 H278" marker-end="url(#bm)"/>
+
+<rect class="bx-a" x="282" y="30" width="236" height="140" rx="8"/>
+<text class="t" x="296" y="54">2 &middot; Parameters</text>
+<text class="ts" x="296" y="76">5 tubes</text>
+<text class="ts" x="296" y="94">&Oslash;120 mm each</text>
+<text class="ts" x="296" y="112">180&deg; twist</text>
+<text class="ts" x="296" y="130">solid centre core</text>
+<text class="ts" x="296" y="148">flat top and bottom</text>
+<path class="ln-a" d="M518,100 H540" marker-end="url(#ba)"/>
+
+<rect class="bx-a" x="544" y="30" width="236" height="140" rx="8"/>
+<text class="t" x="558" y="54">3 &middot; Model</text>
+<text class="ts" x="558" y="76">native Fusion features</text>
+<text class="ts" x="558" y="94">a helix path per tube</text>
+<text class="ts" x="558" y="112">round tube swept on each</text>
+<text class="ts" x="558" y="130">joined, then trimmed flat</text>
+<text class="ts" x="558" y="148">(round 3: Python surface)</text>
+<path class="ln-a" d="M662,170 V246" marker-end="url(#ba)"/>
+
+<rect class="bx-g" x="544" y="250" width="236" height="122" rx="8"/>
+<text class="t" x="558" y="274">4 &middot; Checks</text>
+<text class="ts" x="558" y="296">side area over 45&deg;: 0%</text>
+<text class="ts" x="558" y="314">max &Oslash;: exactly 315 mm</text>
+<text class="ts" x="558" y="332">my review of the renders</text>
+<text class="ts tc" x="558" y="354">fail &rarr; note, next round</text>
+<path class="ln-c" d="M600,250 V210 H400 V174" marker-end="url(#bc)"/>
+<text class="ts tc" x="410" y="204">my note &rarr; next round (4 in all)</text>
+<path class="ln-a" d="M544,311 H522" marker-end="url(#ba)"/>
+
+<rect class="bx-a" x="282" y="250" width="236" height="122" rx="8"/>
+<text class="t" x="296" y="274">5 &middot; Export</text>
+<text class="ts" x="296" y="296">after I sign off</text>
+<text class="ts" x="296" y="314">agent exports STL</text>
+<text class="ts" x="296" y="332">from the native model</text>
+<path class="ln-n" d="M282,311 H260" marker-end="url(#bm)"/>
+
+<rect class="bx-n" x="20" y="250" width="236" height="122" rx="8"/>
+<text class="t" x="34" y="274">6 &middot; Print</text>
+<text class="ts" x="34" y="296">Bambu Lab H2D</text>
+<text class="ts" x="34" y="314">one piece, no supports</text>
+<text class="ts tc" x="34" y="332">next step: not printed yet</text>
+
+<path class="ln-a" d="M20,416 H60"/><text class="ts" x="68" y="420">approved path</text>
+<path class="ln-c" d="M220,416 H260"/><text class="ts" x="268" y="420">loop back with my note</text>
+<path class="ln-n" d="M480,416 H520"/><text class="ts" x="528" y="420">not done yet</text>
+</svg>
+</div>
+</section>
+
+<section class="col" aria-labelledby="s4">
+<p class="n">04 &middot; Directing the AI</p>
+<h2 id="s4">Four rounds of plain-language feedback</h2>
+<ul class="rounds">
+<li><b>Round 1, smooth sweep.</b> The first lofts rippled between sections, so the AI rebuilt the shape as one twisted sweep. It was clean, but plain.</li>
+<li><b>Round 2, &ldquo;Double the swirls&rdquo;.</b> More twist turned it into a screw thread. The undersides went nearly flat, which would need supports.</li>
+<li><b>Round 3, &ldquo;Not threads, make it flow up like the render&rdquo;.</b> The AI generated the surface in Python so the twist could vary up the height. My note back: the tubes looked squeezed.</li>
+<li><b>Round 4, &ldquo;The tubes must be a consistent diameter&rdquo;.</b> Five true round tubes of equal size. That was the look, and it stays printable.</li>
+</ul>
+</section>
+<div class="strip wide">
+<figure><img src="media/iter-1-sweep.jpg" alt="Round 1: four-lobe twisted sweep with a round lofted top" width="540" height="620" loading="lazy"><figcaption>1. Twisted sweep</figcaption></figure>
+<figure><img src="media/iter-2-triple.jpg" alt="Round 2: tight triple twist that looks like a screw thread" width="540" height="580" loading="lazy"><figcaption>2. Triple twist: too thread-like</figcaption></figure>
+<figure><img src="media/iter-3-flow.jpg" alt="Round 3: organic variable-twist lobes" width="540" height="580" loading="lazy"><figcaption>3. Variable flow: tubes squeezed</figcaption></figure>
+<figure><img src="media/iter-4-tubes.jpg" alt="Round 4: five equal round tubes twisting up" width="610" height="620" loading="lazy"><figcaption>4. Equal round tubes: the final look</figcaption></figure>
 </div>
 
-<section class="col"><p class="n">04 · Making it printable</p><h2>Checked by numbers, not by eye</h2>
-<p>For every version the AI measured how much of the side surface faces downward more steeply than 45°, the usual limit for printing without supports. The final shape scores zero, so it prints with no supports and no scars to sand off a white finish.</p>
-<div class="nums"><div><b>0%</b><span>side area steeper than 45°</span></div><div><b>315 mm</b><span>exact max diameter</span></div><div><b>1 piece</b><span>fits the H2D, no seams</span></div><div><b>Parametric</b><span>tube size and twist are editable</span></div></div></section>
+<section class="wide" aria-labelledby="s5">
+<div class="col">
+<p class="n">05 &middot; Workflow</p>
+<h2 id="s5">Where the human review sits</h2>
+<p>The AI does the drafting and the measuring. Every decision about what is right stays with me: each round ends at my review, and nothing is exported until I sign off.</p>
+</div>
+<p class="dg-hint" id="h-wf">Diagram is wide: scroll it sideways.</p>
+<div class="dg" tabindex="0" role="region" aria-label="Workflow diagram, scrolls sideways on small screens" aria-describedby="h-wf">
+<svg viewBox="0 0 800 440" role="img" aria-labelledby="wf-t wf-d" xmlns="http://www.w3.org/2000/svg">
+<title id="wf-t">Workflow with the human review steps</title>
+<desc id="wf-d">Three lanes: Me, AI agent and Fusion 360. Step 1: I give the brief and the printer limits. Step 2: the agent writes a script and runs it in Fusion. Step 3: Fusion rebuilds the model, and the agent takes a screenshot and measures the overhang. Step 4 is my review: does it look right, and is the overhang 0 percent? If not, I give a plain-language note and the agent writes the next script; this happened in 4 rounds. If yes, step 5: the agent rebuilds the final shape as native Fusion features. Step 6: the agent exports the STL. Step 7, not done yet: I print the sample on the H2D and check the first layer and the lobe undersides.</desc>
+<defs>
+<marker id="cm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk"/></marker>
+<marker id="ca" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-a"/></marker>
+<marker id="cc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-c"/></marker>
+</defs>
+<rect class="lane" x="10" y="10" width="780" height="140"/>
+<rect class="lane2" x="10" y="150" width="780" height="120"/>
+<rect class="lane" x="10" y="270" width="780" height="120"/>
+<path class="ln" d="M92,10 V390"/>
+<text class="tt" x="20" y="84">Me</text>
+<text class="tt" x="20" y="208">AI</text><text class="tt" x="20" y="226">agent</text>
+<text class="tt" x="20" y="326">Fusion</text><text class="ts" x="20" y="344">360</text>
 
-<section class="col"><p class="n">05 · Native CAD</p><h2>AI-written, but a real Fusion model</h2>
-<p>A generated mesh prints fine but is hard to edit, so I had the AI rebuild the final version as native Fusion features: five helix paths, a circular tube swept along each, joined to a centre core, then trimmed flat. The client can now ask for thicker tubes or more twist, and it's a one-number change.</p></section>
+<rect class="bx" x="102" y="46" width="124" height="70" rx="8"/>
+<text class="t" x="112" y="68">1 &middot; Brief</text>
+<text class="ts" x="112" y="88">size, finish,</text>
+<text class="ts" x="112" y="104">printer limits</text>
+<path class="ln" d="M164,116 V205 H236" marker-end="url(#cm)"/>
+
+<rect class="bx-c" x="240" y="170" width="128" height="74" rx="8"/>
+<text class="t" x="250" y="192">2 &middot; Script</text>
+<text class="ts" x="250" y="212">writes it and</text>
+<text class="ts" x="250" y="228">runs it in Fusion</text>
+<path class="ln" d="M302,244 V325 H374" marker-end="url(#cm)"/>
+
+<rect class="bx-a" x="378" y="290" width="128" height="80" rx="8"/>
+<text class="t" x="388" y="312">3 &middot; Rebuild</text>
+<text class="ts" x="388" y="332">model updates;</text>
+<text class="ts" x="388" y="348">agent screenshots</text>
+<text class="ts" x="388" y="364">+ measures 45&deg;</text>
+<path class="ln" d="M442,290 V144" marker-end="url(#cm)"/>
+
+<polygon class="bx-g" points="356,82 442,22 528,82 442,142"/>
+<text class="t mid" x="442" y="76">4 &middot; Review</text>
+<text class="ts mid" x="442" y="94">right look?</text>
+<text class="ts mid" x="442" y="110">0% overhang?</text>
+<path class="ln-c" d="M356,82 H302 V166" marker-end="url(#cc)"/>
+<text class="ts tc" x="248" y="40">no: my note,</text>
+<text class="ts tc" x="248" y="56">next round</text>
+<text class="ts tc" x="310" y="138">4 rounds</text>
+
+<path class="ln-a" d="M528,82 H584 V166" marker-end="url(#ca)"/>
+<text class="ts ta" x="536" y="74">yes</text>
+<rect class="bx-c" x="522" y="170" width="124" height="74" rx="8"/>
+<text class="t" x="532" y="192">5 &middot; Native</text>
+<text class="ts" x="532" y="212">rebuild as real</text>
+<text class="ts" x="532" y="228">Fusion features</text>
+<path class="ln-a" d="M646,207 H658" marker-end="url(#ca)"/>
+<rect class="bx-c" x="662" y="170" width="118" height="74" rx="8"/>
+<text class="t" x="672" y="192">6 &middot; Export</text>
+<text class="ts" x="672" y="212">STL from the</text>
+<text class="ts" x="672" y="228">final model</text>
+<path class="ln-n" d="M721,170 V120" marker-end="url(#cm)"/>
+<rect class="bx-n" x="652" y="46" width="128" height="70" rx="8"/>
+<text class="t" x="662" y="68">7 &middot; Print</text>
+<text class="ts" x="662" y="88">sample on H2D</text>
+<text class="ts tc" x="662" y="104">next step</text>
+
+<path class="ln-a" d="M20,416 H60"/><text class="ts" x="68" y="420">approved by me</text>
+<path class="ln-c" d="M220,416 H260"/><text class="ts" x="268" y="420">loop back with my note</text>
+<path class="ln-n" d="M480,416 H520"/><text class="ts" x="528" y="420">not done yet</text>
+</svg>
+</div>
+<div class="col">
+<div class="pair">
+<div class="nums one"><div><b class="big">What I did</b><span>Set the size, finish and printer limits &middot; judged every render &middot; gave the design notes &middot; decided when it was done</span></div></div>
+<div class="nums one"><div><b class="big">What the AI did</b><span>Wrote and ran the Fusion scripts &middot; rebuilt the shape after each note &middot; measured overhangs &middot; exported the STL</span></div></div>
+</div>
+</div>
+</section>
+
+<section class="col" aria-labelledby="s6">
+<p class="n">06 &middot; Printability and native CAD</p>
+<h2 id="s6">Checked by numbers, then rebuilt as a real Fusion model</h2>
+<p>For every version the AI measured how much of the side surface faces downward more steeply than 45&deg;, the usual limit for printing without supports. The final shape scores zero, so it should print with no supports and no scars to sand off a white finish.</p>
+<div class="nums"><div><b>0%</b><span>side area steeper than 45&deg;</span></div><div><b>315 mm</b><span>exact max diameter</span></div><div><b>1 piece</b><span>fits the H2D, no seams</span></div><div><b>4</b><span>design rounds, one afternoon</span></div></div>
+<p>A generated mesh prints fine but is hard to edit, so I had the AI rebuild the final version as native Fusion features: five helix paths, a round tube swept along each, joined to a centre core, then trimmed flat. If the client asks for thicker tubes or more twist, it is a one-number change.</p>
+</section>
 <figure class="col"><img src="media/final-top.jpg" alt="Top view of the plinth showing a five-lobed flower outline" width="600" height="600" loading="lazy" class="w380"><figcaption>Top view: the five-lobe flat face the shoe stands on.</figcaption></figure>
 
-<section class="col"><p class="n">What I'd do next</p>
-<p>Print the sample on the H2D, check the first layer and the lobe undersides on the real machine, then fillet the top edge if the client wants it softer.</p>
-<p class="note">Client and brand are deliberately not named.</p></section>
-<footer class="col">Mika Williamson · <a href="https://github.com/mikachamp">github.com/mikachamp</a></footer>
+<section class="col" aria-labelledby="s7">
+<p class="n">07 &middot; Security and privacy</p>
+<h2 id="s7">Client confidentiality, and what stays on my laptop</h2>
+<ul class="sec-list">
+<li><span><span class="tag-l">Confidential</span></span><b>The client is never named.</b> No client or brand name appears on this page, in its images or in its file names. The reference image from the brief is not shown. The only pictures are my own plain grey renders of the model, and the page is set to noindex.</li>
+<li><span><span class="tag-l">Local</span></span><b>Fusion and the model run on my laptop.</b> The Fusion session, the scripts it runs and the exported STL are all on my machine. The agent reaches Fusion only through the API connector.</li>
+<li><span><span class="tag-c">Leaves the laptop</span></span><b>The AI agent is a cloud model.</b> My notes, the scripts it writes and the screenshots it takes pass through it. So the conversation should hold only what the design needs: dimensions, finish and shape, not client documents.</li>
+<li><span><span class="tag-c">Runs code</span></span><b>The agent runs its own scripts inside Fusion.</b> That is what makes it fast, and it is also the main risk: the code runs with Fusion&rsquo;s access on my laptop. My review covered the renders and the numbers each round.</li>
+</ul>
+</section>
+
+<section class="col" aria-labelledby="s8">
+<p class="n">08 &middot; Stack, results, limits, next</p>
+<h2 id="s8">The facts</h2>
+<h3>Stack</h3>
+<p>Autodesk Fusion 360 for the parametric model. An AI agent (Claude) connected to Fusion through its API connector, writing and running the modelling scripts; round 3 used a Python-generated surface. STL export for printing. Bambu Lab H2D 3D printer, one piece.</p>
+<h3>Results</h3>
+<ul>
+<li>Brief to print file in one afternoon, over four rounds of plain-language notes.</li>
+<li>The final shape measures 0% of side area steeper than 45&deg;, so it is designed to print without supports.</li>
+<li>Exactly 315 mm across, so it fits the H2D in one piece with no seams.</li>
+<li>A native, parametric Fusion model, not just a mesh: tube size and twist are editable numbers.</li>
+<li>I never typed a sketch dimension by hand; my time went into judging the look and the printability.</li>
+</ul>
+<h3>Limitations</h3>
+<ul>
+<li>Not printed yet. The 0% figure is a geometry check on the model, not proof from the machine; the first layer and the lobe undersides are still to be tested.</li>
+<li>The agent sees the design only through scripts and screenshots, so the judgement of what looks right is mine, round by round.</li>
+<li>The round 3 surface was a generated mesh that is hard to edit, which is why the final version had to be rebuilt as native features.</li>
+<li>It is one design made in one afternoon, not a reusable tool.</li>
+</ul>
+<h3>What&rsquo;s next</h3>
+<ul>
+<li>Print the sample on the H2D.</li>
+<li>Check the first layer and the lobe undersides on the real machine.</li>
+<li>Fillet the top edge if the client wants it softer.</li>
+</ul>
+<p class="note">Client and brand are deliberately not named.</p>
+</section>
+
+<footer class="col">
+<p>Mika Williamson &middot; <a href="https://github.com/mikachamp">github.com/mikachamp</a></p>
+<p><a href="../../projects.html#plinth">&larr; All projects</a></p>
+</footer>
 </main>
-<script src="../../js/back.js"></script></body>
+<script src="../../js/back.js"></script>
+<script src="../../js/reveal.js" defer></script>
+</body>
 </html>

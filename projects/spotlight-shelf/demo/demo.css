@@ -14,7 +14,7 @@ body{background:var(--bg);color:var(--ink);font:15px/1.5 "Helvetica Neue",Arial,
 .opt{display:flex;gap:8px;margin-bottom:16px}
 .opt button{flex:1;padding:10px;border:1px solid rgba(255,255,255,.25);background:none;color:var(--ink);border-radius:8px;cursor:pointer}
 .opt button.sel{background:var(--ink);color:#111}
-#back{position:fixed;left:24px;top:20px;opacity:0;pointer-events:none;background:none;border:0;color:var(--ink);font-size:14px;cursor:pointer;transition:opacity .4s}
+#back{position:fixed;left:24px;top:calc(max(10px, env(safe-area-inset-top)) + 58px);opacity:0;pointer-events:none;background:none;border:0;color:var(--ink);font-size:14px;cursor:pointer;transition:opacity .4s}
 #back.show{opacity:1;pointer-events:auto}
 #note{position:fixed;left:24px;bottom:16px;color:var(--muted);font-size:12px}
 
