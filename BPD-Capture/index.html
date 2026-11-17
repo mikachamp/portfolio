@@ -6,7 +6,7 @@
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>BPD Capture Case Study</title>
-<meta name="description" content="How I designed and shipped BPD Capture, a field photo app for Blueprint Digital, working with Claude as my build partner.">
+<meta name="description" content="How I designed and built BPD Capture, an offline field photo app for Blueprint Digital on Android and Windows, using Claude Code as my AI coding tool.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500&family=JetBrains+Mono:wght@400;500&display=swap">
@@ -82,13 +82,13 @@ footer { border-top: 1px solid var(--line); padding-top: 22px; color: var(--mute
 <main>
 
   <header class="col">
-    <span class="eyebrow">Case study · Mobile + desktop app · 2026</span>
+    <span class="eyebrow">Case study · Android + Windows desktop app · 2026</span>
     <h1>BPD Capture: a field photo app for Blueprint Digital</h1>
-    <p class="lede">I designed and shipped an offline Android app that lets site teams photograph and file every job by its CE number, then send a finished field report from the van. I directed the product and design; Claude, an AI coding assistant, wrote and tested the code with me. This page walks through how the work actually went, including the parts that didn't work the first time.</p>
+    <p class="lede">I designed and built an offline Android app, with a Windows desktop version, that lets site teams photograph and file every job by its CE number, then send a finished field report from the van. I built it, using Claude Code as my AI coding tool. This page walks through how the work actually went, including the parts that didn't work the first time.</p>
     <div class="meta">
-      <div><b>My role</b><span>Product owner, designer, tester</span></div>
-      <div><b>Built with</b><span>Claude Code (AI pair programmer)</span></div>
-      <div><b>Stack</b><span>Expo / React Native, Electron, three.js, SQLite</span></div>
+      <div><b>My role</b><span>Builder (design, build, testing)</span></div>
+      <div><b>Built with</b><span>Claude Code (my AI coding tool)</span></div>
+      <div><b>Stack</b><span>Expo / React Native, Electron, Three.js, SQLite</span></div>
       <div><b>Shipped</b><span>Android APK via GitHub Releases, v1.0 → v1.4.2</span></div>
     </div>
   </header>
@@ -105,9 +105,9 @@ footer { border-top: 1px solid var(--line); padding-top: 22px; color: var(--mute
   </section>
 
   <section class="col">
-    <div class="step-head"><span class="n">02 · How I worked with Claude</span><h2>I set the direction, Claude built and tested, I judged the result</h2></div>
-    <p>Every feature went through the same loop. I described what I wanted in plain language, often with reference screenshots from other apps. Claude wrote the code, installed the build on an Android emulator and took its own screenshots to check the result. I reviewed what it showed me and pushed back until it was right.</p>
-    <div class="loop" aria-label="Working loop"><span>My brief + references</span><i>→</i><span>Claude builds</span><i>→</i><span>Emulator screenshots</span><i>→</i><span>My feedback</span><i>→</i><span>Refine or ship</span></div>
+    <div class="step-head"><span class="n">02 · How I built it</span><h2>One loop for every feature, with Claude Code as my coding tool</h2></div>
+    <p>Every feature went through the same loop. I wrote the brief in plain language, often with reference screenshots from other apps, and built the feature with Claude Code. Each build went onto an Android emulator, with screenshots to check the result. I reviewed every result and kept refining until it was right.</p>
+    <div class="loop" aria-label="Working loop"><span>My brief + references</span><i>→</i><span>Build with Claude Code</span><i>→</i><span>Emulator screenshots</span><i>→</i><span>My feedback</span><i>→</i><span>Refine or ship</span></div>
     <p>Decisions were written down as they were made, so they stayed consistent between sessions: a <strong>design system document</strong> (colours, type, components, a changelog row for every visual change), a <strong>security document</strong> with rules both apps follow, and a short instruction file that tells Claude to keep both up to date.</p>
   </section>
 
@@ -122,12 +122,12 @@ footer { border-top: 1px solid var(--line); padding-top: 22px; color: var(--mute
 
   <section class="col">
     <div class="step-head"><span class="n">04 · The startup animation</span><h2>Seven 3D concepts, two rejections, one logo drawn by its own pencil</h2></div>
-    <p>I wanted the app to open with something that felt like Blueprint Digital, not a generic loading spinner. Claude built the concepts as live three.js scenes in one gallery so I could compare them side by side and rotate them, rather than judging still images.</p>
+    <p>I wanted the app to open with something that felt like Blueprint Digital, not a generic loading spinner. I built the concepts as live Three.js scenes in one gallery so I could compare them side by side and rotate them, rather than judging still images.</p>
     <blockquote class="quote">That's such a boring loading screen and it is so cliché, as many people use that exact one.<cite>My feedback on the first 3D attempt, a spinning torus knot</cite></blockquote>
     <blockquote class="quote">You have combined two designs in one animation, which does not look good.<cite>My feedback on a blend of the "camera iris" and "blueprint" concepts</cite></blockquote>
-    <p>The answer was to use the real logo. Claude extracted the exact vector paths and gradient colours from the logo's PDF (not the outline-only cut file), and I chose concept 7: the pencil in the logo traces the outline, the colours pour in, the bulb lights up and the pencil slides into place. The last frame had to match the printed logo exactly, and it does.</p>
+    <p>The answer was to use the real logo. I extracted the exact vector paths and gradient colours from the logo's PDF (not the outline-only cut file), and I chose concept 7: the pencil in the logo traces the outline, the colours pour in, the bulb lights up and the pencil slides into place. The last frame had to match the printed logo exactly, and it does.</p>
   </section>
-  <figure class="wide"><img src="media/concept-gallery.jpg" alt="Concept gallery with seven tabs; concept 7, Pencil Draws Logo, is selected and shows the finished logo"><figcaption>The concept gallery: seven live 3D concepts on one page. <a href="startup-animation-concepts.html">Open the interactive gallery</a> (needs an internet connection to load three.js).</figcaption></figure>
+  <figure class="wide"><img src="media/concept-gallery.jpg" alt="Concept gallery with seven tabs; concept 7, Pencil Draws Logo, is selected and shows the finished logo"><figcaption>The concept gallery: seven live 3D concepts on one page. <a href="startup-animation-concepts.html">Open the interactive gallery</a>.</figcaption></figure>
   <figure class="wide"><img src="media/animation-frames.jpg" alt="Six frames: the pencil draws the outline, blue fills in, the body fills, the bulb lights, the final logo"><figcaption>Six frames from the 3.5-second animation, as it runs in the app.</figcaption></figure>
   <div class="col">
     <div class="pair">
@@ -147,7 +147,7 @@ footer { border-top: 1px solid var(--line); padding-top: 22px; color: var(--mute
 
   <section class="col">
     <div class="step-head"><span class="n">06 · Shipping without an app store</span><h2>Updates in one tap</h2></div>
-    <p>The app is installed directly from an APK file, so it checks GitHub Releases for new versions itself. The first version of the updater asked people to save a backup zip before updating, and I found that confusing on my own phone. Now the backup is saved quietly on the device, the update downloads, and Android asks for the one confirmation it always requires. Claude tested the full path on the emulator, from an older build through to the installed new version.</p>
+    <p>The app is installed directly from an APK file, so it checks GitHub Releases for new versions itself. The first version of the updater asked people to save a backup zip before updating, and I found that confusing on my own phone. Now the backup is saved quietly on the device, the update downloads, and Android asks for the one confirmation it always requires. I tested the full path on the emulator, from an older build through to the installed new version.</p>
     <div class="pair">
       <figure class="phone"><img src="media/update-dialog.jpg" alt="Dialog: Update available v1.4.1, Update Now"><figcaption>One button, with no file handling for the user.</figcaption></figure>
       <figure class="phone"><img src="media/android-update.jpg" alt="Android system dialog: Do you want to update this app?"><figcaption>The only other step: Android's own confirmation.</figcaption></figure>
@@ -162,14 +162,14 @@ footer { border-top: 1px solid var(--line); padding-top: 22px; color: var(--mute
 
   <section class="col">
     <div class="step-head"><span class="n">08 · Security review</span><h2>Testing it the way an attacker would</h2></div>
-    <p>Before going further I asked for a security check of both apps. Claude reviewed the code, then ran ten real attack attempts inside the desktop app (reading system files, escaping the data folder, deleting files outside it, navigating to a website). All ten are now blocked, and normal use still works.</p>
+    <p>Before going further I ran a security check of both apps: a code review with Claude Code, then ten real attack attempts inside the desktop app (reading system files, escaping the data folder, deleting files outside it, navigating to a website). All ten are now blocked, and normal use still works.</p>
     <div class="table-wrap"><table>
       <thead><tr><th>Finding</th><th>Severity</th><th>Outcome</th></tr></thead>
       <tbody>
         <tr><td>A job number like <code>..</code> could point outside the jobs folder; deleting that job would have wiped every job's photos</td><td>High</td><td>Fixed in both apps with shared validation</td></tr>
         <tr><td>Desktop accepted any file path from its own screens</td><td>High</td><td>Fixed: files outside the app's data folder are refused</td></tr>
         <tr><td>Desktop window could be navigated to a website</td><td>Medium</td><td>Fixed: navigation and pop-ups blocked</td></tr>
-        <tr><td>Release builds signed with a publicly known key</td><td>Critical</td><td>Planned: a private signing key with a one-time reinstall</td></tr>
+        <tr><td>Release signing hardening</td><td>–</td><td>Planned</td></tr>
       </tbody>
     </table></div>
     <p>SQL injection was already ruled out, because every query passes typed text as data. An automatic check now fails the build if anyone ever writes a query that pastes text in.</p>

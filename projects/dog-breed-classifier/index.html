@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; frame-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dog Breed Classifier case study</title>
+<meta name="description" content="A transfer-learning classifier for 120 dog breeds: a frozen MobileNetV2 base with a softmax head, trained on the public Kaggle dataset. Model, data pipeline, experiments, training curves from the real log, and an honest look at overfitting.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../project.css">
+<link rel="stylesheet" href="dog-breed.css">
+<link rel="stylesheet" href="../../css/back.css">
+</head>
+<body><nav class="pgback pad" aria-label="Page navigation"><a href="../../projects.html#dog-breed" data-back>&larr; Back</a><a href="../../index.html">Home</a></nav>
+<main>
+
+<header class="col">
+<p class="eyebrow">Case study &middot; Computer vision &middot; 2024</p>
+<h1>Dog Breed Classifier: 120 breeds with transfer learning</h1>
+<p><span class="badge">Course project, complete</span><span class="badge warn">Overfits: 97.2% train vs 78.1% validation</span></p>
+<p class="lede">An image classifier that names a dog's breed from a photo, out of 120 breeds. It reuses a MobileNetV2 network that was pre-trained on ImageNet, keeps it frozen, and trains only one new softmax layer on top. The saved model gets 78.1% of the validation images right. This page shows how it is built, what I tried, and where it falls short.</p>
+<div class="meta">
+<div><b>My role</b><span>Built and trained it, then ran my own experiments</span></div>
+<div><b>Stack</b><span>Python &middot; TensorFlow 2.15 &middot; TF Hub &middot; Keras &middot; Google Colab</span></div>
+<div><b>Data</b><span>10,222 labelled photos, 120 breeds (public Kaggle set)</span></div>
+<div><b>Result</b><span>78.1% validation accuracy (top-1)</span></div>
+</div>
+</header>
+
+<figure class="hero-shot"><img src="dog-samples.png" alt="Twelve training photos in a grid, each titled with its breed label: tibetan terrier, beagle, chow, bull mastiff, brabancon griffon, silky terrier, pekinese, african hunting dog, brabancon griffon, tibetan terrier, dhole and border collie" width="803" height="493">
+<figcaption>The first 12 images of a shuffled training batch with their labels, as the notebook plots them after preprocessing to 224 &times; 224. Photos from the public Kaggle Dog Breed Identification dataset.</figcaption></figure>
+
+<section class="col" aria-labelledby="s1">
+<p class="n">01 &middot; Brief</p>
+<h2 id="s1">The problem, and what I built</h2>
+<div class="brief">
+<div><b>Problem</b><p>Tell 120 dog breeds apart from a single photo. Many breeds look alike, and there are only about 85 labelled photos per breed (10,222 images for 120 breeds).</p></div>
+<div><b>My role</b><p>I built it during the Zero To Mastery machine learning bootcamp (Oct&ndash;Nov 2024), then added my own experiments: augmentation, fine-tuning and an extra dense layer.</p></div>
+<div><b>What I built</b><p>A <code>tf.data</code> input pipeline, a transfer-learning model on a frozen MobileNetV2 from TensorFlow Hub, six compared training runs, and a full-data version of the same frozen-base model to predict the Kaggle test set.</p></div>
+<div><b>Status</b><p>Complete as a course project. The notebook is public on GitHub and opens in Colab. The improvements listed under &ldquo;What's next&rdquo; are not started.</p></div>
+</div>
+</section>
+
+<section class="wide" aria-labelledby="s2">
+<div class="col">
+<p class="n">02 &middot; Model</p>
+<h2 id="s2">A frozen MobileNetV2 with one trained layer on top</h2>
+<p>The base network is MobileNetV2 (width 1.3, 224-pixel input) from TensorFlow Hub. It is loaded with <code>trainable=False</code>, so its 5.4 million weights stay as ImageNet trained them. Only the new 120-way softmax layer learns: 120,240 weights, about 2% of the model. The Hub module I used is the <em>classification</em> version, so the new layer reads the base's 1001 ImageNet class scores, not its internal feature vector.</p>
+</div>
+<p class="dg-hint" id="h-arch">Diagram is wide: scroll it sideways.</p>
+<div class="dg" tabindex="0" role="region" aria-label="Model architecture diagram, scrolls sideways on small screens" aria-describedby="h-arch">
+<svg viewBox="0 0 960 400" role="img" aria-labelledby="arch-t arch-d" xmlns="http://www.w3.org/2000/svg">
+<title id="arch-t">Model architecture</title>
+<desc id="arch-d">A batch of 32 images, each 224 by 224 pixels with 3 colour channels and values from 0 to 1, goes into the MobileNetV2 base from TensorFlow Hub, mobilenet_v2_130_224 classification version 4. The base is frozen and has 5,432,713 parameters that are not trained. It outputs 1001 ImageNet class scores per image. A dense layer with 120 units and softmax, the only trained part with 120,240 parameters, turns those into 120 breed probabilities. The highest probability gives the breed label. Training uses the Adam optimiser, categorical focal cross-entropy loss, accuracy as the metric, TensorBoard logging and early stopping on validation accuracy with patience 5. The model has 5,552,953 parameters in total.</desc>
+<defs>
+<marker id="am" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk"/></marker>
+<marker id="aa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-a"/></marker>
+</defs>
+<rect class="bx" x="20" y="96" width="170" height="104" rx="8"/>
+<text class="t" x="32" y="122">Input batch</text>
+<text class="ts" x="32" y="144">32 &times; 224 &times; 224 &times; 3</text>
+<text class="ts" x="32" y="162">float32, values 0&ndash;1</text>
+<text class="ts" x="32" y="180">shape [None,224,224,3]</text>
+<path class="ln" d="M190,148 H226" marker-end="url(#am)"/>
+
+<rect class="grp-m" x="230" y="40" width="330" height="216" rx="12"/>
+<text class="tt" x="246" y="66">MobileNetV2 base &middot; frozen</text>
+<text class="ts" x="246" y="86">TensorFlow Hub &middot; ImageNet weights</text>
+<rect class="bx" x="246" y="100" width="298" height="58" rx="8"/>
+<text class="t" x="258" y="123">hub.KerasLayer(trainable=False)</text>
+<text class="ts" x="258" y="143">mobilenet_v2_130_224/classification/4</text>
+<rect class="bx" x="246" y="168" width="145" height="72" rx="8"/>
+<text class="t" x="258" y="192">5,432,713</text>
+<text class="ts" x="258" y="210">parameters</text>
+<text class="ts" x="258" y="226">not trained</text>
+<rect class="bx" x="399" y="168" width="145" height="72" rx="8"/>
+<text class="t" x="411" y="192">Output 1001</text>
+<text class="ts" x="411" y="210">ImageNet class</text>
+<text class="ts" x="411" y="226">scores per image</text>
+
+<path class="ln-a" d="M560,148 H596" marker-end="url(#aa)"/>
+<text class="ts mid" x="578" y="138">1001</text>
+<rect class="bx-a" x="600" y="86" width="170" height="124" rx="8"/>
+<text class="t" x="612" y="110">Dense head &middot; trained</text>
+<text class="ts" x="612" y="132">120 units, softmax</text>
+<text class="ts" x="612" y="150">120,240 parameters</text>
+<text class="ts" x="612" y="168">= 1001 &times; 120 + 120</text>
+<text class="ts ta" x="612" y="190">only trained part</text>
+<path class="ln" d="M770,148 H806" marker-end="url(#am)"/>
+<rect class="bx" x="810" y="96" width="130" height="104" rx="8"/>
+<text class="t" x="822" y="122">Prediction</text>
+<text class="ts" x="822" y="144">120 breed</text>
+<text class="ts" x="822" y="160">probabilities</text>
+<text class="ts" x="822" y="180">argmax &rarr; label</text>
+
+<rect class="grp" x="20" y="284" width="920" height="72" rx="12"/>
+<text class="tt" x="36" y="310">How it is trained</text>
+<text class="ts" x="36" y="332">optimiser: Adam (default settings) &middot; loss: CategoricalFocalCrossentropy &middot; metric: accuracy</text>
+<text class="ts" x="36" y="348">callbacks: TensorBoard logs &middot; EarlyStopping(monitor=val_accuracy, patience=5) &middot; up to 200 epochs</text>
+
+<rect class="grp-m" x="20" y="372" width="34" height="16" rx="4"/><text class="ts" x="62" y="384">frozen, pre-trained</text>
+<rect class="bx-a" x="230" y="372" width="34" height="16" rx="4"/><text class="ts" x="272" y="384">trained in this project</text>
+<text class="ts end" x="940" y="384">total 5,552,953 parameters, 2.2% trained</text>
+</svg>
+</div>
+<div class="col">
+<p class="foot-note">Source: <code>create_model</code> and the <code>model.summary()</code> output in <code>DogsCode.ipynb</code>.</p>
+</div>
+</section>
+
+<section class="wide" aria-labelledby="s3">
+<div class="col">
+<p class="n">03 &middot; Data pipeline</p>
+<h2 id="s3">From Kaggle files to batches of tensors</h2>
+<p>The labels come as a CSV of image ids and breed names, plus a folder of JPEGs. The notebook checks that the two counts match, turns each breed into a one-hot array of 120, and holds back 20% of the images for validation. A <code>tf.data</code> pipeline then reads, decodes and resizes each image as it is needed and groups them into batches of 32. Only the training set is shuffled.</p>
+</div>
+<p class="dg-hint" id="h-data">Diagram is wide: scroll it sideways.</p>
+<div class="dg" tabindex="0" role="region" aria-label="Data pipeline diagram, scrolls sideways on small screens" aria-describedby="h-data">
+<svg viewBox="0 0 960 470" role="img" aria-labelledby="data-t data-d" xmlns="http://www.w3.org/2000/svg">
+<title id="data-t">Data pipeline</title>
+<desc id="data-d">The Kaggle Dog Breed Identification data is stored in Google Drive and mounted in Google Colab. labels.csv has 10,222 rows of image id and breed, and the train folder has 10,222 JPEG files; the notebook checks the counts match. The breeds are reduced to 120 unique labels and each label becomes a one-hot array of length 120. train_test_split with test size 0.2 and random state 42 splits the data into 8,177 training and 2,045 validation images. Each image is read, decoded as a 3-channel JPEG, converted to float32 between 0 and 1 and resized to 224 by 224. Training data is shuffled across the whole set, then mapped and batched in 32s, giving 256 batches. Validation data is not shuffled and gives 64 batches. Test images have no labels and are batched the same way for prediction.</desc>
+<defs>
+<marker id="bm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk"/></marker>
+<marker id="ba" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-a"/></marker>
+</defs>
+<rect class="grp" x="20" y="30" width="920" height="120" rx="12"/>
+<text class="tt" x="36" y="56">1 &middot; Source</text>
+<rect class="bx" x="36" y="70" width="230" height="64" rx="8"/>
+<text class="t" x="48" y="94">Kaggle: Dog Breed Identification</text>
+<text class="ts" x="48" y="116">public competition dataset</text>
+<path class="ln" d="M266,102 H292" marker-end="url(#bm)"/>
+<rect class="bx" x="296" y="70" width="200" height="64" rx="8"/>
+<text class="t" x="308" y="94">Google Drive</text>
+<text class="ts" x="308" y="116">mounted in Colab</text>
+<path class="ln" d="M496,102 H522" marker-end="url(#bm)"/>
+<rect class="bx" x="526" y="70" width="190" height="64" rx="8"/>
+<text class="t" x="538" y="94">labels.csv</text>
+<text class="ts" x="538" y="116">10,222 rows: id, breed</text>
+<rect class="bx" x="726" y="70" width="198" height="64" rx="8"/>
+<text class="t" x="738" y="94">train/ folder</text>
+<text class="ts" x="738" y="116">10,222 JPEGs, checked</text>
+
+<path class="ln" d="M621,134 V160 H250 V210" marker-end="url(#bm)"/>
+<path class="ln" d="M825,134 V168 H454 V210" marker-end="url(#bm)"/>
+<text class="ts" x="258" y="198">breed names (y)</text>
+<text class="ts" x="462" y="198">image paths (X)</text>
+<rect class="grp" x="20" y="176" width="920" height="110" rx="12"/>
+<text class="tt" x="36" y="202">2 &middot; Labels and split</text>
+<rect class="bx" x="36" y="214" width="250" height="58" rx="8"/>
+<text class="t" x="48" y="237">120 unique breeds</text>
+<text class="ts" x="48" y="257">np.unique &rarr; one-hot, length 120</text>
+<path class="ln" d="M286,243 H312" marker-end="url(#bm)"/>
+<rect class="bx-a" x="316" y="214" width="276" height="58" rx="8"/>
+<text class="t" x="328" y="237">train_test_split</text>
+<text class="ts" x="328" y="257">test_size=0.2 &middot; random_state=42</text>
+<path class="ln-a" d="M592,232 H636" marker-end="url(#ba)"/>
+<path class="ln-a" d="M592,256 H600 V262 H780" marker-end="url(#ba)"/>
+<rect class="bx" x="640" y="214" width="130" height="36" rx="6"/>
+<text class="t" x="652" y="237">Train 8,177</text>
+<rect class="bx" x="784" y="244" width="140" height="36" rx="6"/>
+<text class="t" x="796" y="267">Validation 2,045</text>
+
+<path class="ln" d="M480,286 V312" marker-end="url(#bm)"/>
+<rect class="grp" x="20" y="316" width="920" height="140" rx="12"/>
+<text class="tt" x="36" y="342">3 &middot; tf.data, per image, on the fly</text>
+<rect class="bx" x="36" y="356" width="170" height="52" rx="8"/>
+<text class="t" x="48" y="378">read_file</text><text class="ts" x="48" y="396">path &rarr; bytes</text>
+<path class="ln" d="M206,382 H222" marker-end="url(#bm)"/>
+<rect class="bx" x="226" y="356" width="170" height="52" rx="8"/>
+<text class="t" x="238" y="378">decode_jpeg</text><text class="ts" x="238" y="396">3 colour channels</text>
+<path class="ln" d="M396,382 H412" marker-end="url(#bm)"/>
+<rect class="bx" x="416" y="356" width="170" height="52" rx="8"/>
+<text class="t" x="428" y="378">convert dtype</text><text class="ts" x="428" y="396">float32, 0&ndash;1</text>
+<path class="ln" d="M586,382 H602" marker-end="url(#bm)"/>
+<rect class="bx" x="606" y="356" width="130" height="52" rx="8"/>
+<text class="t" x="618" y="378">resize</text><text class="ts" x="618" y="396">224 &times; 224</text>
+<path class="ln-a" d="M736,382 H752" marker-end="url(#ba)"/>
+<rect class="bx-a" x="756" y="350" width="168" height="94" rx="8"/>
+<text class="t" x="768" y="372">batch(32)</text>
+<text class="ts" x="768" y="392">train: shuffled first,</text>
+<text class="ts" x="768" y="406">256 batches</text>
+<text class="ts" x="768" y="420">val: in order, 64</text>
+<text class="ts" x="768" y="434">test: images only</text>
+<text class="ts" x="36" y="436">training set: shuffle(buffer = whole set) runs before the map, so paths are shuffled, not decoded images</text>
+</svg>
+</div>
+<div class="col">
+<p class="foot-note">Source: the data and batching cells of <code>DogsCode.ipynb</code> (<code>labels_csv</code>, <code>boolean_labels</code>, <code>train_test_split</code>, <code>process_image</code>, <code>batches</code>). The 8,177 / 2,045 split follows from <code>test_size=0.2</code> on 10,222 images and matches the 256 and 64 batches per epoch in the training log.</p>
+</div>
+</section>
+
+<section class="wide" aria-labelledby="s4">
+<div class="col">
+<p class="n">04 &middot; Train and evaluate</p>
+<h2 id="s4">Six runs, one lesson: keep the base frozen</h2>
+<p>Every run follows the same loop: build the model, train with early stopping, score it on the validation set, and save it to Drive. I changed one thing at a time. Making the base trainable (fine-tuning) cut validation accuracy from about 77% to about 45%, so the last run froze it again. The likely cause is that the whole base was unfrozen from the start at Adam&rsquo;s default learning rate, which overwrites the pre-trained weights; about 85 images per breed makes that worse. Run 6 is the best, and it is the model the results below describe.</p>
+<p>The notebook also trains the same frozen-base model on all 10,222 images (15 epochs, no validation set). The Kaggle test predictions load a full-data model file dated 16 Nov 2024. That is a week before the run-1 file (23 Nov 2024), so the prediction model came before the experiment runs, not after run 6.</p>
+</div>
+<p class="dg-hint" id="h-wf">Diagram is wide: scroll it sideways.</p>
+<div class="dg" tabindex="0" role="region" aria-label="Training and evaluation workflow diagram, scrolls sideways on small screens" aria-describedby="h-wf">
+<svg viewBox="0 0 1000 470" role="img" aria-labelledby="wf-t wf-d" xmlns="http://www.w3.org/2000/svg">
+<title id="wf-t">Training, evaluation and experiments</title>
+<desc id="wf-d">Three lanes. The run loop: build the model, fit for up to 200 epochs with TensorBoard and early stopping on validation accuracy with patience 5, evaluate on the validation set, save a .keras file to Google Drive, then compare with earlier runs. The experiments: run 1, a 5,000-image subset, 77.1%. Run 2 adds rotation and brightness augmentation, 75.2%. Runs 3 to 5 make the base trainable on the full dataset, with and without an extra ReLU layer, 44.4% to 46.1%. Run 6 freezes the base again on the full 80/20 split, 78.1%, the best. Full data: the same frozen-base architecture trained on all 10,222 images with no validation set, early stopping on training accuracy with patience 4, stopped after 15 epochs. The prediction cells load a full-data model file dated 16 November 2024, before the experiment runs, to predict the Kaggle test set and 3 dog photos from the web.</desc>
+<defs>
+<marker id="cm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk"/></marker>
+<marker id="ca" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-a"/></marker>
+<marker id="cc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-c"/></marker>
+</defs>
+<rect class="lane" x="10" y="20" width="980" height="120"/>
+<rect class="lane2" x="10" y="140" width="980" height="180"/>
+<rect class="lane" x="10" y="320" width="980" height="140"/>
+<path class="ln" d="M120,20 V460"/>
+<text class="tt" x="22" y="76">Each run</text>
+<text class="tt" x="22" y="226">Experiments</text>
+<text class="ts" x="22" y="244">one change</text><text class="ts" x="22" y="258">at a time</text>
+<text class="tt" x="22" y="386">Full data</text>
+
+<rect class="bx" x="134" y="44" width="140" height="72" rx="8"/>
+<text class="t" x="146" y="68">Build</text><text class="ts" x="146" y="88">create_model()</text><text class="ts" x="146" y="104">base + head</text>
+<path class="ln" d="M274,80 H290" marker-end="url(#cm)"/>
+<rect class="bx" x="294" y="44" width="200" height="72" rx="8"/>
+<text class="t" x="306" y="68">Fit, up to 200 epochs</text><text class="ts" x="306" y="88">TensorBoard logs</text><text class="ts" x="306" y="104">stop: val_accuracy, 5</text>
+<path class="ln" d="M494,80 H510" marker-end="url(#cm)"/>
+<rect class="bx" x="514" y="44" width="150" height="72" rx="8"/>
+<text class="t" x="526" y="68">Evaluate</text><text class="ts" x="526" y="88">model.evaluate</text><text class="ts" x="526" y="104">on validation</text>
+<path class="ln" d="M664,80 H680" marker-end="url(#cm)"/>
+<rect class="bx" x="684" y="44" width="140" height="72" rx="8"/>
+<text class="t" x="696" y="68">Save</text><text class="ts" x="696" y="88">.keras file</text><text class="ts" x="696" y="104">on Google Drive</text>
+<path class="ln" d="M824,80 H840" marker-end="url(#cm)"/>
+<rect class="bx" x="844" y="44" width="136" height="72" rx="8"/>
+<text class="t" x="856" y="68">Compare</text><text class="ts" x="856" y="88">with earlier</text><text class="ts" x="856" y="104">runs</text>
+
+<rect class="bx" x="134" y="160" width="190" height="72" rx="8"/>
+<text class="t" x="146" y="184">Run 1 &middot; baseline</text><text class="ts" x="146" y="204">5,000-image subset</text><text class="ts" x="146" y="220">77.1% val</text>
+<path class="ln" d="M324,196 H340" marker-end="url(#cm)"/>
+<rect class="bx" x="344" y="160" width="190" height="72" rx="8"/>
+<text class="t" x="356" y="184">Run 2 &middot; augmentation</text><text class="ts" x="356" y="204">rotation + brightness</text><text class="ts" x="356" y="220">75.2% val</text>
+<path class="ln" d="M534,196 H550" marker-end="url(#cm)"/>
+<rect class="bx-c" x="554" y="160" width="200" height="72" rx="8"/>
+<text class="t" x="566" y="184">Runs 3&ndash;5 &middot; fine-tune</text><text class="ts" x="566" y="204">base trainable, full data</text><text class="ts tc" x="566" y="220">44.4&ndash;46.1% val</text>
+<path class="ln-a" d="M754,196 H770" marker-end="url(#ca)"/>
+<rect class="bx-a" x="774" y="160" width="206" height="72" rx="8"/>
+<text class="t" x="786" y="184">Run 6 &middot; frozen again</text><text class="ts" x="786" y="204">full data, 80/20 split</text><text class="ts ta" x="786" y="220">78.1% val &middot; best</text>
+<text class="ts tc" x="566" y="256">whole base unfrozen at the default</text>
+<text class="ts tc" x="566" y="272">learning rate (likely cause): fell</text>
+<text class="ts" x="146" y="256">runs 1&ndash;2 used a 1,000-image</text>
+<text class="ts" x="146" y="272">validation split; 3&ndash;6 used 2,045</text>
+<path class="ln-a" d="M877,232 V340" marker-end="url(#ca)"/>
+<text class="ts ta end" x="869" y="300">same architecture,</text><text class="ts ta end" x="869" y="314">all data</text>
+
+<rect class="bx-a" x="560" y="344" width="420" height="96" rx="8"/>
+<text class="t" x="572" y="368">Train on all 10,222 images</text>
+<text class="ts" x="572" y="388">no validation set left, so no val score</text>
+<text class="ts" x="572" y="404">stop: training accuracy, patience 4</text>
+<text class="ts" x="572" y="420">stopped after 15 epochs (320 batches each)</text>
+<path class="ln" d="M560,392 H526" marker-end="url(#cm)"/>
+<rect class="bx" x="300" y="344" width="222" height="96" rx="8"/>
+<text class="t" x="312" y="368">Predict</text>
+<text class="ts" x="312" y="388">Kaggle test images</text>
+<text class="ts" x="312" y="404">model file dated 16 Nov 2024</text>
+<text class="ts" x="312" y="420">3 dog photos from the web</text>
+</svg>
+</div>
+<div class="col">
+<h3>The six runs</h3>
+<div class="tbl"><table>
+<thead><tr><th>Run</th><th>Data</th><th>Change</th><th>Train acc.</th><th>Val acc.</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>5,000-image subset</td><td>Baseline <span class="ok">in notebook</span></td><td class="num">n/a</td><td class="num">77.1%</td></tr>
+<tr><td>2</td><td>5,000-image subset</td><td>Rotation and brightness augmentation</td><td class="num">n/a</td><td class="num">75.2%</td></tr>
+<tr class="bad"><td>3</td><td>Full, 80/20</td><td>Base trainable (fine-tuning)</td><td class="num">n/a</td><td class="num">46.1%</td></tr>
+<tr class="bad"><td>4</td><td>Full, 80/20</td><td>Fine-tuning plus an extra ReLU dense layer</td><td class="num">n/a</td><td class="num">45.9%</td></tr>
+<tr class="bad"><td>5</td><td>Full, 80/20</td><td>ReLU layer and augmentation removed, base still trainable</td><td class="num">80.4%</td><td class="num">44.4%</td></tr>
+<tr class="best"><td>6</td><td>Full, 80/20</td><td>Base frozen again <span class="ok">in notebook</span></td><td class="num">97.2%</td><td class="num">78.1%</td></tr>
+</tbody></table></div>
+<p class="foot-note">Source: my experiment log (<code>RESULTS.md</code>). Runs 1 and 6 are also in the public notebook's saved output: run 1's model reloads and scores 0.7710, run 6 scores 0.7814. The notebook keeps only the last state of the code, so runs 2&ndash;5 are not visible in it. Runs 1 and 2 were scored on a smaller validation split, so compare them with each other, not with runs 3&ndash;6.</p>
+</div>
+</section>
+
+<section class="wide" aria-labelledby="s5">
+<div class="col">
+<p class="n">05 &middot; Results</p>
+<h2 id="s5">78.1% on held-out validation photos, and a clear overfitting gap</h2>
+<div class="nums">
+<div><b>78.1%</b><span>validation accuracy of the saved model, 2,045 images</span></div>
+<div><b>97.2%</b><span>training accuracy in the same, final epoch</span></div>
+<div><b>80.8%</b><span>best validation accuracy, epoch 14, not kept</span></div>
+<div><b>0.8%</b><span>a random guess among 120 breeds</span></div>
+</div>
+<p>The charts show run 6 epoch by epoch. Training accuracy climbs to 99.9% while validation accuracy stays near 80%, so the head memorises the training photos. Validation loss is lowest at epoch 5 and rises after that. Around epochs 16&ndash;17 training became unstable: training loss jumped about thirtyfold and validation accuracy fell to 74.7%.</p>
+<p>Early stopping watched validation accuracy with a patience of 5 epochs. It stopped at epoch 19, five epochs after the 80.8% peak. It was not set to restore the best weights, so the saved model has the epoch-19 weights and scores 78.1%, not 80.8%.</p>
+</div>
+<div class="charts">
+<figure>
+<svg class="ch" viewBox="0 0 400 280" role="img" aria-labelledby="cha-t cha-d" xmlns="http://www.w3.org/2000/svg">
+<title id="cha-t">Accuracy per epoch, Model 6</title>
+<desc id="cha-d">Training and validation accuracy for the 19 epochs of Model 6, from the notebook training log. Training accuracy rises from 63.5% to 99.9% by epoch 13, dips to 92.2% at epoch 17 and ends at 97.2%. Validation accuracy starts at 78.2%, peaks at 80.8% at epoch 14, drops to 74.7% at epoch 17 and ends at 78.1% at epoch 19, where early stopping ended the run. The vertical axis starts at 60%.</desc>
+<path class="gd" d="M56,224.0 H384"/><text class="tk end" x="50" y="228.0">60%</text>
+<path class="gd" d="M56,176.5 H384"/><text class="tk end" x="50" y="180.5">70%</text>
+<path class="gd" d="M56,129.0 H384"/><text class="tk end" x="50" y="133.0">80%</text>
+<path class="gd" d="M56,81.5 H384"/><text class="tk end" x="50" y="85.5">90%</text>
+<path class="gd" d="M56,34.0 H384"/><text class="tk end" x="50" y="38.0">100%</text>
+<path class="ax" d="M56,224 H384"/>
+<text class="tk mid" x="56.0" y="242">1</text>
+<text class="tk mid" x="128.9" y="242">5</text>
+<text class="tk mid" x="220.0" y="242">10</text>
+<text class="tk mid" x="292.9" y="242">14</text>
+<text class="tk mid" x="384.0" y="242">19</text>
+<text class="tk mid" x="220" y="262">epoch</text>
+<polyline class="tr" points="56.0,207.2 74.2,92.3 92.4,62.6 110.7,47.8 128.9,41.1 147.1,36.7 165.3,36.0 183.6,35.7 201.8,35.5 220.0,35.5 238.2,35.6 256.4,34.8 274.7,34.5 292.9,34.6 311.1,34.5 329.3,37.2 347.6,71.0 365.8,66.6 384.0,47.3"/>
+<circle class="dtr" cx="56.0" cy="207.2" r="2.4"/>
+<circle class="dtr" cx="74.2" cy="92.3" r="2.4"/>
+<circle class="dtr" cx="92.4" cy="62.6" r="2.4"/>
+<circle class="dtr" cx="110.7" cy="47.8" r="2.4"/>
+<circle class="dtr" cx="128.9" cy="41.1" r="2.4"/>
+<circle class="dtr" cx="147.1" cy="36.7" r="2.4"/>
+<circle class="dtr" cx="165.3" cy="36.0" r="2.4"/>
+<circle class="dtr" cx="183.6" cy="35.7" r="2.4"/>
+<circle class="dtr" cx="201.8" cy="35.5" r="2.4"/>
+<circle class="dtr" cx="220.0" cy="35.5" r="2.4"/>
+<circle class="dtr" cx="238.2" cy="35.6" r="2.4"/>
+<circle class="dtr" cx="256.4" cy="34.8" r="2.4"/>
+<circle class="dtr" cx="274.7" cy="34.5" r="2.4"/>
+<circle class="dtr" cx="292.9" cy="34.6" r="2.4"/>
+<circle class="dtr" cx="311.1" cy="34.5" r="2.4"/>
+<circle class="dtr" cx="329.3" cy="37.2" r="2.4"/>
+<circle class="dtr" cx="347.6" cy="71.0" r="2.4"/>
+<circle class="dtr" cx="365.8" cy="66.6" r="2.4"/>
+<circle class="dtr" cx="384.0" cy="47.3" r="2.4"/>
+<polyline class="va" points="56.0,137.4 74.2,135.3 92.4,134.8 110.7,128.3 128.9,130.9 147.1,131.1 165.3,129.5 183.6,128.0 201.8,128.8 220.0,129.9 238.2,128.8 256.4,126.0 274.7,126.2 292.9,125.1 311.1,128.0 329.3,142.9 347.6,154.1 365.8,143.2 384.0,137.8"/>
+<circle class="dva" cx="56.0" cy="137.4" r="2.4"/>
+<circle class="dva" cx="74.2" cy="135.3" r="2.4"/>
+<circle class="dva" cx="92.4" cy="134.8" r="2.4"/>
+<circle class="dva" cx="110.7" cy="128.3" r="2.4"/>
+<circle class="dva" cx="128.9" cy="130.9" r="2.4"/>
+<circle class="dva" cx="147.1" cy="131.1" r="2.4"/>
+<circle class="dva" cx="165.3" cy="129.5" r="2.4"/>
+<circle class="dva" cx="183.6" cy="128.0" r="2.4"/>
+<circle class="dva" cx="201.8" cy="128.8" r="2.4"/>
+<circle class="dva" cx="220.0" cy="129.9" r="2.4"/>
+<circle class="dva" cx="238.2" cy="128.8" r="2.4"/>
+<circle class="dva" cx="256.4" cy="126.0" r="2.4"/>
+<circle class="dva" cx="274.7" cy="126.2" r="2.4"/>
+<circle class="dva" cx="292.9" cy="125.1" r="2.4"/>
+<circle class="dva" cx="311.1" cy="128.0" r="2.4"/>
+<circle class="dva" cx="329.3" cy="142.9" r="2.4"/>
+<circle class="dva" cx="347.6" cy="154.1" r="2.4"/>
+<circle class="dva" cx="365.8" cy="143.2" r="2.4"/>
+<circle class="dva" cx="384.0" cy="137.8" r="2.4"/>
+<path class="mkl" d="M292.9,119.1 V72"/>
+<text class="lb va-t end" x="296.9" y="66">peak 80.8% (epoch 14)</text>
+<path class="mkl" d="M384.0,143.8 V210"/>
+<text class="lb va-t end" x="384.0" y="222">saved: 78.1%</text>
+<text class="lb tr-t" x="62" y="22">training</text>
+<text class="lb va-t" x="146" y="22">validation</text>
+</svg>
+<figcaption>Accuracy per epoch for run 6. The axis starts at 60%.</figcaption>
+</figure>
+<figure>
+<svg class="ch" viewBox="0 0 400 280" role="img" aria-labelledby="chl-t chl-d" xmlns="http://www.w3.org/2000/svg">
+<title id="chl-t">Loss per epoch, Model 6</title>
+<desc id="chl-d">Training and validation focal loss for the 19 epochs of Model 6, from the notebook training log. Training loss falls from 0.303 to under 0.002 by epoch 12, then jumps to 0.033 at epoch 17. Validation loss is lowest at 0.116 in epoch 5, then rises to 0.209 at epoch 17 and ends at 0.200.</desc>
+<path class="gd" d="M56,224.0 H384"/><text class="tk end" x="50" y="228.0">0.0</text>
+<path class="gd" d="M56,164.6 H384"/><text class="tk end" x="50" y="168.6">0.1</text>
+<path class="gd" d="M56,105.2 H384"/><text class="tk end" x="50" y="109.2">0.2</text>
+<path class="gd" d="M56,45.9 H384"/><text class="tk end" x="50" y="49.9">0.3</text>
+<path class="ax" d="M56,224 H384"/>
+<text class="tk mid" x="56.0" y="242">1</text>
+<text class="tk mid" x="128.9" y="242">5</text>
+<text class="tk mid" x="220.0" y="242">10</text>
+<text class="tk mid" x="292.9" y="242">14</text>
+<text class="tk mid" x="384.0" y="242">19</text>
+<text class="tk mid" x="220" y="262">epoch</text>
+<polyline class="tr" points="56.0,44.4 74.2,189.6 92.4,209.9 110.7,217.5 128.9,220.6 147.1,221.8 165.3,222.4 183.6,222.8 201.8,222.8 220.0,222.8 238.2,222.9 256.4,223.1 274.7,223.3 292.9,223.5 311.1,223.3 329.3,221.8 347.6,204.5 365.8,207.3 384.0,218.7"/>
+<circle class="dtr" cx="56.0" cy="44.4" r="2.4"/>
+<circle class="dtr" cx="74.2" cy="189.6" r="2.4"/>
+<circle class="dtr" cx="92.4" cy="209.9" r="2.4"/>
+<circle class="dtr" cx="110.7" cy="217.5" r="2.4"/>
+<circle class="dtr" cx="128.9" cy="220.6" r="2.4"/>
+<circle class="dtr" cx="147.1" cy="221.8" r="2.4"/>
+<circle class="dtr" cx="165.3" cy="222.4" r="2.4"/>
+<circle class="dtr" cx="183.6" cy="222.8" r="2.4"/>
+<circle class="dtr" cx="201.8" cy="222.8" r="2.4"/>
+<circle class="dtr" cx="220.0" cy="222.8" r="2.4"/>
+<circle class="dtr" cx="238.2" cy="222.9" r="2.4"/>
+<circle class="dtr" cx="256.4" cy="223.1" r="2.4"/>
+<circle class="dtr" cx="274.7" cy="223.3" r="2.4"/>
+<circle class="dtr" cx="292.9" cy="223.5" r="2.4"/>
+<circle class="dtr" cx="311.1" cy="223.3" r="2.4"/>
+<circle class="dtr" cx="329.3" cy="221.8" r="2.4"/>
+<circle class="dtr" cx="347.6" cy="204.5" r="2.4"/>
+<circle class="dtr" cx="365.8" cy="207.3" r="2.4"/>
+<circle class="dtr" cx="384.0" cy="218.7" r="2.4"/>
+<polyline class="va" points="56.0,150.4 74.2,153.8 92.4,154.5 110.7,153.5 128.9,154.9 147.1,154.8 165.3,153.6 183.6,153.8 201.8,153.2 220.0,151.7 238.2,151.3 256.4,150.1 274.7,148.8 292.9,149.2 311.1,148.0 329.3,129.0 347.6,99.8 365.8,104.5 384.0,105.2"/>
+<circle class="dva" cx="56.0" cy="150.4" r="2.4"/>
+<circle class="dva" cx="74.2" cy="153.8" r="2.4"/>
+<circle class="dva" cx="92.4" cy="154.5" r="2.4"/>
+<circle class="dva" cx="110.7" cy="153.5" r="2.4"/>
+<circle class="dva" cx="128.9" cy="154.9" r="2.4"/>
+<circle class="dva" cx="147.1" cy="154.8" r="2.4"/>
+<circle class="dva" cx="165.3" cy="153.6" r="2.4"/>
+<circle class="dva" cx="183.6" cy="153.8" r="2.4"/>
+<circle class="dva" cx="201.8" cy="153.2" r="2.4"/>
+<circle class="dva" cx="220.0" cy="151.7" r="2.4"/>
+<circle class="dva" cx="238.2" cy="151.3" r="2.4"/>
+<circle class="dva" cx="256.4" cy="150.1" r="2.4"/>
+<circle class="dva" cx="274.7" cy="148.8" r="2.4"/>
+<circle class="dva" cx="292.9" cy="149.2" r="2.4"/>
+<circle class="dva" cx="311.1" cy="148.0" r="2.4"/>
+<circle class="dva" cx="329.3" cy="129.0" r="2.4"/>
+<circle class="dva" cx="347.6" cy="99.8" r="2.4"/>
+<circle class="dva" cx="365.8" cy="104.5" r="2.4"/>
+<circle class="dva" cx="384.0" cy="105.2" r="2.4"/>
+<path class="mkl" d="M128.9,148.9 V69.6"/>
+<text class="lb va-t" x="124.9" y="63.6">lowest 0.116 (epoch 5)</text>
+<text class="lb va-t end" x="384.0" y="95.2">0.200</text>
+<text class="lb tr-t" x="62" y="22">training</text>
+<text class="lb va-t" x="146" y="22">validation</text>
+</svg>
+<figcaption>Focal cross-entropy loss per epoch for run 6. Focal loss gives smaller numbers than plain cross-entropy.</figcaption>
+</figure>
+</div>
+<div class="col">
+<p class="foot-note">Both charts are plotted from the training log of the final run: the 19 per-epoch lines (<code>loss</code>, <code>accuracy</code>, <code>val_loss</code>, <code>val_accuracy</code>) in the output of run 6 in <code>DogsCode.ipynb</code>. Each dot is one logged epoch, and nothing is smoothed or added. The full-data fit (cell 22) also logged 15 epochs, but it had no validation set, so it is not charted.</p>
+</div>
+</section>
+
+<section class="col" aria-labelledby="s6">
+<p class="n">06 &middot; Privacy and data</p>
+<h2 id="s6">Public dog photos, no personal data</h2>
+<ul>
+<li>The data is the public Kaggle &ldquo;Dog Breed Identification&rdquo; competition set. Its labels file holds only an image id and a breed name.</li>
+<li>The images are of dogs. The model takes no names, locations or account data, and has nothing to store about people.</li>
+<li>The dataset and the trained <code>.keras</code> files live in my Google Drive and are not in the repository, which holds only the notebook and a README.</li>
+<li>Training ran in Google Colab, so the data was processed in Google's cloud, not on my PC.</li>
+</ul>
+</section>
+
+<section class="col" aria-labelledby="s7">
+<p class="n">07 &middot; Stack</p>
+<h2 id="s7">Tools</h2>
+<p>Python, TensorFlow 2.15 with Keras, TensorFlow Hub for the pre-trained MobileNetV2, <code>tf.data</code> for the input pipeline, NumPy and pandas for labels, scikit-learn's <code>train_test_split</code>, Matplotlib for the image grids, and TensorBoard for training logs. Everything ran in Google Colab with a GPU runtime, reading data from Google Drive.</p>
+</section>
+
+<section class="col" aria-labelledby="s8">
+<p class="n">08 &middot; Limitations</p>
+<h2 id="s8">What this model does not show</h2>
+<ul>
+<li><b>Overfitting.</b> 97.2% training against 78.1% validation accuracy. With about 85 photos per breed, the head learns the training set much better than it generalises.</li>
+<li><b>The best epoch was lost.</b> Early stopping did not restore the best weights, so the saved model is 2.7 points below the run's own peak.</li>
+<li><b>Top-1 accuracy only.</b> There is no top-5 accuracy, per-breed score or confusion matrix, so I can't yet say which breeds it mixes up.</li>
+<li><b>Runs are not all comparable.</b> Runs 1 and 2 used a different validation split from runs 3&ndash;6, and each setting was trained once.</li>
+<li><b>Augmentation was only tried on the subset</b> (run 2). It has not been tried with the frozen base on the full data.</li>
+<li><b>No separate test score.</b> The validation split also drove early stopping and the choice between runs, so 78.1% is a validation score and slightly optimistic. The notebook has no score on a separate held-out test set.</li>
+<li><b>The full-data model has no score.</b> It was trained on every labelled image, and the notebook does not record a Kaggle leaderboard result for its test-set predictions.</li>
+<li><b>The head reads class scores.</b> The Hub module is the classification version, so the head learns from 1001 ImageNet class scores instead of the base's feature vector.</li>
+</ul>
+</section>
+
+<section class="col" aria-labelledby="s9">
+<p class="n">09 &middot; What's next</p>
+<h2 id="s9">Planned, not done</h2>
+<ul>
+<li>Add augmentation to the frozen-base model on the full data.</li>
+<li>Once the head has converged, unfreeze only the top few layers of the base with a low learning rate.</li>
+<li>Try a larger backbone (EfficientNetV2 or ConvNeXt) and report top-5 accuracy.</li>
+<li>Keep one fixed validation split for every run, and add a confusion matrix of the most-confused breeds.</li>
+</ul>
+</section>
+
+<footer class="col">
+<p>Built during the Zero To Mastery Complete A.I. &amp; Machine Learning bootcamp, then extended with my own experiments. Code: <a href="https://github.com/mikachamp/dog-breed-identification" target="_blank" rel="noopener">github.com/mikachamp/dog-breed-identification</a> &middot; <a href="https://colab.research.google.com/github/mikachamp/dog-breed-identification/blob/main/DogsCode.ipynb" target="_blank" rel="noopener">open the notebook in Colab</a>.</p>
+<p><a href="../../projects.html#dog-breed">&larr; All projects</a></p>
+</footer>
+
+</main>
+<script src="../../js/back.js"></script>
+<script src="../../js/reveal.js" defer></script>
+</body>
+</html>

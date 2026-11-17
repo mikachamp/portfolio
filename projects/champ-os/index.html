@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; frame-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CHAMP OS case study</title>
+<meta name="description" content="How CHAMP OS works: a multi-agent system of 15 local Node services under PM2, an Electron desktop app and a markdown vault, running on local models through LM Studio. Architecture, data flow, approval workflow and an honest security section.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../project.css">
+<link rel="stylesheet" href="champ-os.css">
+<link rel="stylesheet" href="../../css/back.css">
+</head>
+<body><nav class="pgback pad" aria-label="Page navigation"><a href="../../projects.html#mika-os" data-back>&larr; Back</a><a href="../../index.html">Home</a></nav>
+<main>
+
+<header class="col">
+<p class="eyebrow">Case study &middot; Multi-agent system &middot; 2026</p>
+<h1>CHAMP OS: a multi-agent system on local models</h1>
+<p><span class="badge">In progress</span><span class="badge warn">Security hardening in review</span></p>
+<p class="lede">A fleet of 15 small Node services, one orchestrator and 14 role agents, run under PM2 on my own PC. An Electron desktop app is the control surface, a folder of plain markdown files is the shared memory, and the models run locally through LM Studio. This page shows how it is wired, where the data goes, and which safety work is done and which is still planned.</p>
+<div class="meta">
+<div><b>My role</b><span>Creator and systems architect</span></div>
+<div><b>Stack</b><span>Electron &middot; Node.js &middot; Express &middot; PM2 &middot; LM Studio &middot; Three.js &middot; Obsidian vault</span></div>
+<div><b>Scale</b><span>15 services on ports 3001&ndash;3015</span></div>
+<div><b>Status</b><span>Working locally; moving to a lean orchestrator</span></div>
+</div>
+</header>
+
+<figure class="hero-shot"><img src="../../media/champ-os-dashboard.jpg" alt="CHAMP OS desktop app: the AI Core figure in the centre, an agent overview showing 14 of 14 agents running on a local model, quick commands and the Director panel" width="1440" height="900">
+<figcaption>The desktop app's command centre, shown with demo content. The app was first called Mika OS, which is why the screenshot still shows that name.</figcaption></figure>
+
+<section class="col" aria-labelledby="s1">
+<p class="n">01 &middot; Brief</p>
+<h2 id="s1">What it is for, and what I built</h2>
+<div class="brief">
+<div><b>Problem</b><p>I wanted one place to send tasks, run local and cloud models, and keep my notes, instead of a pile of separate cloud dashboards. Most of my work should stay on my own machine.</p></div>
+<div><b>My role</b><p>I designed the architecture and built the system: the agent fleet, the desktop app and the vault layout.</p></div>
+<div><b>What I built</b><p>15 Express services under PM2, each with one job, and an orchestrator that routes requests and runs a &ldquo;Director&rdquo; check-in loop. There is also an Electron app with an Agent Chat page and a 3D graph of the vault.</p></div>
+<div><b>Status</b><p>Runs locally on Windows. Next steps: apply the security hardening that is in review, then replace the 15 always-on processes with one orchestrator and short-lived role agents.</p></div>
+</div>
+</section>
+
+<section class="wide" aria-labelledby="s2">
+<div class="col">
+<p class="n">02 &middot; Architecture</p>
+<h2 id="s2">Three parts: a desktop app, a local fleet, a markdown vault</h2>
+<p>The desktop app never runs agent logic itself. Its main process starts the fleet with <code>pm2 start</code> and talks to the services over HTTP on <code>localhost</code>. Every service writes its results into the vault through one shared module. Models are called through another shared module that tries LM Studio first.</p>
+</div>
+<p class="dg-hint" id="h-arch">Diagram is wide: scroll it sideways.</p>
+<div class="dg" tabindex="0" role="region" aria-label="Architecture diagram, scrolls sideways on small screens" aria-describedby="h-arch">
+<svg viewBox="0 0 960 700" role="img" aria-labelledby="arch-t arch-d" xmlns="http://www.w3.org/2000/svg">
+<title id="arch-t">CHAMP OS architecture</title>
+<desc id="arch-d">The Electron desktop app has a renderer, a preload bridge with context isolation, and a main process. The main process starts a PM2 fleet of 15 Node services bound to 127.0.0.1 and talks to the orchestrator on port 3001 over HTTP. The orchestrator routes to 14 role agents on ports 3002 to 3015. Agents call local models through LM Studio on 127.0.0.1 port 1234 or a standalone llama-server, and fall back to the Google Gemini API when LM Studio is down. The Researcher agent and the app's chat page call the Anthropic API. The renderer's Pause button also calls an agent's pause route directly. The app and the fleet read and write an Obsidian vault of markdown files on the local disk.</desc>
+<defs>
+<marker id="am" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk"/></marker>
+<marker id="aa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-a"/></marker>
+<marker id="ac" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-c"/></marker>
+</defs>
+<path class="ln-c" d="M135,44 V26 H825 V40" marker-end="url(#ac)"/>
+<text class="ts tc" x="300" y="18">app chat page &rarr; Anthropic API (called from the main process)</text>
+
+<rect class="grp" x="20" y="44" width="230" height="290" rx="12"/>
+<text class="tt" x="36" y="70">CHAMP OS desktop app</text>
+<text class="ts" x="36" y="88">Electron 31 &middot; Windows</text>
+<rect class="bx" x="36" y="104" width="198" height="70" rx="8"/>
+<text class="t" x="48" y="128">Renderer (UI)</text>
+<text class="ts" x="48" y="146">dashboard &middot; Agent Chat</text>
+<text class="ts" x="48" y="162">offline chat &middot; 3D graph</text>
+<path class="ln" d="M135,174 V186"/>
+<rect class="bx" x="36" y="186" width="198" height="50" rx="8"/>
+<text class="t" x="48" y="208">Preload bridge</text>
+<text class="ts" x="48" y="225">contextIsolation on</text>
+<path class="ln" d="M135,236 V248"/>
+<rect class="bx" x="36" y="248" width="198" height="72" rx="8"/>
+<text class="t" x="48" y="272">Main process</text>
+<text class="ts" x="48" y="290">IPC handlers</text>
+<text class="ts" x="48" y="306">starts the fleet (pm2)</text>
+<path class="ln-a" d="M234,284 H258 V131 H292" marker-end="url(#aa)"/>
+<path class="ln-p" d="M234,150 H246 V197 H292" marker-end="url(#am)"/>
+<text class="ts ta" x="272" y="214" transform="rotate(-90 272 214)" text-anchor="middle">HTTP</text>
+
+<rect class="grp" x="280" y="44" width="400" height="400" rx="12"/>
+<text class="tt" x="296" y="70">PM2 fleet &middot; 15 Node/Express services</text>
+<text class="ts" x="296" y="88">each listens on 127.0.0.1 only &middot; ports 3001&ndash;3015</text>
+<rect class="bx-a" x="296" y="102" width="368" height="58" rx="8"/>
+<text class="t" x="312" y="126">Orchestrator</text>
+<text class="tp end" x="652" y="126">:3001</text>
+<text class="ts" x="312" y="145">LLM router &middot; Director loops &middot; Agent Chat</text>
+<path class="ln" d="M480,160 V176" marker-end="url(#am)"/>
+<g>
+<rect class="bx" x="296" y="178" width="180" height="32" rx="6"/><text class="tn" x="306" y="199">life-admin</text><text class="tp end" x="466" y="199">:3002</text>
+<rect class="bx" x="484" y="178" width="180" height="32" rx="6"/><text class="tn" x="494" y="199">fitness</text><text class="tp end" x="654" y="199">:3003</text>
+<rect class="bx" x="296" y="215" width="180" height="32" rx="6"/><text class="tn" x="306" y="236">learning</text><text class="tp end" x="466" y="236">:3004</text>
+<rect class="bx" x="484" y="215" width="180" height="32" rx="6"/><text class="tn" x="494" y="236">memory</text><text class="tp end" x="654" y="236">:3005</text>
+<rect class="bx" x="296" y="252" width="180" height="32" rx="6"/><text class="tn" x="306" y="273">vault-manager</text><text class="tp end" x="466" y="273">:3006</text>
+<rect class="bx-c" x="484" y="252" width="180" height="32" rx="6"/><text class="tn" x="494" y="273">researcher</text><text class="tp end" x="654" y="273">:3007</text>
+<rect class="bx" x="296" y="289" width="180" height="32" rx="6"/><text class="tn" x="306" y="310">builder</text><text class="tp end" x="466" y="310">:3008</text>
+<rect class="bx" x="484" y="289" width="180" height="32" rx="6"/><text class="tn" x="494" y="310">business-expert</text><text class="tp end" x="654" y="310">:3009</text>
+<rect class="bx" x="296" y="326" width="180" height="32" rx="6"/><text class="tn" x="306" y="347">manufacturing-expert</text><text class="tp end" x="466" y="347">:3010</text>
+<rect class="bx" x="484" y="326" width="180" height="32" rx="6"/><text class="tn" x="494" y="347">career-expert</text><text class="tp end" x="654" y="347">:3011</text>
+<rect class="bx" x="296" y="363" width="180" height="32" rx="6"/><text class="tn" x="306" y="384">network-security</text><text class="tp end" x="466" y="384">:3012</text>
+<rect class="bx" x="484" y="363" width="180" height="32" rx="6"/><text class="tn" x="494" y="384">it-security</text><text class="tp end" x="654" y="384">:3013</text>
+<rect class="bx" x="296" y="400" width="180" height="32" rx="6"/><text class="tn" x="306" y="421">maintenance</text><text class="tp end" x="466" y="421">:3014</text>
+<rect class="bx-a" x="484" y="400" width="180" height="32" rx="6"/><text class="tn" x="494" y="421">offline-llm</text><text class="tp end" x="654" y="421">:3015</text>
+</g>
+<path class="ln-c" d="M680,130 H706" marker-end="url(#ac)"/>
+<path class="ln-a" d="M680,344 H706" marker-end="url(#aa)"/>
+
+<rect class="grp-c" x="710" y="44" width="230" height="170" rx="12"/>
+<text class="tt tc" x="726" y="70">Cloud APIs (internet)</text>
+<rect class="bx-c" x="726" y="84" width="198" height="56" rx="8"/>
+<text class="t" x="738" y="106">Google Gemini API</text>
+<text class="ts" x="738" y="124">fallback: LM Studio down</text>
+<rect class="bx-c" x="726" y="148" width="198" height="56" rx="8"/>
+<text class="t" x="738" y="170">Anthropic API (Claude)</text>
+<text class="ts" x="738" y="188">Researcher &middot; app chat page</text>
+
+<rect class="grp-l" x="710" y="244" width="230" height="200" rx="12"/>
+<text class="tt ta" x="726" y="270">Local models (this PC)</text>
+<rect class="bx" x="726" y="284" width="198" height="66" rx="8"/>
+<text class="t" x="738" y="306">LM Studio server</text>
+<text class="ts" x="738" y="324">127.0.0.1:1234</text>
+<text class="ts" x="738" y="340">default: a Gemma model</text>
+<rect class="bx" x="726" y="362" width="198" height="66" rx="8"/>
+<text class="t" x="738" y="384">llama-server (llama.cpp)</text>
+<text class="ts" x="738" y="402">standalone GGUF model</text>
+<text class="ts" x="738" y="418">127.0.0.1 &middot; via offline-llm</text>
+
+<path class="ln" d="M135,334 V480" marker-end="url(#am)"/>
+<text class="ts" x="145" y="404">read &middot; list &middot; graph</text>
+<text class="ts" x="145" y="420">save chat logs</text>
+<path class="ln-a" d="M480,444 V480" marker-end="url(#aa)"/>
+<text class="ts" x="490" y="467">write / append (shared/obsidian.js)</text>
+
+<rect class="grp-l" x="20" y="484" width="920" height="150" rx="12"/>
+<text class="tt" x="36" y="510">Obsidian vault &middot; plain markdown files on the local disk</text>
+<rect class="bx" x="36" y="524" width="213" height="96" rx="8"/>
+<text class="t" x="48" y="546">Logs/ (agent output)</text>
+<text class="ts" x="48" y="566">briefings &middot; fitness</text>
+<text class="ts" x="48" y="582">research &middot; builds</text>
+<text class="ts" x="48" y="598">security &middot; director</text>
+<rect class="bx" x="261" y="524" width="213" height="96" rx="8"/>
+<text class="t" x="273" y="546">Logs/Agents + PM2 logs</text>
+<text class="ts" x="273" y="566">one state file per agent</text>
+<text class="ts" x="273" y="582">Idle / Working / Paused</text>
+<text class="ts" x="273" y="598">stdout and error logs</text>
+<rect class="bx" x="486" y="524" width="213" height="96" rx="8"/>
+<text class="t" x="498" y="546">Logs/conversations/</text>
+<text class="ts" x="498" y="566">app chat, one file a day</text>
+<text class="ts" x="498" y="582">Agent Chat transcript</text>
+<rect class="bx" x="711" y="524" width="213" height="96" rx="8"/>
+<text class="t" x="723" y="546">Tasks/ &middot; Notes/</text>
+<text class="ts" x="723" y="566">weekly plans &middot; task locks</text>
+<text class="ts" x="723" y="582">Memory Index</text>
+<text class="ts" x="723" y="598">context agents read</text>
+
+<path class="ln-a" d="M36,662 H76"/><text class="ts" x="84" y="666">local call, stays on this PC</text>
+<path class="ln-c" d="M330,662 H370"/><text class="ts" x="378" y="666">leaves the machine over the internet</text>
+<path class="ln" d="M36,686 H76"/><text class="ts" x="84" y="690">IPC or file access</text>
+<path class="ln-p" d="M330,686 H370"/><text class="ts" x="378" y="690">Pause button &rarr; agent /pause, direct from the renderer</text>
+</svg>
+</div>
+<div class="col">
+<p class="foot-note">Source: <code>agents/ecosystem.config.cjs</code> (the 15 processes and ports), each agent's <code>app.listen(PORT, '127.0.0.1')</code>, <code>agents/shared/llm.js</code>, <code>agents/shared/obsidian.js</code> and <code>app/main.js</code>.</p>
+</div>
+</section>
+
+<section class="col" aria-labelledby="s2b">
+<h3 id="s2b">What each service does</h3>
+<div class="tbl"><table>
+<thead><tr><th>Service</th><th>Port</th><th>Job (from its code)</th></tr></thead>
+<tbody>
+<tr><td>orchestrator</td><td>3001</td><td>An LLM classifies each request and forwards it to one of 12 agents. The Director checks agent states every 30 s and can pause or resume an agent. It posts check-ins and status remarks into Agent Chat.</td></tr>
+<tr><td>life-admin</td><td>3002</td><td>Morning briefing 07:00, end-of-day wrap 18:00, weekly plan Mondays 08:00</td></tr>
+<tr><td>fitness</td><td>3003</td><td>Daily fitness note at 06:00</td></tr>
+<tr><td>learning</td><td>3004</td><td>Evening study plan at 20:00</td></tr>
+<tr><td>memory</td><td>3005</td><td>Summarises notes into <code>Notes/Memory Index.md</code></td></tr>
+<tr><td>vault-manager</td><td>3006</td><td>Watches a &ldquo;raw files&rdquo; drop folder (processing is a stub)</td></tr>
+<tr><td>researcher</td><td>3007</td><td>Web research through Claude's web search tool; saves the answer and sources</td></tr>
+<tr><td>builder</td><td>3008</td><td>Generates project files into its own output folder; never runs or installs anything</td></tr>
+<tr><td>business-, manufacturing-, career-expert</td><td>3009&ndash;3011</td><td>Advice agents with their own system prompts</td></tr>
+<tr><td>network-security</td><td>3012</td><td>Daily 04:00: checks every agent binds to 127.0.0.1, tries each port from the PC's LAN addresses, reads the firewall state</td></tr>
+<tr><td>it-security</td><td>3013</td><td>Daily 04:15: <code>npm audit</code> and checks that <code>.env</code> is git-ignored; reports only</td></tr>
+<tr><td>maintenance</td><td>3014</td><td>Sundays 05:00: <code>npm outdated</code> report. <code>npm update</code> runs only when called directly for one named project</td></tr>
+<tr><td>offline-llm</td><td>3015</td><td>Bridge to LM Studio, or starts a standalone llama-server on 127.0.0.1 for a GGUF file</td></tr>
+</tbody></table></div>
+</section>
+
+<section class="wide" aria-labelledby="s3">
+<div class="col">
+<p class="n">03 &middot; Data flow</p>
+<h2 id="s3">Where data comes from, where it goes, where it is kept</h2>
+<p>Everything is stored as markdown in the vault on the local disk; there is no database. Data leaves the PC in four cases. The shared model caller falls back to Gemini when LM Studio is not reachable. The Researcher agent and the app's chat page use the Anthropic API. The IT-security and maintenance agents contact the npm registry. The desktop app loads its fonts from Google Fonts.</p>
+</div>
+<p class="dg-hint" id="h-flow">Diagram is wide: scroll it sideways.</p>
+<div class="dg" tabindex="0" role="region" aria-label="Data flow diagram, scrolls sideways on small screens" aria-describedby="h-flow">
+<svg viewBox="0 0 960 560" role="img" aria-labelledby="flow-t flow-d" xmlns="http://www.w3.org/2000/svg">
+<title id="flow-t">CHAMP OS data flow</title>
+<desc id="flow-d">Inputs are: the user through the dashboard, Agent Chat, tray menu and offline chat; eight scheduled jobs; the Director loops; vault notes read as context; and system checks such as npm audit and the firewall state. An agent builds a prompt and calls the shared model caller. If LM Studio is reachable the prompt goes to the local model and nothing leaves the PC. If not, it falls back to the Google Gemini API, unless the provider is set to local only. The Researcher agent and the app chat page always use the Anthropic API. Offline chat only uses local models. Results are written to the vault as markdown under Logs, Notes and Tasks, and shown on the dashboard, in Agent Chat and as Windows notifications.</desc>
+<defs>
+<marker id="bm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk"/></marker>
+<marker id="ba" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-a"/></marker>
+<marker id="bc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-c"/></marker>
+</defs>
+<rect class="grp" x="20" y="44" width="220" height="470" rx="12"/>
+<text class="tt" x="36" y="70">Where data comes from</text>
+<rect class="bx" x="36" y="84" width="188" height="76" rx="8"/>
+<text class="t" x="48" y="106">You</text><text class="ts" x="48" y="125">dashboard &middot; Agent Chat</text><text class="ts" x="48" y="141">tray menu &middot; offline chat</text>
+<rect class="bx" x="36" y="170" width="188" height="76" rx="8"/>
+<text class="t" x="48" y="192">8 scheduled jobs</text><text class="ts" x="48" y="211">04:00 04:15 audits</text><text class="ts" x="48" y="225">06:00 07:00 18:00 20:00</text><text class="ts" x="48" y="239">Mon plan &middot; Sun updates</text>
+<rect class="bx" x="36" y="256" width="188" height="76" rx="8"/>
+<text class="t" x="48" y="278">Director loops</text><text class="ts" x="48" y="297">states every 30 s</text><text class="ts" x="48" y="311">chat remarks every 45 s</text><text class="ts" x="48" y="325">report every 2 h, 7&ndash;23h</text>
+<rect class="bx" x="36" y="342" width="188" height="76" rx="8"/>
+<text class="t" x="48" y="364">Vault notes as context</text><text class="ts" x="48" y="383">personal context &middot; tasks</text><text class="ts" x="48" y="399">daily log &middot; agent state</text>
+<rect class="bx" x="36" y="428" width="188" height="76" rx="8"/>
+<text class="t" x="48" y="450">This PC</text><text class="ts" x="48" y="469">npm audit / outdated</text><text class="ts" x="48" y="485">firewall &middot; open ports</text>
+<path class="ln" d="M224,122 H252 M224,208 H252 M224,294 H252 M224,380 H252 M224,466 H252 M252,122 V466"/>
+<path class="ln" d="M252,128 H292" marker-end="url(#bm)"/>
+
+<rect class="grp" x="280" y="44" width="380" height="470" rx="12"/>
+<text class="tt" x="296" y="70">What the agent does</text>
+<rect class="bx" x="296" y="96" width="348" height="64" rx="8"/>
+<text class="t" x="312" y="120">Agent builds a prompt</text>
+<text class="ts" x="312" y="140">task + vault context &rarr; shared/llm.js</text>
+<path class="ln" d="M470,160 V178" marker-end="url(#bm)"/>
+<polygon class="bx-a" points="330,214 470,178 610,214 470,250"/>
+<text class="t mid" x="470" y="211">LM Studio reachable?</text>
+<text class="ts mid" x="470" y="229">rechecked every 30 s</text>
+<path class="ln-a" d="M330,214 H316 V286" marker-end="url(#ba)"/>
+<text class="ts ta" x="324" y="270">yes</text>
+<path class="ln-c" d="M610,214 H624 V286" marker-end="url(#bc)"/>
+<text class="ts tc end" x="616" y="270">no</text>
+<rect class="bx-a" x="296" y="290" width="164" height="70" rx="8"/>
+<text class="t" x="308" y="314">Local model</text><text class="ts" x="308" y="332">LM Studio 127.0.0.1</text><text class="ts" x="308" y="348">stays on the PC</text>
+<rect class="bx-c" x="480" y="290" width="164" height="70" rx="8"/>
+<text class="t" x="492" y="314">Gemini API (cloud)</text><text class="ts" x="492" y="332">fallback only;</text><text class="ts" x="492" y="348">off if provider=local</text>
+<rect class="bx-c" x="296" y="380" width="348" height="56" rx="8"/>
+<text class="t" x="312" y="402">Researcher + app chat page &rarr; Anthropic</text>
+<text class="ts" x="312" y="420">Claude &middot; web search for research &middot; cloud</text>
+<rect class="bx-a" x="296" y="448" width="348" height="52" rx="8"/>
+<text class="t" x="312" y="470">Offline chat &rarr; offline-llm &rarr; local model</text>
+<text class="ts" x="312" y="488">LM Studio or llama-server only</text>
+<path class="ln-a" d="M660,250 H702" marker-end="url(#ba)"/>
+<text class="ts" x="664" y="242">write</text>
+
+<rect class="grp" x="690" y="44" width="250" height="470" rx="12"/>
+<text class="tt" x="706" y="70">Where it ends up</text>
+<rect class="grp-l" x="706" y="84" width="218" height="300" rx="8"/>
+<text class="t" x="720" y="108">Vault (local markdown)</text>
+<text class="ts" x="720" y="132">Logs/briefings/</text>
+<text class="ts" x="720" y="150">Logs/fitness/ &middot; research/</text>
+<text class="ts" x="720" y="168">Logs/builds/ + output</text>
+<text class="ts" x="720" y="186">Logs/security/</text>
+<text class="ts" x="720" y="204">Logs/maintenance/</text>
+<text class="ts" x="720" y="222">Logs/director/ check-ins</text>
+<text class="ts" x="720" y="240">Logs/Agents/ state files</text>
+<text class="ts" x="720" y="258">Logs/conversations/</text>
+<text class="ts" x="720" y="276">Notes/Memory Index.md</text>
+<text class="ts" x="720" y="294">Tasks/weekly-plan-*.md</text>
+<text class="ts" x="720" y="312">Logs/*.log (PM2 output)</text>
+<path class="ln" d="M815,384 V400" marker-end="url(#bm)"/>
+<rect class="bx" x="706" y="404" width="218" height="96" rx="8"/>
+<text class="t" x="720" y="428">Shown to you</text>
+<text class="ts" x="720" y="448">dashboard + Agent Chat</text>
+<text class="ts" x="720" y="464">Windows notifications</text>
+<text class="ts" x="720" y="480">(briefing, fitness, study)</text>
+
+<path class="ln-a" d="M36,542 H76"/><text class="ts" x="84" y="546">stays on this PC</text>
+<path class="ln-c" d="M250,542 H290"/><text class="ts" x="298" y="546">leaves the machine over the internet</text>
+<path class="ln" d="M580,542 H620"/><text class="ts" x="628" y="546">internal step</text>
+</svg>
+</div>
+<div class="col">
+<p class="foot-note">Source: <code>agents/shared/llm.js</code> (local first, Gemini fallback, <code>LLM_PROVIDER</code>), <code>agents/researcher/index.js</code>, the <code>ai:chat</code> handler in <code>app/main.js</code>, each agent's <code>scheduleJob</code> and <code>writeNote</code> calls.</p>
+</div>
+</section>
+
+<section class="wide" aria-labelledby="s4">
+<div class="col">
+<p class="n">04 &middot; Workflow</p>
+<h2 id="s4">One task, start to finish, with the approval step</h2>
+<p>This is the Director flow in the orchestrator. When the app starts, the Director writes a check-in from facts it gathers (fleet state, recent vault changes, the latest briefing) and may offer to run a job. A job runs only if I reply in Agent Chat and agree. The job must also be one of 8 fixed actions in the code; anything else is ignored.</p>
+</div>
+<p class="dg-hint" id="h-wf">Diagram is wide: scroll it sideways.</p>
+<div class="dg" tabindex="0" role="region" aria-label="Workflow diagram, scrolls sideways on small screens" aria-describedby="h-wf">
+<svg viewBox="0 0 1000 470" role="img" aria-labelledby="wf-t wf-d" xmlns="http://www.w3.org/2000/svg">
+<title id="wf-t">Director workflow with the approval step</title>
+<desc id="wf-d">Four lanes: You, Director, Agent and Vault. Step 1: you open CHAMP OS; the app starts the fleet and tells the orchestrator a session started. Step 2: the Director writes a check-in from gathered facts with a local model, ending with a question that offers one of 8 allowed actions. Step 3: you reply in Agent Chat. Step 4, the approval step: the Director reads the reply; if you agreed and the action is on the allowlist, it continues; if not, the reply is routed as a new request or it asks one follow-up question. Step 5: the orchestrator posts to the agent's trigger; the agent sets its state to Working, calls the model and writes a note. Step 6: the note, the chat and the director log are saved in the vault. Step 7: the result is posted back into Agent Chat.</desc>
+<defs>
+<marker id="cm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk"/></marker>
+<marker id="ca" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-a"/></marker>
+<marker id="cc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-c"/></marker>
+</defs>
+<rect class="lane" x="10" y="20" width="980" height="120"/>
+<rect class="lane2" x="10" y="140" width="980" height="120"/>
+<rect class="lane" x="10" y="260" width="980" height="100"/>
+<rect class="lane2" x="10" y="360" width="980" height="100"/>
+<path class="ln" d="M104,20 V460"/>
+<text class="tt" x="22" y="86">You</text>
+<text class="tt" x="22" y="198">Director</text><text class="ts" x="22" y="216">orchestrator</text>
+<text class="tt" x="22" y="316">Agent</text>
+<text class="tt" x="22" y="416">Vault</text>
+
+<rect class="bx" x="118" y="50" width="150" height="70" rx="8"/>
+<text class="t" x="130" y="74">1 &middot; Open CHAMP OS</text><text class="ts" x="130" y="92">app starts the fleet</text><text class="ts" x="130" y="108">and pings the Director</text>
+<path class="ln" d="M193,120 V201 H246" marker-end="url(#cm)"/>
+
+<rect class="bx" x="250" y="158" width="190" height="86" rx="8"/>
+<text class="t" x="262" y="182">2 &middot; Check-in</text><text class="ts" x="262" y="200">facts &rarr; local model</text><text class="ts" x="262" y="216">ends with a question</text><text class="ts" x="262" y="232">offering 1 of 8 actions</text>
+<path class="ln" d="M345,158 V85 H466" marker-end="url(#cm)"/>
+<path class="ln" d="M345,244 V409 H648" marker-end="url(#cm)"/>
+<text class="ts" x="354" y="400">check-in logged</text>
+
+<rect class="bx" x="470" y="50" width="160" height="70" rx="8"/>
+<text class="t" x="482" y="74">3 &middot; You reply</text><text class="ts" x="482" y="92">in Agent Chat, e.g.</text><text class="ts" x="482" y="108">&ldquo;yes, run it&rdquo;</text>
+<path class="ln" d="M550,120 V200 H638" marker-end="url(#cm)"/>
+
+<polygon class="bx-g" points="642,200 737,146 832,200 737,254"/>
+<text class="t mid" x="737" y="190">4 &middot; Approval</text>
+<text class="ts mid" x="737" y="207">agreed, and</text>
+<text class="ts mid" x="737" y="221">on allowlist?</text>
+<path class="ln-c" d="M737,146 V124" marker-end="url(#cc)"/>
+<text class="ts tc" x="745" y="140">no</text>
+<rect class="bx" x="652" y="50" width="170" height="70" rx="8"/>
+<text class="t" x="664" y="74">Not agreed</text><text class="ts" x="664" y="92">route as a new request</text><text class="ts" x="664" y="108">or ask one follow-up</text>
+
+<path class="ln-a" d="M737,254 V272" marker-end="url(#ca)"/>
+<text class="ts ta" x="745" y="268">yes</text>
+<rect class="bx-a" x="652" y="276" width="170" height="70" rx="8"/>
+<text class="t" x="664" y="298">5 &middot; Agent runs</text><text class="ts" x="664" y="316">POST /trigger/&hellip;</text><text class="ts" x="664" y="332">Working &rarr; model &rarr; note</text>
+<path class="ln-a" d="M737,346 V370" marker-end="url(#ca)"/>
+<rect class="bx" x="652" y="374" width="170" height="70" rx="8"/>
+<text class="t" x="664" y="396">6 &middot; Saved</text><text class="ts" x="664" y="414">note under Logs/&hellip;</text><text class="ts" x="664" y="430">+ chat and director log</text>
+<path class="ln-a" d="M822,311 H916 V124" marker-end="url(#ca)"/>
+<rect class="bx" x="846" y="50" width="140" height="70" rx="8"/>
+<text class="t" x="858" y="74">7 &middot; Result</text><text class="ts" x="858" y="92">posted back in</text><text class="ts" x="858" y="108">Agent Chat</text>
+</svg>
+</div>
+<div class="col">
+<p>The approval step has two parts. A model reads my reply and decides whether I agreed, which is a soft check. Then plain code accepts only the 8 listed actions, such as the morning briefing or a security audit; that is the hard limit. Nothing on the list deletes files, installs packages or pushes code. The Builder only writes files and never runs them, and <code>npm update</code> is not on the Director's list.</p>
+<p class="foot-note">Source: <code>DIRECTOR_ACTIONS</code>, <code>handleDirectorAnswer</code> and <code>runDirectorAction</code> in <code>agents/orchestrator/index.js</code>; <code>announceSession</code> in <code>app/main.js</code>.</p>
+</div>
+</section>
+
+<section class="col" aria-labelledby="s5">
+<p class="n">05 &middot; Security and privacy</p>
+<h2 id="s5">What is true today, and what is planned</h2>
+<p>This describes the code as it runs now. Hardening that is written and tested but not yet switched on is marked as planned.</p>
+<h3>Today</h3>
+<ul class="sec-list">
+<li><span><span class="today">Today</span></span><b>Local-only ports.</b> All 15 services bind to <code>127.0.0.1</code>, so other devices on the network cannot reach them. LM Studio and any standalone llama-server are also called on <code>127.0.0.1</code>. The network-security agent checks this every night: it reads each agent's listen call, tries every port from the PC's LAN addresses and reads the firewall state.</li>
+<li><span><span class="today">Today</span></span><b>What goes to the cloud.</b> If LM Studio is down, the shared caller sends that prompt to Google Gemini; prompts can include vault context such as tasks and notes. Setting <code>LLM_PROVIDER=local</code> turns the fallback off. The Researcher agent and the app's chat page always send their prompts to Anthropic. The IT-security and maintenance agents contact the npm registry, and the desktop app loads its fonts from Google Fonts. Those are the outside calls in the current code.</li>
+<li><span><span class="today">Today</span></span><b>Where data lives.</b> In the vault: plain markdown on the local disk. Agent state, briefings, research, chat transcripts and PM2 logs are all files there. There is no database and no sync service in the code.</li>
+<li><span><span class="today">Today</span></span><b>Secrets.</b> API keys live in <code>.env</code> files that are git-ignored in both <code>agents/</code> and <code>app/</code>. The IT-security agent checks that nightly. The app's Anthropic key is read in the Electron main process, not in the page.</li>
+<li><span><span class="today">Today</span></span><b>Desktop app boundary.</b> <code>contextIsolation: true</code> and <code>nodeIntegration: false</code>. The page reaches files and the system only through the functions the preload script exposes. One exception: the Pause button talks to the agent directly. The planned app fix moves that call into the main process.</li>
+<li><span><span class="today">Today</span></span><b>Approval gates.</b> The Director runs only the 8 listed actions, and only after my reply. The Builder writes files into its own folder with a path-escape check and never executes them. IT security only reports. Maintenance only reports on its schedule; it runs <code>npm update</code> only when called for one named project.</li>
+</ul>
+<h3>Still to do</h3>
+<ul>
+<li>The agent services are local only. Request authentication and origin checks for them are built and in review (planned).</li>
+<li>Stricter checks inside the desktop app are also built and in review (planned).</li>
+<li>The Director's &ldquo;did you agree?&rdquo; reading is done by a model, so it can be wrong; only the allowlist is a hard limit.</li>
+</ul>
+<h3>Planned hardening, in review</h3>
+<ul class="sec-list">
+<li><span><span class="planned">Planned</span></span><b>Agent service lockdown.</b> Request authentication with a per-boot token, plus host and origin checks. Built and tested in a separate copy; not applied yet.</li>
+<li><span><span class="planned">Planned</span></span><b>Desktop app fix.</b> Only the Electron main process holds the token. The app checks who sends each internal message and what it contains, and the window stays on the app page. Built and tested in a separate copy; not applied yet.</li>
+</ul>
+</section>
+
+<section class="col" aria-labelledby="s6">
+<p class="n">06 &middot; Stack, numbers, limits, next</p>
+<h2 id="s6">The facts, with sources</h2>
+<div class="nums">
+<div><b>15</b><span>PM2 services: 1 orchestrator + 14 agents</span></div>
+<div><b>12</b><span>agents the orchestrator can route a request to</span></div>
+<div><b>8</b><span>actions the Director may run, after a reply</span></div>
+<div><b>8</b><span>scheduled jobs across 6 agents</span></div>
+<div><b>18</b><span>automated tests for the task-lock helpers, all passing (run 17 Nov 2026)</span></div>
+</div>
+<h3>Stack</h3>
+<p>Electron 31 desktop app (Windows build target), Node.js with Express for each service, PM2 to run and restart them, <code>node-schedule</code> for timed jobs, LM Studio and llama.cpp for local models, Three.js for the 3D vault graph, and an Obsidian vault of markdown files. Cloud: the Gemini API as fallback and the Anthropic API for research and the app chat page.</p>
+<h3>Results</h3>
+<ul>
+<li>Local by default: every model call except the Researcher's and the app chat page's goes to LM Studio on the PC first, and the cloud is only a fallback that can be switched off.</li>
+<li>Tasks and their locks are plain markdown files. Shared helpers claim a task with an atomic lock file and a 30-minute lease. A stale lease can be taken over after a 10-minute grace period. All 18 tests pass.</li>
+<li>The fleet watches itself: nightly exposure and dependency audits write reports into the vault.</li>
+</ul>
+<h3>Limitations</h3>
+<ul>
+<li>15 always-on processes cost memory and ports, even when idle.</li>
+<li>The cloud fallback is automatic, so a closed LM Studio means some prompts go to Gemini unless local-only mode is set.</li>
+<li>The task-lock helpers are tested but not yet called by the PM2 agents themselves.</li>
+<li>It is a single-user desktop tool: no login, no multi-user data, and some agents are Windows-specific (firewall check, notifications).</li>
+<li>It does not train models; it orchestrates existing open-weights and cloud models.</li>
+</ul>
+<h3>What's next</h3>
+<ul>
+<li>Apply the two hardening changes once they pass review.</li>
+<li>Replace the 15 always-on services with one orchestrator and on-demand role agents that claim a task, write their result and stop.</li>
+<li>Publish a cleaned README and architecture diagram in the public repository.</li>
+</ul>
+</section>
+
+<figure class="hero-shot"><img src="../../media/champ-os-agents.jpg" alt="CHAMP OS agent fleet page: 14 agent cards, each showing online status, its job and a Pause button, under a Director's summary" width="1440" height="900" loading="lazy">
+<figcaption>The agent fleet page, with demo data. Each card has a Pause button.</figcaption></figure>
+
+<footer class="col">
+<p>CHAMP OS is my own project and runs on my PC. The screenshots use demo content; the real vault stays private. Code: <a href="https://github.com/mikachamp/mika-os" target="_blank" rel="noopener">github.com/mikachamp/mika-os</a>.</p>
+<p><a href="../../projects.html#mika-os">&larr; All projects</a></p>
+</footer>
+
+</main>
+<script src="../../js/back.js"></script>
+<script src="../../js/reveal.js" defer></script>
+</body>
+</html>

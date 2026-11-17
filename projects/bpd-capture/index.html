@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; frame-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BPD Capture case study</title>
+<meta name="description" content="How BPD Capture works: an offline-first Android and Windows desktop app that tracks each workshop order by CE number from sample to install, with photos filed per stage, named sign-offs and on-device PDF reports. Architecture, data flow, order workflow and an honest security section.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../project.css">
+<link rel="stylesheet" href="bpd-capture.css">
+<link rel="stylesheet" href="../../css/back.css">
+</head>
+<body><nav class="pgback pad" aria-label="Page navigation"><a href="../../projects.html#bpd-capture" data-back>&larr; Back</a><a href="../../index.html">Home</a></nav>
+<main>
+
+<header class="col">
+<p class="eyebrow">Case study &middot; Android + Windows desktop &middot; 2026</p>
+<h1>BPD Capture: an offline job tracker for a workshop floor</h1>
+<p><span class="badge">v1.4.2</span></p>
+<p class="lede">An Android app, with a Windows desktop version, that I built for Blueprint Digital, the workshop where I work. Every order is tracked by its CE number, from the client's sample through production, dispatch and installation. Photos are filed under the stage they were taken in, each step is signed off by name, and PDF reports are made on the device. It works with no signal and no server.</p>
+<div class="meta">
+<div><b>My role</b><span>Builder: design, build, testing</span></div>
+<div><b>Client</b><span>Blueprint Digital (BPD)</span></div>
+<div><b>Stack</b><span>React Native &middot; Expo &middot; Electron &middot; TypeScript &middot; SQLite &middot; Three.js</span></div>
+<div><b>Platform</b><span>Android (APK) + Windows desktop</span></div>
+</div>
+</header>
+
+<section class="col" aria-labelledby="s1">
+<p class="n">01 &middot; Brief</p>
+<h2 id="s1">What it is for, and what I built</h2>
+<div class="brief">
+<div><b>Problem</b><p>Job photos taken on a normal phone camera end up mixed with everything else. There is no record of due dates, who signed off a step, or whether jobs finish on time, and reports take manual sorting.</p></div>
+<div><b>My role</b><p>I built it, using Claude Code as my AI coding tool. That covers both apps: the screens, the local database and its migrations, file storage, PDF reports, backups, the update flow, the Three.js logo animation and the safety tests.</p></div>
+<div><b>What I built</b><p>A native Android app (React Native and Expo) and a Windows desktop app (Electron), both in TypeScript and sharing the same CE rules, stages and sync code. Orders move through 4 stages, with 3 production steps, photo capture per stage, work-ticket items, hold reasons and an Insights screen.</p></div>
+<div><b>Status</b><p>Android version 1.4.2, installed directly as an APK (not through the Play Store), plus the Windows desktop app. A sync feature is built but not switched on yet, and release signing hardening is planned.</p></div>
+</div>
+</section>
+
+<section class="wide" aria-labelledby="s2">
+<div class="col">
+<p class="n">02 &middot; Architecture</p>
+<h2 id="s2">Two apps, one design: a database and one folder per job</h2>
+<p>On the phone, the screens call a small set of services. All job data goes into a local SQLite database, and photos and videos go into one folder per CE number inside the app's own storage. The only parts that reach the internet are drawn dashed, and each one runs only when the user acts or, for sync, once it is switched on. Every database write notifies the sync engine; with sync off, nothing is sent. The Windows app has the same layout: an untrusted page, a narrow bridge, and a main process that owns the database and the job folders.</p>
+</div>
+<p class="dg-hint" id="h-arch">Diagram is wide: scroll it sideways.</p>
+<div class="dg" tabindex="0" role="region" aria-label="Architecture diagram, scrolls sideways on small screens" aria-describedby="h-arch">
+<svg viewBox="0 0 800 850" role="img" aria-labelledby="arch-t arch-d" xmlns="http://www.w3.org/2000/svg">
+<title id="arch-t">BPD Capture architecture</title>
+<desc id="arch-d">The Android app is one React Native and Expo codebase. It opens with a Three.js logo animation rendered on expo-gl. Its screens (jobs, floor jobs, order, capture, calendar, insights, search, clients and settings) call four services: validation of CE numbers and file names, backup, PDF reports and the update check. Below them sit the data layer on expo-sqlite, file storage for job folders and a gallery copy, and a sync engine that is built but not switched on. On the phone, data is kept in a SQLite database, in one folder per CE number, in a BPD Capture gallery album for camera captures, and the sync sign-in token in Android's encrypted secure store. Three things can leave the phone: PDF reports and backup zips through the mail app or share sheet, an update check and APK download from GitHub releases when the user taps Check for updates, and sync to a GitHub data branch once it is switched on. The Windows desktop app is built with Electron, Vite and React. Its renderer shows the dashboard, calendar, webcam capture and a Three.js loading animation; a preload bridge with context isolation and sandbox on; and a main process that handles IPC with path checks, a node:sqlite database and job files in the Windows app-data folder, with the sync token encrypted by Windows. The desktop main process uses the same sync engine to the same GitHub data branch, once sync is switched on.</desc>
+<defs>
+<marker id="am" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk"/></marker>
+<marker id="aa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-a"/></marker>
+<marker id="ac" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-c"/></marker>
+</defs>
+
+<rect class="grp" x="20" y="40" width="540" height="380" rx="12"/>
+<text class="tt" x="36" y="66">BPD Capture &middot; Android app</text>
+<text class="ts" x="250" y="66">Expo SDK 57 &middot; React Native 0.86 &middot; TypeScript</text>
+
+<rect class="bx" x="36" y="78" width="508" height="78" rx="8"/>
+<text class="t" x="50" y="100">Screens (React Navigation)</text>
+<text class="ts" x="50" y="120">Jobs &middot; Floor jobs &middot; Order &middot; Capture &middot; Calendar &middot; Insights</text>
+<text class="ts" x="50" y="134">Search by CE or client &middot; Clients &middot; Settings</text>
+<text class="ts ta" x="50" y="148">Start-up: Three.js logo animation on expo-gl</text>
+<path class="ln" d="M95,152 V180" marker-end="url(#am)"/>
+
+<rect class="bx" x="36" y="184" width="118" height="72" rx="8"/>
+<text class="t" x="46" y="206">Validation</text><text class="ts" x="46" y="226">CE number rules</text><text class="ts" x="46" y="242">safe file names</text>
+<rect class="bx" x="166" y="184" width="118" height="72" rx="8"/>
+<text class="t" x="176" y="206">Backup</text><text class="ts" x="176" y="226">zip + restore</text><text class="ts" x="176" y="242">keeps last 3</text>
+<rect class="bx" x="296" y="184" width="118" height="72" rx="8"/>
+<text class="t" x="306" y="206">Reports</text><text class="ts" x="306" y="226">job PDF</text><text class="ts" x="306" y="242">daily digest</text>
+<rect class="bx" x="426" y="184" width="118" height="72" rx="8"/>
+<text class="t" x="436" y="206">Update</text><text class="ts" x="436" y="226">check on tap</text><text class="ts" x="436" y="242">backup first</text>
+<path class="ln" d="M95,256 V286" marker-end="url(#am)"/>
+
+<rect class="bx" x="36" y="290" width="160" height="72" rx="8"/>
+<text class="t" x="48" y="312">Data layer</text><text class="ts" x="48" y="332">expo-sqlite &middot; WAL</text><text class="ts" x="48" y="348">SQL parameters only</text>
+<rect class="bx" x="210" y="290" width="160" height="72" rx="8"/>
+<text class="t" x="222" y="312">File storage</text><text class="ts" x="222" y="332">per-CE job folders</text><text class="ts" x="222" y="348">path checked</text>
+<rect class="bx-c" x="384" y="290" width="160" height="72" rx="8"/>
+<text class="t" x="396" y="312">Sync engine</text><text class="ts" x="396" y="332">built &middot; not on yet</text><text class="ts" x="396" y="348">one file per job</text>
+
+<rect class="grp-c" x="580" y="40" width="200" height="380" rx="12"/>
+<text class="tt tc" x="594" y="66">Leaves the device</text>
+<rect class="bx-c" x="594" y="92" width="172" height="66" rx="8"/>
+<text class="t" x="606" y="114">Mail app or share</text><text class="ts" x="606" y="134">PDF reports</text><text class="ts" x="606" y="148">backup zips</text>
+<rect class="bx-c" x="594" y="184" width="172" height="66" rx="8"/>
+<text class="t" x="606" y="206">GitHub releases</text><text class="ts" x="606" y="226">update check</text><text class="ts" x="606" y="240">APK download</text>
+<rect class="bx-c" x="594" y="290" width="172" height="66" rx="8"/>
+<text class="t" x="606" y="312">GitHub data branch</text><text class="ts" x="606" y="332">sync, once it is on</text><text class="ts" x="606" y="346">device sign-in</text>
+
+<path class="ln-c" d="M225,184 V170 H568 V125 H590" marker-end="url(#ac)"/>
+<path class="ln-c" d="M355,184 V170"/>
+<path class="ln-c" d="M544,220 H590" marker-end="url(#ac)"/>
+<path class="ln-c" d="M544,323 H590" marker-end="url(#ac)"/>
+
+<path class="ln-a" d="M116,362 V496" marker-end="url(#aa)"/>
+<path class="ln-a" d="M300,362 V496" marker-end="url(#aa)"/>
+<path class="ln-a" d="M340,362 V440 H495 V496" marker-end="url(#aa)"/>
+<path class="ln-a" d="M504,362 V430 H681 V496" marker-end="url(#aa)"/>
+
+<rect class="grp-l" x="20" y="462" width="760" height="124" rx="12"/>
+<text class="tt" x="36" y="488">On the phone</text>
+<rect class="bx" x="36" y="500" width="174" height="72" rx="8"/>
+<text class="t" x="48" y="522">SQLite database</text><text class="ts" x="48" y="542">jobs &middot; media list</text><text class="ts" x="48" y="558">sign-offs &middot; items</text>
+<rect class="bx" x="222" y="500" width="174" height="72" rx="8"/>
+<text class="t" x="234" y="522">Job folders</text><text class="ts" x="234" y="542">orders/CE-10421/</text><text class="ts" x="234" y="558">photos and videos</text>
+<rect class="bx" x="408" y="500" width="174" height="72" rx="8"/>
+<text class="t" x="420" y="522">Gallery album</text><text class="ts" x="420" y="542">copy of camera</text><text class="ts" x="420" y="558">captures</text>
+<rect class="bx" x="594" y="500" width="174" height="72" rx="8"/>
+<text class="t" x="606" y="522">Secure store</text><text class="ts" x="606" y="542">Android, encrypted</text><text class="ts" x="606" y="558">sync sign-in token</text>
+
+<path class="ln-c" d="M464,692 V628 H790 V323 H770" marker-end="url(#ac)"/>
+<text class="ts tc" x="580" y="618">same sync engine, once on</text>
+
+<rect class="grp" x="20" y="650" width="540" height="150" rx="12"/>
+<text class="tt" x="36" y="676">BPD Capture &middot; Windows desktop</text>
+<text class="ts" x="292" y="676">Electron 44 &middot; Vite &middot; React 19</text>
+<rect class="bx" x="36" y="692" width="160" height="92" rx="8"/>
+<text class="t" x="48" y="714">Renderer (UI)</text><text class="ts" x="48" y="734">dashboard, calendar</text><text class="ts" x="48" y="750">webcam capture</text><text class="ts ta" x="48" y="766">Three.js loading</text>
+<path class="ln" d="M196,738 H206" marker-end="url(#am)"/>
+<rect class="bx" x="210" y="692" width="160" height="92" rx="8"/>
+<text class="t" x="222" y="714">Preload bridge</text><text class="ts" x="222" y="734">contextIsolation</text><text class="ts" x="222" y="750">sandbox on</text><text class="ts" x="222" y="766">no Node in page</text>
+<path class="ln" d="M370,738 H380" marker-end="url(#am)"/>
+<rect class="bx" x="384" y="692" width="160" height="92" rx="8"/>
+<text class="t" x="396" y="714">Main process</text><text class="ts" x="396" y="734">IPC, paths checked</text><text class="ts" x="396" y="750">node:sqlite</text><text class="ts" x="396" y="766">window locked</text>
+<path class="ln-a" d="M544,738 H590" marker-end="url(#aa)"/>
+
+<rect class="grp-l" x="580" y="650" width="200" height="150" rx="12"/>
+<text class="tt" x="594" y="676">On this PC</text>
+<rect class="bx" x="594" y="692" width="172" height="92" rx="8"/>
+<text class="t" x="606" y="714">App-data folder</text><text class="ts" x="606" y="734">SQLite database</text><text class="ts" x="606" y="750">orders/CE-10421/</text><text class="ts" x="606" y="766">token: Windows-</text><text class="ts" x="606" y="780">encrypted</text>
+
+<path class="ln-a" d="M36,830 H76"/><text class="ts" x="84" y="834">stays on the device</text>
+<path class="ln-c" d="M236,830 H276"/><text class="ts" x="284" y="834">leaves the device, only on a user action</text>
+<path class="ln" d="M612,830 H652"/><text class="ts" x="660" y="834">internal call</text>
+</svg>
+</div>
+<div class="col">
+<p class="foot-note">Source, Android: <code>src/db/schema.ts</code>, <code>src/services/</code>, <code>src/sync/</code>, <code>src/navigation/RootNavigator.tsx</code>, <code>src/components/StartupAnimation.tsx</code>. Desktop: <code>src/main/index.ts</code>, <code>ipc.ts</code>, <code>navigation.ts</code>, <code>services/storage.ts</code>, <code>src/preload/</code>, <code>LoadingScreen.tsx</code>. The CE number shown is an example.</p>
+</div>
+</section>
+
+<section class="wide" aria-labelledby="s3">
+<div class="col">
+<p class="n">03 &middot; Data flow</p>
+<h2 id="s3">What goes in, what is checked, where it ends up</h2>
+<p>Everything a user enters is checked before it touches the database or the file system. A CE number becomes a folder name, so it is cleaned up and the folder it points to must sit inside the app's orders folder. After that, data is only read back on the phone, unless the user sends a report or a backup. The diagram shows the phone; the desktop app applies the same CE rules (an identical copy of the file) and takes photos from a webcam.</p>
+</div>
+<p class="dg-hint" id="h-flow">Diagram is wide: scroll it sideways.</p>
+<div class="dg" tabindex="0" role="region" aria-label="Data flow diagram, scrolls sideways on small screens" aria-describedby="h-flow">
+<svg viewBox="0 0 800 540" role="img" aria-labelledby="flow-t flow-d" xmlns="http://www.w3.org/2000/svg">
+<title id="flow-t">BPD Capture data flow</title>
+<desc id="flow-d">Inputs are: camera photos and videos, filed by stage and step; media imported from the gallery; typed job details such as CE number, client, project, due date and site; sign-offs and work-ticket items; and hold reasons and dispatch details. Each input is normalised and checked: CE numbers are upper-cased and limited to 64 characters, and file names and folders are checked. Data is then saved as SQLite rows and as files in the job folder, with a gallery copy for camera captures. Every write feeds a change feed that would push to sync after 5 quiet seconds, if sync were on. Screens and Insights read the data back: overdue jobs, jobs due this week, on-time rate and turnaround. Outputs are: on-screen lists, calendar and insights, which stay on the phone; a local backup before each update, keeping the last 3, which stays on the phone; PDF reports and the daily digest sent by email to a saved dispatcher or the share sheet; backup zips with an optional password through the share sheet; and sync to a GitHub data branch once it is switched on.</desc>
+<defs>
+<marker id="bm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk"/></marker>
+<marker id="ba" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-a"/></marker>
+<marker id="bc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-c"/></marker>
+</defs>
+
+<rect class="grp" x="20" y="40" width="200" height="440" rx="12"/>
+<text class="tt" x="36" y="66">What goes in</text>
+<rect class="bx" x="36" y="84" width="168" height="66" rx="8"/>
+<text class="t" x="48" y="106">Camera</text><text class="ts" x="48" y="124">photo or video</text><text class="ts" x="48" y="140">filed by stage, step</text>
+<rect class="bx" x="36" y="162" width="168" height="66" rx="8"/>
+<text class="t" x="48" y="184">Gallery import</text><text class="ts" x="48" y="202">existing media</text><text class="ts" x="48" y="218">no second copy</text>
+<rect class="bx" x="36" y="240" width="168" height="66" rx="8"/>
+<text class="t" x="48" y="262">Typed details</text><text class="ts" x="48" y="280">CE, client, project</text><text class="ts" x="48" y="296">due date, site</text>
+<rect class="bx" x="36" y="318" width="168" height="66" rx="8"/>
+<text class="t" x="48" y="340">Sign-offs, items</text><text class="ts" x="48" y="358">who, when, notes</text><text class="ts" x="48" y="374">pieces done of total</text>
+<rect class="bx" x="36" y="396" width="168" height="66" rx="8"/>
+<text class="t" x="48" y="418">Hold, dispatch</text><text class="ts" x="48" y="436">hold reason</text><text class="ts" x="48" y="452">method, waybill</text>
+<path class="ln" d="M204,117 H222 M204,195 H222 M204,273 H222 M204,351 H222 M204,429 H222 M222,117 V429"/>
+<path class="ln" d="M222,119 H252" marker-end="url(#bm)"/>
+
+<rect class="grp-l" x="240" y="40" width="320" height="440" rx="12"/>
+<text class="tt" x="256" y="66">Checked, then saved on the phone</text>
+<rect class="bx-a" x="256" y="84" width="288" height="70" rx="8"/>
+<text class="t" x="270" y="106">Normalise and check</text>
+<text class="ts" x="270" y="126">CE upper-cased, 1 to 64 characters</text>
+<text class="ts" x="270" y="142">folder must sit inside orders/</text>
+<path class="ln" d="M400,154 V168 H325 V180 M400,168 H475 V180"/>
+<path class="ln" d="M325,176 V180" marker-end="url(#bm)"/>
+<path class="ln" d="M475,176 V180" marker-end="url(#bm)"/>
+<rect class="bx" x="256" y="184" width="138" height="88" rx="8"/>
+<text class="t" x="268" y="206">SQLite rows</text><text class="ts" x="268" y="226">orders, media</text><text class="ts" x="268" y="242">history, items</text><text class="ts" x="268" y="258">SQL parameters</text>
+<rect class="bx" x="406" y="184" width="138" height="88" rx="8"/>
+<text class="t" x="418" y="206">Job folder</text><text class="ts" x="418" y="226">photos, videos</text><text class="ts" x="418" y="242">+ gallery copy</text><text class="ts" x="418" y="258">(camera only)</text>
+<path class="ln" d="M400,272 V292" marker-end="url(#bm)"/>
+<rect class="bx" x="256" y="296" width="288" height="60" rx="8"/>
+<text class="t" x="270" y="318">Change feed</text>
+<text class="ts" x="270" y="338">every write; sync waits 5 s of quiet</text>
+<path class="ln" d="M400,356 V376" marker-end="url(#bm)"/>
+<rect class="bx" x="256" y="380" width="288" height="80" rx="8"/>
+<text class="t" x="270" y="402">Read back by the screens</text>
+<text class="ts" x="270" y="422">overdue &middot; due this week</text>
+<text class="ts" x="270" y="438">on-time rate &middot; turnaround days</text>
+<text class="ts" x="270" y="452">jobs by month on a calendar</text>
+
+<rect class="grp" x="580" y="40" width="200" height="440" rx="12"/>
+<text class="tt" x="596" y="66">Where it ends up</text>
+<rect class="bx-a" x="594" y="84" width="172" height="66" rx="8"/>
+<text class="t" x="606" y="106">On screen</text><text class="ts" x="606" y="124">jobs, calendar</text><text class="ts" x="606" y="140">Insights</text>
+<rect class="bx-a" x="594" y="162" width="172" height="66" rx="8"/>
+<text class="t" x="606" y="184">Local backup</text><text class="ts" x="606" y="202">before each update</text><text class="ts" x="606" y="218">keeps the last 3</text>
+<rect class="bx-c" x="594" y="240" width="172" height="66" rx="8"/>
+<text class="t" x="606" y="262">PDF report, digest</text><text class="ts" x="606" y="280">email to dispatcher</text><text class="ts" x="606" y="296">or share sheet</text>
+<rect class="bx-c" x="594" y="318" width="172" height="66" rx="8"/>
+<text class="t" x="606" y="340">Backup zip</text><text class="ts" x="606" y="358">optional password</text><text class="ts" x="606" y="374">share sheet</text>
+<rect class="bx-c" x="594" y="396" width="172" height="66" rx="8"/>
+<text class="t" x="606" y="418">Sync</text><text class="ts" x="606" y="436">GitHub data branch</text><text class="ts" x="606" y="452">once switched on</text>
+<path class="ln-a" d="M560,117 H590" marker-end="url(#ba)"/>
+<path class="ln-a" d="M560,195 H590" marker-end="url(#ba)"/>
+<path class="ln-c" d="M560,273 H590" marker-end="url(#bc)"/>
+<path class="ln-c" d="M560,351 H590" marker-end="url(#bc)"/>
+<path class="ln-c" d="M560,429 H590" marker-end="url(#bc)"/>
+
+<path class="ln-a" d="M36,516 H76"/><text class="ts" x="84" y="520">stays on the phone</text>
+<path class="ln-c" d="M236,516 H276"/><text class="ts" x="284" y="520">leaves the phone, only on a user action</text>
+<path class="ln" d="M612,516 H652"/><text class="ts" x="660" y="520">internal step</text>
+</svg>
+</div>
+<div class="col">
+<p class="foot-note">Source: <code>src/utils/ceNumber.ts</code>, <code>src/utils/pathGuard.ts</code>, <code>src/services/storage.ts</code>, <code>src/sync/changes.ts</code> and <code>config.ts</code>, <code>src/screens/InsightsScreen.tsx</code>, <code>deliverPdf</code> in <code>reportPdf.ts</code>.</p>
+</div>
+</section>
+
+<section class="wide" aria-labelledby="s4">
+<div class="col">
+<p class="n">04 &middot; Workflow</p>
+<h2 id="s4">One order, from sample to install</h2>
+<p>Each order moves through the same four stages as the workshop: Sample, Production, Dispatch and Installed. Production is split into the steps the order needs. To move on, someone signs off the current stage or step by name, and the app saves who, when and any notes. That history goes into the PDF report. Both apps use the same stage and step definitions.</p>
+</div>
+<p class="dg-hint" id="h-wf">Diagram is wide: scroll it sideways.</p>
+<div class="dg" tabindex="0" role="region" aria-label="Workflow diagram, scrolls sideways on small screens" aria-describedby="h-wf">
+<svg viewBox="0 0 800 400" role="img" aria-labelledby="wf-t wf-d" xmlns="http://www.w3.org/2000/svg">
+<title id="wf-t">BPD Capture order workflow with sign-offs</title>
+<desc id="wf-d">Four lanes: stage, photos, sign-off and any time. Stage: a new order is opened with a CE number, client name and due date; then Sample, a prototype for the client; Production, with machining, fabricating and finishing; Dispatch, packed and sent out; Installed, in store; and Completed, with a job report and daily digest. Photos: pick the job then shoot; sample shots; one set per production step; what left and how it was packed; before and after photos at install; and a photo grid in the PDF. Sign-off: opening is logged; the client approves the sample; each production step is signed off by a named person; dispatch records the waybill; installation is signed off as client proof; and a completed order can be reopened. Any time: an order can be put on hold with a reason and resumed, and a due date makes late orders show as overdue in Insights.</desc>
+<defs>
+<marker id="cm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk"/></marker>
+<marker id="ca" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-a"/></marker>
+</defs>
+<rect class="lane" x="10" y="20" width="780" height="120"/>
+<rect class="lane2" x="10" y="140" width="780" height="84"/>
+<rect class="lane" x="10" y="224" width="780" height="88"/>
+<rect class="lane2" x="10" y="312" width="780" height="76"/>
+<path class="ln" d="M94,20 V388"/>
+<text class="tt" x="18" y="84">Stage</text>
+<text class="tt" x="18" y="186">Photos</text>
+<text class="tt" x="18" y="264">Sign-off</text><text class="ts" x="18" y="282">who, when</text>
+<text class="tt" x="18" y="354">Any time</text>
+
+<rect class="bx" x="102" y="36" width="100" height="88" rx="8"/>
+<text class="t" x="112" y="58">New order</text><text class="ts" x="112" y="78">CE number</text><text class="ts" x="112" y="94">client name</text><text class="ts" x="112" y="110">due date</text>
+<path class="ln-a" d="M202,80 H214" marker-end="url(#ca)"/>
+<rect class="bx-a" x="218" y="36" width="100" height="88" rx="8"/>
+<text class="t" x="228" y="58">Sample</text><text class="ts" x="228" y="78">prototype</text><text class="ts" x="228" y="94">for the client</text>
+<path class="ln-a" d="M318,80 H330" marker-end="url(#ca)"/>
+<rect class="bx-a" x="334" y="36" width="100" height="88" rx="8"/>
+<text class="t" x="344" y="58">Production</text><text class="ts" x="344" y="78">machining</text><text class="ts" x="344" y="94">fabricating</text><text class="ts" x="344" y="110">finishing</text>
+<path class="ln-a" d="M434,80 H446" marker-end="url(#ca)"/>
+<rect class="bx-a" x="450" y="36" width="100" height="88" rx="8"/>
+<text class="t" x="460" y="58">Dispatch</text><text class="ts" x="460" y="78">packed and</text><text class="ts" x="460" y="94">sent out</text>
+<path class="ln-a" d="M550,80 H562" marker-end="url(#ca)"/>
+<rect class="bx-a" x="566" y="36" width="100" height="88" rx="8"/>
+<text class="t" x="576" y="58">Installed</text><text class="ts" x="576" y="78">in store</text>
+<path class="ln-a" d="M666,80 H678" marker-end="url(#ca)"/>
+<rect class="bx" x="682" y="36" width="100" height="88" rx="8"/>
+<text class="t" x="692" y="58">Completed</text><text class="ts" x="692" y="78">job report</text><text class="ts" x="692" y="94">daily digest</text>
+
+<rect class="bx" x="102" y="152" width="100" height="60" rx="8"/><text class="ts" x="112" y="176">pick the job</text><text class="ts" x="112" y="194">then shoot</text>
+<rect class="bx" x="218" y="152" width="100" height="60" rx="8"/><text class="ts" x="228" y="176">sample shots</text>
+<rect class="bx" x="334" y="152" width="100" height="60" rx="8"/><text class="ts" x="344" y="176">one set per</text><text class="ts" x="344" y="194">step</text>
+<rect class="bx" x="450" y="152" width="100" height="60" rx="8"/><text class="ts" x="460" y="176">what left,</text><text class="ts" x="460" y="194">how packed</text>
+<rect class="bx" x="566" y="152" width="100" height="60" rx="8"/><text class="ts" x="576" y="176">before/after</text><text class="ts" x="576" y="194">marked</text>
+<rect class="bx" x="682" y="152" width="100" height="60" rx="8"/><text class="ts" x="692" y="176">photo grid</text><text class="ts" x="692" y="194">in the PDF</text>
+
+<rect class="bx" x="102" y="236" width="100" height="64" rx="8"/><text class="t" x="112" y="260">Opened</text><text class="ts" x="112" y="280">logged</text>
+<rect class="bx-g" x="218" y="236" width="100" height="64" rx="8"/><text class="t" x="228" y="260">Approved</text><text class="ts" x="228" y="280">by the client</text>
+<rect class="bx-g" x="334" y="236" width="100" height="64" rx="8"/><text class="t" x="344" y="260">Step done</text><text class="ts" x="344" y="280">named signer</text>
+<rect class="bx-g" x="450" y="236" width="100" height="64" rx="8"/><text class="t" x="460" y="260">Dispatched</text><text class="ts" x="460" y="280">waybill no.</text>
+<rect class="bx-g" x="566" y="236" width="100" height="64" rx="8"/><text class="t" x="576" y="260">Installed</text><text class="ts" x="576" y="280">client proof</text>
+<rect class="bx" x="682" y="236" width="100" height="64" rx="8"/><text class="t" x="692" y="260">Reopen</text><text class="ts" x="692" y="280">if needed</text>
+<path class="ln" d="M384,124 V148" marker-end="url(#cm)"/>
+<path class="ln" d="M384,212 V232" marker-end="url(#cm)"/>
+
+<rect class="bx" x="218" y="324" width="216" height="52" rx="8"/>
+<text class="t" x="228" y="346">On hold</text><text class="ts" x="228" y="364">a reason, then resume</text>
+<rect class="bx" x="450" y="324" width="216" height="52" rx="8"/>
+<text class="t" x="460" y="346">Due date</text><text class="ts" x="460" y="364">late = overdue in Insights</text>
+</svg>
+</div>
+<div class="col">
+<p>The person who signs off is filled in for them: the client for a sample approval, otherwise the user chosen on that phone in Settings. Each phone can also be set to a bench, such as Machining or Dispatch, so its job list puts the orders waiting at that bench first.</p>
+<p class="foot-note">Source: <code>STAGES</code> and <code>PRODUCTION_STEPS</code> in <code>src/utils/stages.ts</code>, <code>signOffFor</code> in <code>src/utils/signOff.ts</code>, <code>src/db/team.ts</code>, and the <code>stage_history</code> and <code>order_items</code> tables in <code>src/db/schema.ts</code>.</p>
+</div>
+</section>
+
+<section class="col" aria-labelledby="s5">
+<p class="n">05 &middot; Security and privacy</p>
+<h2 id="s5">What is true today, and what is planned</h2>
+<p>This describes the current Android and Windows apps. They are tools for one workshop, so the main risks are losing job photos and data, and photos ending up where they should not.</p>
+<h3>Today</h3>
+<ul class="sec-list">
+<li><span><span class="today">Today</span></span><b>Offline-first.</b> The app needs no account and no server to work. Job data lives in a SQLite database inside the app's private storage, and photos and videos live in one folder per CE number next to it.</li>
+<li><span><span class="today">Today</span></span><b>Permissions.</b> Camera, and microphone for sound on job videos. Photo and media access to import from the gallery and to save a backup copy of camera captures. Photo location access is turned off. The app may also install packages, which is used only for the in-app update.</li>
+<li><span><span class="today">Today</span></span><b>What leaves the phone.</b> Only what the user sends: a PDF report or daily digest (by email to a saved dispatcher address, or through the share sheet) and backup zips. Checking for an update contacts GitHub only when the user taps the button. There are no analytics or tracking libraries in the app.</li>
+<li><span><span class="today">Today</span></span><b>Gallery copy.</b> Camera captures are also saved to a &ldquo;BPD Capture&rdquo; album, by design, so photos survive if the app is removed. That copy can be seen by other gallery apps on the phone.</li>
+<li><span><span class="today">Today</span></span><b>Input safety.</b> SQL always uses parameters, never typed text. CE numbers are cleaned up before they become folder names, and every job folder must resolve to a place inside the orders folder. Renaming or deleting a photo cannot reach outside its job. Text in PDF reports is escaped, and a backup restore rejects unsafe zip entries.</li>
+<li><span><span class="today">Today</span></span><b>Backups and updates.</b> A backup can be exported as a zip with an optional password. Before every in-app update the app saves a local backup (keeping the last 3), and Android asks the user to confirm the install.</li>
+<li><span><span class="today">Today</span></span><b>Desktop app boundary.</b> The window runs with context isolation and the sandbox on, and no Node.js in the page. Every file call from the page is checked to stay inside the orders folder, the window cannot navigate away or open pop-ups, and the webcam is allowed only for the app's own page. Data lives in the Windows app-data folder, and the sync token is encrypted by Windows.</li>
+<li><span><span class="today">Today</span></span><b>Checks before release.</b> A script scans the code for SQL built from strings, raw HTML or <code>eval</code>, and hard-coded secrets. Path-safety tests run the real storage code: on a fake file system for Android, and in a temporary folder for desktop, including its window navigation lock.</li>
+</ul>
+<h3>Known gaps</h3>
+<ul>
+<li>Data lives on one device. If a phone is lost or reset, only exported or gallery copies remain.</li>
+<li>A backup zip exported without a password is not encrypted.</li>
+<li>Some build-tool dependencies have open advisories. They are used to build the app, not shipped inside it.</li>
+</ul>
+<h3>Planned</h3>
+<ul class="sec-list">
+<li><span><span class="planned">Planned</span></span><b>Release signing hardening (planned).</b></li>
+<li><span><span class="planned">Planned</span></span><b>Sync, switched on.</b> The sync engine is written and tested but turned off. When it is on, each phone or PC signs in with a one-time code approved in the browser, the sign-in token stays in the system's encrypted store, and job data goes to a private repository only.</li>
+</ul>
+</section>
+
+<section class="col" aria-labelledby="s6">
+<p class="n">06 &middot; Stack, numbers, limits, next</p>
+<h2 id="s6">The facts, with sources</h2>
+<div class="nums">
+<div><b>0</b><span>crashes in 9,000 random UI events, v1.4.2 on an emulator</span></div>
+<div><b>412&nbsp;ms</b><span>median cold start over 6 rounds, same emulator run</span></div>
+<div><b>3 of 3</b><span>scripted 12-step workflow runs passed</span></div>
+<div><b>9</b><span>path-safety tests; 7 of them fail on the code before the fix</span></div>
+<div><b>0</b><span>errors in 30 desktop UI rounds, same test run</span></div>
+<div><b>4 + 3</b><span>order stages, plus 3 production steps</span></div>
+</div>
+<p class="foot-note">The device numbers come from an overnight test run on 21 October 2026 on an Android emulator, not a physical phone, so they compare builds rather than describe a real device.</p>
+<h3>Stack</h3>
+<p>React Native 0.86 with Expo SDK 57 and React 19, written in TypeScript and built to a native Android app. Data: <code>expo-sqlite</code> in WAL mode with versioned migrations, <code>expo-file-system</code> for job folders. Camera and media: <code>expo-camera</code>, <code>expo-image-picker</code>, <code>expo-media-library</code>, <code>expo-video</code>. Reports: <code>expo-print</code> for PDFs, <code>expo-mail-composer</code> and <code>expo-sharing</code> to send them. Also React Navigation, Reanimated, <code>date-fns</code>, <code>react-native-zip-archive</code> for backups and <code>expo-secure-store</code> for the sync sign-in. The start-up animation is a Three.js scene on <code>expo-gl</code>: the logo's pencil draws the logo, then the colours fill in. Desktop: Electron 44 with electron-vite, Vite 6 and React 19, Node's built-in <code>node:sqlite</code>, and the same Three.js logo animation on its loading screen.</p>
+<h3>Results</h3>
+<ul>
+<li>Every job's photos, notes, due date and sign-off history sit under one CE number, and can be found by CE number, client or month.</li>
+<li>A PDF report for one job, or a digest of every job completed that day, is made on the phone and can go straight to a saved dispatcher's email.</li>
+<li>Android updates install from inside the app, and a backup is always taken first.</li>
+<li>The same records, CE rules and stages work on a phone and on a Windows PC.</li>
+<li>A bug where a CE number made only of dots could point outside the jobs folder was found in a security review, fixed, and covered by tests.</li>
+</ul>
+<h3>Limitations</h3>
+<ul>
+<li>Installed as an APK, not through the Play Store, so each phone is set up by hand the first time. The desktop app is Windows only.</li>
+<li>Data is not shared between phones and PCs until sync is switched on.</li>
+<li>Reports go out by email or the share sheet only.</li>
+<li>Device testing so far: an Android emulator; real-phone testing is limited.</li>
+</ul>
+<h3>What's next</h3>
+<ul>
+<li>Release signing hardening (planned).</li>
+<li>Switch on sync with a private repository, so jobs can be shared between phones and the desktop app.</li>
+<li>Wider testing on more phone models.</li>
+</ul>
+</section>
+
+<footer class="col">
+<p>BPD Capture was built for Blueprint Digital (BPD). This page uses example data only; no real orders, client names, addresses or job photos are shown.</p>
+<p><a href="../../projects.html#bpd-capture">&larr; All projects</a></p>
+</footer>
+
+</main>
+<script src="../../js/back.js"></script>
+<script src="../../js/reveal.js" defer></script>
+</body>
+</html>

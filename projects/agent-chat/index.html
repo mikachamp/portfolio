@@ -1,0 +1,511 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; frame-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Agent Chat case study</title>
+<meta name="description" content="How Agent Chat works: an Electron desktop app that is the approval channel between Mika and his AI agents. HMAC-signed approvals, a strict approve grammar with a live preview, a replay ledger, a hardened Electron setup and a Needs-you inbox.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../project.css">
+<link rel="stylesheet" href="agent-chat.css">
+<link rel="stylesheet" href="../../css/back.css">
+</head>
+<body><nav class="pgback pad" aria-label="Page navigation"><a href="../../projects.html#mika-os" data-back>&larr; Back</a><a href="../../index.html">Home</a></nav>
+<main>
+
+<header class="col">
+<p class="eyebrow">Case study &middot; Desktop app &middot; Agent security &middot; 2026</p>
+<h1>Agent Chat: the approval channel between me and my agents</h1>
+<p><span class="badge">Version 1.2.2</span><span class="badge">Latest security reviews: 0 High, 0 Medium</span></p>
+<p class="lede">My AI agents and I talk in one shared chat. Anyone can write in it, so anyone could write &ldquo;approved&rdquo;. Agent Chat is the Electron app I designed so that only one thing counts as my approval: a line I typed in the app, in an exact format, signed by the app's main process. Everything else, from any agent, is advice.</p>
+<div class="meta">
+<div><b>My role</b><span>Designed and directed; AI coding agents wrote much of the code</span></div>
+<div><b>Stack</b><span>Electron 44 &middot; Node.js &middot; plain JavaScript &middot; node:test &middot; electron-builder</span></div>
+<div><b>Tests</b><span>113 unit + 130 end-to-end checks, all passing</span></div>
+<div><b>Status</b><span>Windows installer built; runs on my PC</span></div>
+</div>
+</header>
+
+<figure class="hero-shot"><img src="needs-you-rail.png" alt="Agent Chat at desktop width: a channel list with tasks grouped as Blocked, Needs review, Working and Recent; the general channel in the middle with agent messages; and a Needs you rail on the right with cards for a blocked task, two tasks waiting for review with Draft approval buttons, and a question" width="1440" height="900">
+<figcaption>The main window with test data (the tasks are made up). The Needs you rail on the right collects what is waiting for me: blocked tasks, finished work to review, and questions addressed to me.</figcaption></figure>
+
+<section class="col" aria-labelledby="s1">
+<p class="n">01 &middot; Brief</p>
+<h2 id="s1">What it is for, and my part in it</h2>
+<div class="brief">
+<div><b>Problem</b><p>Agents read the chat and act on it. A message such as &ldquo;go ahead&rdquo;, &ldquo;approved by Mika&rdquo;, or a line copied from earlier must never be taken as my go-ahead, whoever wrote it.</p></div>
+<div><b>My role</b><p>I designed the trust model and directed the build; AI coding agents wrote much of the code under my direction. I reviewed each release and had it security-reviewed. It is my own project and runs on my PC.</p></div>
+<div><b>What it is</b><p>A frameless desktop chat over one append-only log file. Agents post with a small command-line tool. I post from the app, and my lines are signed. A strict grammar decides which signed lines are approvals.</p></div>
+<div><b>Status</b><p>Version 1.2.2, with an unsigned Windows installer. The latest reviews found no High or Medium issues, only Low and cosmetic ones.</p></div>
+</div>
+</section>
+
+<section class="wide" aria-labelledby="s2">
+<div class="col">
+<p class="n">02 &middot; Architecture</p>
+<h2 id="s2">One trusted process, everything else is input</h2>
+<p>Electron splits the app into a main process, a preload bridge and a renderer, the window you see. In Agent Chat only the main process is trusted. It holds the signing secret, signs my lines and decides what each line in the log is. The renderer is sandboxed and only ever gets lines with the signature removed. Agents never touch the app. They append to the same log through a command-line tool that has no secret.</p>
+</div>
+<p class="dg-hint" id="h-arch">Diagram is wide: scroll it sideways.</p>
+<div class="dg" tabindex="0" role="region" aria-label="Architecture diagram, scrolls sideways on small screens" aria-describedby="h-arch">
+<svg class="w1040" viewBox="0 0 1040 650" role="img" aria-labelledby="arch-t arch-d" xmlns="http://www.w3.org/2000/svg">
+<title id="arch-t">Agent Chat architecture</title>
+<desc id="arch-d">The Agent Chat desktop app has three parts. The renderer is the window: sandboxed, with context isolation and no Node, served from a private app protocol under a strict content security policy; it shows channels, task threads, the Needs you list and the composer with a live approval preview, and it never sees the secret or any signature. The preload bridge exposes a fixed API of 13 calls and 5 event listeners; sending a message carries only the channel, the text and the reply id. The main process is the only trusted part: every IPC handler checks the sender first; it holds the signing secret, fills in the sender, role, time and id, signs each composer line with HMAC-SHA256 and appends it to the shared chat log. It watches the log and classifies each line with the replay ledger, signature check and approval grammar. It also scans the task queue, lock and role files read-only for the Needs you list. On the right is the vault on the local disk with the append-only chat log and the task files. Agents and Claude are untrusted writers: they post through chat-cli.js, which has no secret, so their lines are always unsigned. LM Studio is optional, off by default, and called on 127.0.0.1 only.</desc>
+<defs>
+<marker id="am" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk"/></marker>
+<marker id="aa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-a"/></marker>
+<marker id="ac" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-c"/></marker>
+</defs>
+
+<rect class="grp" x="20" y="30" width="470" height="570" rx="12"/>
+<text class="tt" x="36" y="56">Agent Chat desktop app</text>
+<text class="ts" x="36" y="74">Electron 44 &middot; Windows &middot; version 1.2.2</text>
+
+<rect class="bx" x="36" y="90" width="438" height="136" rx="8"/>
+<text class="t" x="50" y="114">Renderer (the window)</text>
+<text class="ts" x="50" y="136">sandbox &middot; contextIsolation &middot; no Node</text>
+<text class="ts" x="50" y="153">served from app://local/ &middot; strict CSP</text>
+<text class="ts" x="50" y="172">channels &middot; task threads &middot; Needs you</text>
+<text class="ts" x="50" y="189">composer with a live approval preview</text>
+<text class="ts ta" x="50" y="210">never sees the secret or a signature</text>
+
+<path class="ln" d="M255,226 V244" marker-start="url(#am)" marker-end="url(#am)"/>
+<rect class="bx" x="36" y="246" width="438" height="92" rx="8"/>
+<text class="t" x="50" y="270">Preload bridge (contextBridge)</text>
+<text class="ts" x="50" y="291">fixed API: 13 calls, 5 event listeners</text>
+<text class="ts" x="50" y="308">send() carries channel, text, replyTo only</text>
+<text class="ts" x="50" y="325">no way to set sender, role, time, id or sig</text>
+
+<path class="ln" d="M255,338 V356" marker-start="url(#am)" marker-end="url(#am)"/>
+<text class="ts" x="266" y="352">IPC invoke / events</text>
+<rect class="bx-a" x="36" y="358" width="438" height="226" rx="8"/>
+<text class="t" x="50" y="382">Main process (the only trusted part)</text>
+<text class="ts" x="50" y="404">every IPC handler checks the sender first</text>
+<text class="ts" x="50" y="422">holds the signing secret; never sends it</text>
+<text class="ts" x="50" y="440">sets sender = Mika, role, time and id</text>
+<text class="ts" x="50" y="458">signs each composer line (HMAC-SHA256)</text>
+<text class="ts" x="50" y="476">classify: replay ledger &rarr; verify &rarr; grammar</text>
+<text class="ts" x="50" y="494">watches the log (fs.watch + 1.5 s poll)</text>
+<text class="ts" x="50" y="512">scans task files for the Needs you list</text>
+<text class="ts" x="50" y="530">tray, @Mika notifications, title count</text>
+<text class="ts" x="50" y="548">blocks navigation, pop-ups, permissions</text>
+<text class="ts" x="50" y="566">quits if launched with debug flags</text>
+
+<path class="ln-a" d="M474,410 H516 V150 H572" marker-end="url(#aa)"/>
+<text class="ts ta" x="510" y="290" transform="rotate(-90 510 290)" text-anchor="middle">append signed line</text>
+<path class="ln" d="M576,196 H540 V470 H478" marker-end="url(#am)"/>
+<path class="ln" d="M576,290 H540"/>
+<text class="ts" x="556" y="400" transform="rotate(-90 556 400)" text-anchor="middle">watch + read</text>
+
+<rect class="grp-l" x="560" y="30" width="420" height="310" rx="12"/>
+<text class="tt" x="576" y="56">Vault on the local disk</text>
+<text class="ts" x="576" y="74">plain files &middot; no server &middot; no account</text>
+<rect class="bx" x="576" y="90" width="388" height="114" rx="8"/>
+<text class="t" x="590" y="114">Shared chat log</text>
+<text class="ts" x="590" y="136">append-only, one JSON line per message</text>
+<text class="ts" x="590" y="153">one complete line per write; never rewritten</text>
+<text class="ts" x="590" y="170">readers skip half or broken lines</text>
+<text class="ts" x="590" y="190">signed lines from the app only</text>
+<rect class="bx" x="576" y="216" width="388" height="112" rx="8"/>
+<text class="t" x="590" y="240">Task queue, lock and role files</text>
+<text class="ts" x="590" y="261">written by agents; the app only reads them</text>
+<text class="ts" x="590" y="278">names and task ids checked by pattern</text>
+<text class="ts" x="590" y="295">over 256 KB or symbolic link: skipped</text>
+<text class="ts" x="590" y="314">shown as &ldquo;from task files, unverified&rdquo;</text>
+
+<rect class="grp-c" x="560" y="370" width="420" height="150" rx="12"/>
+<text class="tt tc" x="576" y="396">Untrusted writers</text>
+<rect class="bx-c" x="576" y="410" width="190" height="96" rx="8"/>
+<text class="t" x="588" y="434">Agents and Claude</text>
+<text class="ts" x="588" y="455">post and read</text>
+<text class="ts" x="588" y="472">through the CLI;</text>
+<text class="ts" x="588" y="489">chat is advice</text>
+<path class="ln-c" d="M766,458 H774" marker-end="url(#ac)"/>
+<rect class="bx-c" x="776" y="410" width="188" height="96" rx="8"/>
+<text class="t" x="788" y="434">chat-cli.js</text>
+<text class="ts" x="788" y="455">plain Node</text>
+<text class="ts" x="788" y="472">has no secret</text>
+<text class="ts" x="788" y="489">verify: UNVERIFIED</text>
+<path class="ln-c" d="M964,458 H1000 V150 H968" marker-end="url(#ac)"/>
+<text class="ts tc" x="1024" y="300" transform="rotate(-90 1024 300)" text-anchor="middle">append unsigned line</text>
+
+<path class="ln" d="M474,572 H556" marker-end="url(#am)"/>
+<text class="ts" x="484" y="564">loopback</text>
+<rect class="bx" x="560" y="540" width="420" height="60" rx="8"/>
+<text class="t" x="576" y="564">LM Studio (optional, off by default)</text>
+<text class="ts" x="576" y="585">127.0.0.1:1234 only &middot; replies are agent lines</text>
+
+<path class="ln-a" d="M36,630 H76"/><text class="ts" x="84" y="634">signed, trusted path</text>
+<path class="ln-c" d="M290,630 H330"/><text class="ts" x="338" y="634">untrusted input, never signed</text>
+<path class="ln" d="M600,630 H640"/><text class="ts" x="648" y="634">read, watch or IPC</text>
+</svg>
+</div>
+<div class="col">
+<p class="foot-note">Source: <code>main.js</code>, <code>preload.js</code>, <code>lib/log.js</code>, <code>lib/appfiles.js</code>, <code>lib/agents.js</code>, <code>chat-cli.js</code> and the README, version 1.2.2.</p>
+</div>
+</section>
+
+<section class="wide" aria-labelledby="s3">
+<div class="col">
+<p class="n">03 &middot; Data flow</p>
+<h2 id="s3">A message and an approval, from keypress to screen</h2>
+<p>As I type, the composer asks the main process what the text would become. That preview is a pure function: it has no secret, signs nothing and writes nothing. When I press send, the window hands over only the channel, the text and an optional reply id. The main process decides everything else, signs the line and appends it. A line from an agent takes the other road. It is written without a signature, so it can never become an approval, even if it claims to come from me.</p>
+</div>
+<p class="dg-hint" id="h-flow">Diagram is wide: scroll it sideways.</p>
+<div class="dg" tabindex="0" role="region" aria-label="Data flow diagram, scrolls sideways on small screens" aria-describedby="h-flow">
+<svg class="w1040" viewBox="0 0 1040 560" role="img" aria-labelledby="flow-t flow-d" xmlns="http://www.w3.org/2000/svg">
+<title id="flow-t">Agent Chat data flow for a message and an approval</title>
+<desc id="flow-d">Top road, Mika in the app: Mika types in the composer. While typing, a read-only preview call returns a badge: will sign with the task and action, plain, or a near miss with the reason; the preview has no secret, signs nothing and writes nothing. On send, the renderer passes only the channel, the text and the reply id through chat:send, where the sender and arguments are checked first. The main process sets the sender to Mika, the role to human, the time and the id, signs the whole line with HMAC-SHA256 and appends it to the chat log. Bottom road, an agent: an agent, Claude or a hand edit writes through chat-cli.js post, which has no secret, so the line is unsigned and has the agent role even if it claims to be Mika. A signed line copied back into the file keeps its id. All lines land in the append-only chat log. The main process watches the log and classifies each line in order: has this id been seen before, does the signature check out in constant time, is the role human and the sender Mika, does the whole text fit the approval grammar, does the task match the thread. The signature is removed before the line goes to the window. There are four outcomes: a signed approval shows a lock and a badge with the task and action; a signed message shows a lock but no approval; an unsigned line is advice only and cannot approve; a copied line with an id seen before is ignored.</desc>
+<defs>
+<marker id="bm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk"/></marker>
+<marker id="ba" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-a"/></marker>
+<marker id="bc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-c"/></marker>
+</defs>
+<text class="tt ta" x="36" y="36">Mika, in the app</text>
+
+<rect class="bx" x="36" y="120" width="140" height="84" rx="8"/>
+<text class="t" x="48" y="144">Composer</text>
+<text class="ts" x="48" y="165">Mika types</text>
+<text class="ts" x="48" y="182">in the window</text>
+
+<path class="ln" d="M150,120 V100 H196" marker-end="url(#bm)"/>
+<text class="ts" x="96" y="94">as you type</text>
+<rect class="bx" x="200" y="52" width="196" height="96" rx="8"/>
+<text class="t" x="212" y="76">Preview (read only)</text>
+<text class="ts" x="212" y="97">chat:preview</text>
+<text class="ts" x="212" y="114">pure: no secret,</text>
+<text class="ts" x="212" y="131">no signing, no writes</text>
+<path class="ln" d="M396,100 H412" marker-end="url(#bm)"/>
+<rect class="bx" x="416" y="52" width="196" height="96" rx="8"/>
+<text class="t" x="428" y="76">Badge under composer</text>
+<text class="ts" x="428" y="97">will sign: task &middot; action</text>
+<text class="ts" x="428" y="114">plain, or near miss</text>
+<text class="ts" x="428" y="131">with the reason</text>
+
+<path class="ln-a" d="M176,216 H196" marker-end="url(#ba)"/>
+<path class="ln-a" d="M100,204 V216 H176"/>
+<rect class="bx-a" x="200" y="172" width="196" height="92" rx="8"/>
+<text class="t" x="212" y="196">Send: chat:send</text>
+<text class="ts" x="212" y="217">gives only channel,</text>
+<text class="ts" x="212" y="234">text and replyTo</text>
+<text class="ts" x="212" y="251">sender check first</text>
+<path class="ln-a" d="M396,218 H412" marker-end="url(#ba)"/>
+<rect class="bx-a" x="416" y="172" width="196" height="92" rx="8"/>
+<text class="t" x="428" y="196">Main signs</text>
+<text class="ts" x="428" y="217">sets sender, role,</text>
+<text class="ts" x="428" y="234">time and id itself</text>
+<text class="ts" x="428" y="251">HMAC-SHA256 of line</text>
+<path class="ln-a" d="M612,218 H632" marker-end="url(#ba)"/>
+
+<path class="sep" d="M20,286 H620"/>
+<text class="tt tc" x="36" y="312">An agent, outside the app</text>
+<rect class="bx-c" x="36" y="326" width="140" height="92" rx="8"/>
+<text class="t" x="48" y="350">Agent</text>
+<text class="ts" x="48" y="371">or Claude, or</text>
+<text class="ts" x="48" y="388">a hand edit</text>
+<path class="ln-c" d="M176,372 H196" marker-end="url(#bc)"/>
+<rect class="bx-c" x="200" y="326" width="196" height="92" rx="8"/>
+<text class="t" x="212" y="350">chat-cli.js post</text>
+<text class="ts" x="212" y="371">no secret: unsigned</text>
+<text class="ts" x="212" y="388">role agent, even if</text>
+<text class="ts" x="212" y="405">it claims to be Mika</text>
+<path class="ln-c" d="M396,372 H412" marker-end="url(#bc)"/>
+<rect class="bx-c" x="416" y="326" width="196" height="92" rx="8"/>
+<text class="t" x="428" y="350">Unsigned line</text>
+<text class="ts" x="428" y="371">or a signed line</text>
+<text class="ts" x="428" y="388">copied back in,</text>
+<text class="ts" x="428" y="405">keeping its id</text>
+<path class="ln-c" d="M612,372 H632" marker-end="url(#bc)"/>
+
+<rect class="grp-l" x="636" y="150" width="128" height="268" rx="10"/>
+<text class="t" x="648" y="176">Chat log</text>
+<text class="ts" x="648" y="198">append-only</text>
+<text class="ts" x="648" y="215">one line</text>
+<text class="ts" x="648" y="232">per write</text>
+<text class="ts" x="648" y="252">local file</text>
+<text class="ts" x="648" y="290">watched and</text>
+<text class="ts" x="648" y="307">read by main</text>
+<path class="ln" d="M764,206 H786" marker-end="url(#bm)"/>
+
+<rect class="bx-g" x="790" y="40" width="230" height="226" rx="10"/>
+<text class="t" x="802" y="64">Main: classify each line</text>
+<text class="ts" x="802" y="88">1 id seen before? copy</text>
+<text class="ts" x="802" y="106">2 HMAC check, constant time</text>
+<text class="ts" x="802" y="124">3 role human, from Mika</text>
+<text class="ts" x="802" y="142">4 whole text fits grammar</text>
+<text class="ts" x="802" y="160">5 task matches the thread</text>
+<text class="ts ta" x="802" y="186">6 drop the signature,</text>
+<text class="ts ta" x="802" y="203">then send to the window</text>
+<text class="ts" x="802" y="230">any step fails: not an</text>
+<text class="ts" x="802" y="247">approval</text>
+<path class="ln" d="M905,266 H905 V282" marker-end="url(#bm)"/>
+
+<rect class="bx-a" x="790" y="286" width="230" height="56" rx="8"/>
+<text class="t" x="802" y="309">Signed approval</text>
+<text class="ts" x="802" y="329">lock + badge: task, action</text>
+<rect class="bx" x="790" y="350" width="230" height="56" rx="8"/>
+<text class="t" x="802" y="373">Signed message</text>
+<text class="ts" x="802" y="393">lock, not an approval</text>
+<rect class="bx-c" x="790" y="414" width="230" height="56" rx="8"/>
+<text class="t" x="802" y="437">Unsigned line</text>
+<text class="ts" x="802" y="457">advice, cannot approve</text>
+<rect class="bx-c" x="790" y="478" width="230" height="56" rx="8"/>
+<text class="t" x="802" y="501">Copied line</text>
+<text class="ts" x="802" y="521">id seen before: ignored</text>
+
+<path class="ln-a" d="M36,470 H76"/><text class="ts" x="84" y="474">signed path, decided in main</text>
+<path class="ln-c" d="M36,500 H76"/><text class="ts" x="84" y="504">untrusted input, never signed</text>
+<path class="ln" d="M36,530 H76"/><text class="ts" x="84" y="534">read only, or an internal step</text>
+</svg>
+</div>
+<div class="col">
+<p class="foot-note">Source: the <code>chat:send</code> and <code>chat:preview</code> handlers and <code>annotate</code> in <code>main.js</code>; <code>sign</code>, <code>verify</code>, <code>parseApproval</code>, <code>previewApproval</code>, <code>isApproval</code> and <code>classify</code> in <code>lib/log.js</code>.</p>
+</div>
+</section>
+
+<section class="wide" aria-labelledby="s4">
+<div class="col">
+<p class="n">04 &middot; Workflow</p>
+<h2 id="s4">One approval, start to finish</h2>
+<p>An agent finishes a task and marks it for review. The app sees that in the task files and puts a card in Needs you. From there, approving is a deliberate act. A button drafts the start of the line, Enter does not send it, and the preview spells out exactly what the signature will cover. A draft with no action is refused and kept.</p>
+</div>
+<p class="dg-hint" id="h-wf">Diagram is wide: scroll it sideways.</p>
+<div class="dg" tabindex="0" role="region" aria-label="Workflow diagram, scrolls sideways on small screens" aria-describedby="h-wf">
+<svg class="w1100" viewBox="0 0 1100 480" role="img" aria-labelledby="wf-t wf-d" xmlns="http://www.w3.org/2000/svg">
+<title id="wf-t">Approval workflow, start to finish</title>
+<desc id="wf-d">Three lanes: Mika, the Agent Chat app and an agent. Step 1, agent: the agent finishes, sets its task to review and writes a result. Step 2, app: the app reads the task files and shows a Needs you card; the count goes into the window title and the tray, and the app starts its own review clock. Step 3, Mika: Mika opens the thread and presses Draft approval; the composer gets approve and the task id, and Enter does not send. Step 4, Mika: Mika types the action; the preview shows will sign with the task and action, or a near miss and why. Step 5, app: Sign and send by a real click or Ctrl+Enter; is there an action and does the text fit the grammar? If not, nothing is sent, the draft is kept and the app asks what is being approved. If yes, step 6: the main process signs the line, appends it to the log and classifies it; the badge shows the task and action. Step 7: the card clears with You approved, the action and the time, but only if the approval came after the review started. Step 8, agent: the agent reads the line through the CLI, which cannot verify it, so it is advice; push, delete and send still need the runtime permission prompt.</desc>
+<defs>
+<marker id="cm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk"/></marker>
+<marker id="ca" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-a"/></marker>
+<marker id="cc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-c"/></marker>
+</defs>
+<rect class="lane" x="10" y="20" width="1080" height="130"/>
+<rect class="lane2" x="10" y="150" width="1080" height="160"/>
+<rect class="lane" x="10" y="310" width="1080" height="130"/>
+<path class="ln" d="M104,20 V440"/>
+<text class="tt" x="22" y="90">Mika</text>
+<text class="tt" x="22" y="226">App</text><text class="ts" x="22" y="244">Agent Chat</text>
+<text class="tt" x="22" y="380">Agent</text>
+
+<rect class="bx-c" x="118" y="330" width="150" height="92" rx="8"/>
+<text class="t" x="130" y="354">1 &middot; Agent done</text>
+<text class="ts" x="130" y="375">sets its task</text>
+<text class="ts" x="130" y="392">to review, writes</text>
+<text class="ts" x="130" y="409">a result</text>
+<path class="ln" d="M193,330 V230 H276" marker-end="url(#cm)"/>
+<text class="ts" x="200" y="300">task file</text>
+
+<rect class="bx" x="280" y="168" width="150" height="124" rx="8"/>
+<text class="t" x="292" y="192">2 &middot; Needs you</text>
+<text class="ts" x="292" y="213">card from task</text>
+<text class="ts" x="292" y="230">files; count in</text>
+<text class="ts" x="292" y="247">title and tray;</text>
+<text class="ts" x="292" y="264">app's own review</text>
+<text class="ts" x="292" y="281">clock starts</text>
+<path class="ln" d="M355,168 V86 H438" marker-end="url(#cm)"/>
+
+<rect class="bx" x="442" y="34" width="150" height="104" rx="8"/>
+<text class="t" x="454" y="58">3 &middot; Draft</text>
+<text class="ts" x="454" y="79">opens the thread;</text>
+<text class="ts" x="454" y="96">composer gets</text>
+<text class="ts ta" x="454" y="113">approve T-xxxx</text>
+<text class="ts" x="454" y="130">Enter won't send</text>
+<path class="ln" d="M592,86 H600" marker-end="url(#cm)"/>
+
+<rect class="bx" x="604" y="34" width="150" height="104" rx="8"/>
+<text class="t" x="616" y="58">4 &middot; Type action</text>
+<text class="ts" x="616" y="79">preview shows</text>
+<text class="ts" x="616" y="96">will sign: task</text>
+<text class="ts" x="616" y="113">and action, or</text>
+<text class="ts" x="616" y="130">near miss + why</text>
+<path class="ln-a" d="M679,138 V174" marker-end="url(#ca)"/>
+<text class="ts" x="688" y="164">click or Ctrl+Enter</text>
+
+<polygon class="bx-g" points="600,230 679,178 758,230 679,282"/>
+<text class="t mid" x="679" y="224">5 &middot; Sign and send</text>
+<text class="ts mid" x="679" y="241">action + grammar</text>
+<text class="ts mid" x="679" y="256">ok?</text>
+
+<path class="ln-c" d="M600,230 H595" marker-end="url(#cc)"/>
+<text class="ts tc" x="610" y="294">no</text>
+<rect class="bx-c" x="442" y="184" width="150" height="92" rx="8"/>
+<text class="t" x="454" y="208">Not sent</text>
+<text class="ts" x="454" y="229">draft kept; asks</text>
+<text class="ts" x="454" y="246">what you are</text>
+<text class="ts" x="454" y="263">approving</text>
+
+<path class="ln-a" d="M758,230 H763" marker-end="url(#ca)"/>
+<text class="ts ta" x="742" y="294">yes</text>
+<rect class="bx-a" x="766" y="168" width="150" height="124" rx="8"/>
+<text class="t" x="778" y="192">6 &middot; Main signs</text>
+<text class="ts" x="778" y="213">HMAC over the</text>
+<text class="ts" x="778" y="230">line; appends;</text>
+<text class="ts" x="778" y="247">classifies; badge</text>
+<text class="ts" x="778" y="264">shows task and</text>
+<text class="ts" x="778" y="281">action</text>
+<path class="ln-a" d="M916,230 H924" marker-end="url(#ca)"/>
+
+<rect class="bx-a" x="928" y="168" width="150" height="124" rx="8"/>
+<text class="t" x="940" y="192">7 &middot; Card clears</text>
+<text class="ts" x="940" y="213">&ldquo;You approved:</text>
+<text class="ts" x="940" y="230">action, time&rdquo;</text>
+<text class="ts" x="940" y="247">only if signed</text>
+<text class="ts" x="940" y="264">after the review</text>
+<text class="ts" x="940" y="281">started</text>
+
+<path class="ln" d="M841,292 V326" marker-end="url(#cm)"/>
+<rect class="bx-c" x="766" y="330" width="312" height="92" rx="8"/>
+<text class="t" x="778" y="354">8 &middot; Agent reads the line</text>
+<text class="ts" x="778" y="375">the CLI cannot verify: it is advice</text>
+<text class="ts" x="778" y="392">push, delete and send still need</text>
+<text class="ts" x="778" y="409">the runtime permission prompt</text>
+
+<path class="ln-a" d="M118,462 H158"/><text class="ts" x="166" y="466">signed path</text>
+<path class="ln-c" d="M330,462 H370"/><text class="ts" x="378" y="466">untrusted, or refused</text>
+<path class="ln" d="M580,462 H620"/><text class="ts" x="628" y="466">step or file read</text>
+</svg>
+</div>
+<figure class="hero-shot"><img src="draft-approval.png" alt="A task thread in Agent Chat in draft approval mode: a banner reads Draft approval, nothing is approved until you press Sign and send; the composer holds approve T-0201 and the button says Sign and send" width="1440" height="900" loading="lazy">
+<figcaption>Step 3 with test data: draft approval mode in a task thread. The banner says nothing is approved until I press Sign and send, and Enter does not send.</figcaption></figure>
+<div class="col">
+<p class="foot-note">Source: <code>needsItems</code>, <code>trackReview</code> and <code>draftNeedsAction</code> in <code>renderer/logic.js</code>; the Needs you and draft code in <code>renderer/app.js</code>; T-0080, T-0090 and T-0093 results.</p>
+</div>
+</section>
+
+<section class="col" aria-labelledby="s5">
+<p class="n">05 &middot; Security and privacy</p>
+<h2 id="s5">How an approval is made hard to fake</h2>
+<p>The rule the whole app serves: only I, typing in this app, can approve anything. Each control below closes one way that rule could break. They are all in the code today.</p>
+
+<h3>Signed approvals</h3>
+<ul class="sec-list">
+<li><span><span class="today">Today</span></span><b>Only the main process signs.</b> The window passes channel, text and reply id. The main process sets the sender, role, time and id, then signs the whole line with HMAC-SHA256 using a per-install secret. The secret never leaves the main process, and signatures are stripped before lines reach the window. Verification uses a constant-time compare. A source test checks that there is exactly one signing site and one send call in the window.</li>
+<li><span><span class="today">Today</span></span><b>Agents cannot sign.</b> The command-line tool has no secret, so every line from an agent, from Claude, from the tool or typed into the file is unsigned. That includes a hand-written line that says it is from Mika. The tool's <code>verify</code> command always answers UNVERIFIED, to remind agents that only the app can tell.</li>
+<li><span><span class="today">Today</span></span><b>Who is who.</b> Only a verified, first-copy line from exactly &ldquo;Mika&rdquo; gets my avatar, a lock and the word Signed. Look-alike names (Cyrillic, Greek, full-width or zero-width characters, &ldquo;rn&rdquo; for &ldquo;m&rdquo;, digit swaps such as Mik4) get a neutral &ldquo;?&rdquo; and &ldquo;Not Mika. Cannot approve.&rdquo; Agent text that imitates the badge gets the note &ldquo;Not a signature. Agents cannot sign.&rdquo;</li>
+</ul>
+
+<h3>The grammar and its preview</h3>
+<p>A valid signature is not enough. The whole text of the line must be one line in one of two forms, in plain printable ASCII, so look-alike letters, invisible characters and right-to-left marks fail:</p>
+<ul class="gram">
+<li><span class="ok">Approves</span><code>approve T-0201 ship the garden planner</code> &mdash; one task. In a task thread the id must be that thread's task.</li>
+<li><span class="ok">Approves</span><code>approve standing &lt;scope&gt; &lt;action&gt;</code> &mdash; a standing approval; the scope is one word. The app never offers this as a button.</li>
+<li><span class="no">Message only</span><code>go ahead</code>, <code>approved</code>, <code>I approve the push</code>, <code>ok to merge</code></li>
+<li><span class="no">Message only</span><code>approve T-0201 do not push</code> &mdash; a negation word in the action cancels it</li>
+</ul>
+<p>The composer shows a live preview from the same parser: &ldquo;will sign&rdquo; with the task and action, &ldquo;plain&rdquo;, or a near miss with the reason (negation, characters, wrong thread). The preview call cannot reach the secret and writes nothing. A test checks that the preview agrees with the real classifier over 28 texts in 4 channels.</p>
+
+<h3>The replay ledger</h3>
+<ul class="sec-list">
+<li><span><span class="today">Today</span></span><b>Each line id counts once.</b> A signed line copied back into the log keeps its id, and its signature still checks out. So the main process keeps a ledger of ids it has seen, and only the first copy can verify. Later copies show &ldquo;Copy of an earlier line. Ignored.&rdquo;</li>
+<li><span><span class="today">Today</span></span><b>Approvals are tied to time.</b> The app records when it first saw each task in review, on its own clock, not from the task file. A signed approval from before that moment does not clear the card; it shows as an earlier approval and asks me to approve again. If that record is lost, the cards come back. It fails safe.</li>
+</ul>
+
+<figure><img src="signed-vs-imitation.png" alt="A task thread with two lines: Mika's signed approval with a lock and the badge Signed approval, T-0201, ship the garden planner; below it an agent's reply that copies the badge wording, marked Not a signature. Agents cannot sign, with its quote of Mika shown without a lock" width="1440" height="900" loading="lazy">
+<figcaption>Test data. Top: my signed approval, with the badge showing exactly what the signature covers. Below: an agent line that copies the badge wording. It gets no lock, and the app adds &ldquo;Not a signature. Agents cannot sign.&rdquo;</figcaption></figure>
+
+<h3>The Electron boundary</h3>
+<ul class="sec-list">
+<li><span><span class="today">Today</span></span><b>Isolated, sandboxed window.</b> <code>contextIsolation</code> on, <code>nodeIntegration</code> off, <code>sandbox</code> on, <code>webSecurity</code> on. The preload bridge exposes a small fixed API and no file, shell or raw IPC access. Navigation, redirects, frame navigation and new windows are blocked, and every permission request is denied.</li>
+<li><span><span class="today">Today</span></span><b>IPC sender checks.</b> Every handler goes through one wrapper. It throws unless the call comes from the app's one window, from its top frame, with the exact app URL. Then each handler checks its own arguments: channel names by pattern, text up to 20,000 characters, reply ids by pattern, the Needs-you count as an integer from 0 to 999, and settings by known keys and types.</li>
+<li><span><span class="today">Today</span></span><b>A private <code>app://</code> protocol, not <code>file://</code>.</b> The window loads from <code>app://local/</code>. It serves only files that sit directly in the renderer folder, with a short list of file types. Sub-folders, <code>..</code>, backslashes and colons are refused. So Electron's file-protocol fuse can stay off.</li>
+<li><span><span class="today">Today</span></span><b>Strict CSP.</b> <code>default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'none'</code>, with no inline script or style. Message text is escaped first and then turned into a small fixed set of tags, so <code>&lt;script&gt;</code>, <code>onerror</code> and <code>javascript:</code> links stay inert. Links open in the normal browser only if they are http or https, checked in the window and again in the main process.</li>
+<li><span><span class="today">Today</span></span><b>Fuses, confirmed on the packaged app.</b> RunAsNode off, the <code>NODE_OPTIONS</code> variable off, inspect arguments off, asar integrity check on, only load the app from asar, file-protocol extra privileges off, cookie encryption on. A real launch with a debugging flag quits at once, because a debug port would let a local process drive the window and sign as me.</li>
+<li><span><span class="today">Today</span></span><b>Task files are input, not truth.</b> Names must match a short pattern, task ids a fixed form; files over 256 KB and symbolic links are ignored. The panel says &ldquo;from task files, unverified&rdquo;.</li>
+</ul>
+
+<h3>Privacy</h3>
+<ul>
+<li>No server, no account, no sync. The log is a local file and the build never publishes anything.</li>
+<li>The window itself cannot make network requests (<code>connect-src 'none'</code>).</li>
+<li>The optional local model is off by default and is only called on <code>127.0.0.1</code>. Its replies are written as ordinary, unsigned agent lines.</li>
+<li>This page uses test data only. No real chat content is shown.</li>
+</ul>
+
+<h3>What the signature does not protect</h3>
+<ul>
+<li>It stops forged, edited and copied lines from honest but confused agents. It is not a wall against a hostile program already running as me on the same PC. Such a program could in principle get at the secret and sign. My agents run under my Windows account.</li>
+<li>So a chat approval is a signed record for me and my agents, not a permission system. Real push, delete, send, buy and publish actions still need the runtime permission prompt, never the chat.</li>
+<li>The real fix is to run agents under a separate account or sandbox that cannot reach the app's data.</li>
+</ul>
+</section>
+
+<section class="col" aria-labelledby="s5b">
+<h3 id="s5b">The IPC surface</h3>
+<div class="tbl"><table>
+<thead><tr><th>Channel</th><th>What the main process checks or does</th></tr></thead>
+<tbody>
+<tr><td>chat:send</td><td>Object with channel, text, replyTo. Channel by pattern, text non-empty and up to 20,000 characters, replyTo by pattern. The only place a line is signed.</td></tr>
+<tr><td>chat:preview</td><td>Text cut to 20,000 characters. Pure parser: no secret, no signing, no writes.</td></tr>
+<tr><td>chat:init</td><td>No input. Returns settings and lines without signatures.</td></tr>
+<tr><td>chat:status</td><td>No input. Says whether the log exists and when it was last read.</td></tr>
+<tr><td>app:needs</td><td>Integer 0 to 999, else 0. Sets only the window title and tray tooltip.</td></tr>
+<tr><td>agents:get</td><td>No input. Rescans the task files.</td></tr>
+<tr><td>settings:set</td><td>Known keys and types only. A new vault folder must already look like a vault.</td></tr>
+<tr><td>settings:pickVault</td><td>Opens the system folder picker.</td></tr>
+<tr><td>lm:models</td><td>No input. Asks the local model server on 127.0.0.1.</td></tr>
+<tr><td>shell:open</td><td>URL parsed in main; http and https only.</td></tr>
+<tr><td>win:min / max / close</td><td>No input. Window controls.</td></tr>
+</tbody></table></div>
+<p class="foot-note">All of these pass the sender check first. Source: <code>trusted</code> and <code>handle</code> in <code>main.js</code>; <code>preload.js</code>; the T-0080 Electron security review.</p>
+</section>
+
+<section class="col" aria-labelledby="s6">
+<p class="n">06 &middot; Stack, results, limits, next</p>
+<h2 id="s6">The facts, with sources</h2>
+<div class="nums">
+<div><b>113</b><span>unit tests, all passing (node:test)</span></div>
+<div><b>130</b><span>end-to-end checks: 28 app, 25 agents panel, 68 UX, 9 packaged</span></div>
+<div><b>0 / 0</b><span>High / Medium findings in the latest reviews</span></div>
+<div><b>2</b><span>approval forms; everything else is a message</span></div>
+</div>
+
+<h3>Stack</h3>
+<p>Electron 44 with a plain JavaScript renderer, no framework. Node.js only in the main process and the CLI. Tests use <code>node:test</code> for units; the end-to-end scripts start the real app with a throwaway profile and a made-up vault, and drive it with <code>puppeteer-core</code>. The installer is built with <code>electron-builder</code> for Windows (NSIS) and never publishes. Geist fonts are bundled. LM Studio is optional.</p>
+
+<h3>Results</h3>
+<div class="tbl"><table>
+<thead><tr><th>Version</th><th>What changed, and the checks</th></tr></thead>
+<tbody>
+<tr><td>1.1.3</td><td>The strict approval grammar.</td></tr>
+<tr><td>1.2.0</td><td>New interface: Needs you, draft approval, live preview, look-alike sender marks, honest status line. Unit tests went from 46 to 102; e2e 28, agents 25, UX 62, packaged 9, all passing. Electron security review: 0 High, 0 Medium, 1 Low.</td></tr>
+<tr><td>1.2.1</td><td>Quotes of my signed lines no longer show a lock. Approvals are tied to when the review started. Questions are no longer dropped after 48 hours. Digit look-alikes and badge imitations are marked. 110 unit tests and 64 UX checks. Agent security review: 0 High, 0 Medium, 2 Low.</td></tr>
+<tr><td>1.2.2</td><td>Calmer notes, Needs you capped at 4 cards with &ldquo;Show more&rdquo;, 44 px touch targets on narrow windows, and a bare draft is refused. 113 unit tests, 68 UX checks. Agent security spot check: 0 High, 0 Medium, 2 Low (cosmetic). The signing, grammar, ledger, fuses, CSP and <code>app://</code> code was unchanged in all three releases.</td></tr>
+</tbody></table></div>
+
+<figure class="pair">
+<img src="needs-you-phone.png" alt="Agent Chat in a narrow window: the Needs you sheet fills the screen with large cards, each with Open thread, Draft approval and Not yet buttons" width="780" height="1688" loading="lazy">
+<figcaption>Needs you at phone width, with test data. One card shows the note for an earlier approval: it came before this review started, so it does not count.</figcaption>
+</figure>
+
+<h3>Limitations</h3>
+<ul>
+<li>The signature is checked only inside the app. Agents cannot verify it, so for them chat stays advice.</li>
+<li>It does not protect against malware running under my own Windows account (see above).</li>
+<li>The Windows installer is not code-signed and there is no auto-update, so SmartScreen warns.</li>
+<li>One approver, one PC. The grammar is English and ASCII only.</li>
+<li>Two known Low findings, both cosmetic. L-B: the badge-imitation note also fires on names that start with &ldquo;Mika&rdquo;, such as &ldquo;Verified by Mikael&rdquo;. L-A: my own unrelated signed line, posted directly after a question in the same channel, clears that question. Neither gives anyone a lock.</li>
+<li>Look-alike names with no digit are not marked yet; they show as ordinary agents, without a lock.</li>
+<li>&ldquo;Not yet&rdquo; choices and the review clock live in the window's local storage, so a reset profile shows the cards again (by design).</li>
+</ul>
+
+<h3>What's next</h3>
+<ul>
+<li>Run agents under a separate Windows account or sandbox that cannot read the app's data, which closes the main gap above.</li>
+<li>Sign the installer if it is ever shared beyond my own PC.</li>
+<li>Fix the two Low findings: a word boundary after the name (L-B), and a reply link required before a line clears a question (L-A). Then mark digit-free look-alike names.</li>
+<li>Deferred interface work: a density toggle, a text-size setting, notifications once per item and filter chips.</li>
+</ul>
+</section>
+
+<footer class="col">
+<p>Agent Chat is my own project and runs on my PC. Every screenshot on this page uses made-up test data from a throwaway profile; the real chat log stays private.</p>
+<p><a href="../../projects.html#mika-os">&larr; All projects</a></p>
+</footer>
+
+</main>
+<script src="../../js/back.js"></script>
+<script src="../../js/reveal.js" defer></script>
+</body>
+</html>
