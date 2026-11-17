@@ -52,7 +52,7 @@
 <div class="dg" tabindex="0" role="region" aria-label="Architecture diagram, scrolls sideways on small screens" aria-describedby="h-arch">
 <svg class="w1040" viewBox="0 0 1040 650" role="img" aria-labelledby="arch-t arch-d" xmlns="http://www.w3.org/2000/svg">
 <title id="arch-t">Agent Chat architecture</title>
-<desc id="arch-d">The Agent Chat desktop app has three parts. The renderer is the window: sandboxed, with context isolation and no Node, served from a private app protocol under a strict content security policy; it shows channels, task threads, the Needs you list and the composer with a live approval preview, and it never sees the secret or any signature. The preload bridge exposes a fixed API of 13 calls and 5 event listeners; sending a message carries only the channel, the text and the reply id. The main process is the only trusted part: every IPC handler checks the sender first; it holds the signing secret, fills in the sender, role, time and id, signs each composer line with HMAC-SHA256 and appends it to the shared chat log. It watches the log and classifies each line with the replay ledger, signature check and approval grammar. It also scans the task queue, lock and role files read-only for the Needs you list. On the right is the vault on the local disk with the append-only chat log and the task files. Agents and Claude are untrusted writers: they post through chat-cli.js, which has no secret, so their lines are always unsigned. LM Studio is optional, off by default, and called on 127.0.0.1 only.</desc>
+<desc id="arch-d">The Agent Chat desktop app has three parts. The renderer is the window: sandboxed, with context isolation and no Node, served from a private app protocol under a strict content security policy; it shows channels, task threads, the Needs you list and the composer with a live approval preview, and it never sees the secret or any signature. The preload bridge exposes a fixed API of 13 calls and 5 event listeners; sending a message carries only the channel, the text and the reply id. The main process is the only trusted part: every IPC handler checks the sender first; it holds the signing secret, fills in the sender, role, time and id, signs each composer line with HMAC-SHA256 and appends it to the shared chat log. It watches the log and classifies each line with the replay ledger, signature check and approval grammar. It also scans the task queue, lock and role files read-only for the Needs you list. On the right is the vault on the local disk with the append-only chat log and the task files. Agents and Claude are untrusted writers: they post through chat-cli.js, which has no secret, so their lines are always unsigned. LM Studio is optional, off by default, and called on this machine only.</desc>
 <defs>
 <marker id="am" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk"/></marker>
 <marker id="aa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-a"/></marker>
@@ -135,7 +135,7 @@
 <text class="ts" x="484" y="564">loopback</text>
 <rect class="bx" x="560" y="540" width="420" height="60" rx="8"/>
 <text class="t" x="576" y="564">LM Studio (optional, off by default)</text>
-<text class="ts" x="576" y="585">127.0.0.1:1234 only &middot; replies are agent lines</text>
+<text class="ts" x="576" y="585">this machine only &middot; replies are agent lines</text>
 
 <path class="ln-a" d="M36,630 H76"/><text class="ts" x="84" y="634">signed, trusted path</text>
 <path class="ln-c" d="M290,630 H330"/><text class="ts" x="338" y="634">untrusted input, never signed</text>
@@ -419,7 +419,7 @@
 <ul>
 <li>No server, no account, no sync. The log is a local file and the build never publishes anything.</li>
 <li>The window itself cannot make network requests (<code>connect-src 'none'</code>).</li>
-<li>The optional local model is off by default and is only called on <code>127.0.0.1</code>. Its replies are written as ordinary, unsigned agent lines.</li>
+<li>The optional local model is off by default and only runs on this machine. Its replies are written as ordinary, unsigned agent lines.</li>
 <li>This page uses test data only. No real chat content is shown.</li>
 </ul>
 
@@ -444,7 +444,7 @@
 <tr><td>agents:get</td><td>No input. Rescans the task files.</td></tr>
 <tr><td>settings:set</td><td>Known keys and types only. A new vault folder must already look like a vault.</td></tr>
 <tr><td>settings:pickVault</td><td>Opens the system folder picker.</td></tr>
-<tr><td>lm:models</td><td>No input. Asks the local model server on 127.0.0.1.</td></tr>
+<tr><td>lm:models</td><td>No input. Asks the local model server on this machine.</td></tr>
 <tr><td>shell:open</td><td>URL parsed in main; http and https only.</td></tr>
 <tr><td>win:min / max / close</td><td>No input. Window controls.</td></tr>
 </tbody></table></div>
