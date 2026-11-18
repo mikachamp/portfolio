@@ -6,7 +6,7 @@
 <svg viewBox="0 0 1040 640" role="img" aria-labelledby="arch-t arch-d" xmlns="http://www.w3.org/2000/svg" class="dgfile">
 <g class="dg">
 <title id="arch-t">Design Playground architecture</title>
-<desc id="arch-d">The Design Playground page runs in my browser and has three parts: Mix and check, the Site Tuner, and Exports. It loads its data library from five JSON files written by my research agents, or from a built and validated bundle when opened from disk. The Mix panels set matching CSS variables inside a real-page frame that is sandboxed with no scripts. The Site Tuner talks by postMessage, in both directions, to a second frame that runs scripts but never shares the playground's origin; inside it, each of five hooked sites carries a small tuner hook that listens only when the page is opened with ?tuner=1 and clamps every value. A Python server, serve.py, bound to 127.0.0.1 port 8000, serves only the playground and the tuned sites, checks the Host header and lists no folders. Its one write route, the save endpoint, takes settings JSON from the Site Tuner, makes a diff first, then writes only after strict checks, with a backup and an atomic replace, into the tuner-settings block of a site's working copy.</desc>
+<desc id="arch-d">The Design Playground page runs in my browser and has three parts: Mix and check, the Site Tuner, and Exports. It loads its data library from five JSON files written by my research agents, or from a built and validated bundle when opened from disk. The Mix panels set matching CSS variables inside a real-page frame that is sandboxed with no scripts. The Site Tuner talks by postMessage, in both directions, to a second frame that runs scripts but never shares the playground's origin; inside it, each of five hooked sites carries a small tuner hook that listens only when the page is opened with ?tuner=1 and clamps every value. A Python server, serve.py, bound to this PC only, serves only the playground and the tuned sites, checks the Host header and lists no folders. Its one write route, the save endpoint, takes settings JSON from the Site Tuner, makes a diff first, then writes only after strict checks, with a backup and an atomic replace, into the tuner-settings block of a site's working copy.</desc>
 <defs>
 <marker id="am" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk"/></marker>
 <marker id="aa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-a"/></marker>
@@ -71,7 +71,7 @@
 
 <rect class="grp-l" x="730" y="44" width="290" height="330" rx="12"/>
 <text class="tt ta" x="746" y="70">serve.py</text>
-<text class="ts" x="746" y="88">127.0.0.1:8000 &#183; this PC only</text>
+<text class="ts" x="746" y="88">this PC &#183; this PC only</text>
 <rect class="bx" x="746" y="104" width="258" height="76" rx="8"/>
 <text class="t" x="758" y="128">Static files</text>
 <text class="ts" x="758" y="148">playground + tuned sites only</text>

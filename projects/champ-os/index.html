@@ -23,7 +23,7 @@
 <div class="meta">
 <div><b>My role</b><span>Creator and systems architect</span></div>
 <div><b>Stack</b><span>Claude Code &middot; Gemini (Antigravity) &middot; Node.js &middot; PM2 &middot; Electron &middot; Obsidian vault &middot; Three.js</span></div>
-<div><b>Scale</b><span>33 role agents &middot; 15 PM2 processes</span></div>
+<div><b>Scale</b><span>33 role agents &middot; always-on fleet of 1 orchestrator + 13 agents</span></div>
 <div><b>Status</b><span>Working locally; moving to a lean orchestrator</span></div>
 </div>
 </header>
@@ -38,132 +38,129 @@
 <div><b>Problem</b><p>I wanted one place to hand work to AI agents and keep my notes, with every task tracked, reviewed and approved by me, instead of a pile of separate dashboards and chats.</p></div>
 <div><b>My role</b><p>I designed the architecture and built the system: the agent fleet, the desktop app and the vault layout.</p></div>
 <div><b>What I built</b><p>A lead agent that hands tasks from a markdown queue to 33 specialist role agents, with lock files, leases, review and security gates, and my approval before anything ships. Alongside it, an always-on PM2 fleet: an orchestrator that routes requests and runs a &ldquo;Director&rdquo; check-in loop, 13 agents and a local-model service. There is also an Electron app with an Agent Chat page and a 3D graph of the vault.</p></div>
-<div><b>Status</b><p>Runs on my Windows PC. Next steps: apply the security hardening that is in review, then replace the 15 always-on processes with one orchestrator and short-lived role agents.</p></div>
+<div><b>Status</b><p>Runs on my Windows PC. Next steps: apply the security hardening that is in review, then replace the always-on fleet with one orchestrator and short-lived role agents.</p></div>
 </div>
 </section>
 
 <section class="wide" aria-labelledby="s2">
 <div class="col">
 <p class="n">02 &middot; Architecture</p>
-<h2 id="s2">The always-on fleet: a desktop app, 15 services, a markdown vault</h2>
+<h2 id="s2">The always-on fleet: an orchestrator, 13 agents and a markdown vault</h2>
 <p>The desktop app never runs agent logic itself. Its main process starts the fleet with <code>pm2 start</code> and talks to the services over HTTP on the same PC. Every service writes its results into the vault through one shared module. Models are called through another shared module: it can use a local model and falls back to Gemini; the Researcher and the app chat page call Anthropic.</p>
 </div>
 <p class="dg-tools"><span class="dg-hint" id="h-arch">Diagram is wide: scroll it sideways, or open it full size to zoom.</span> <a class="dg-full" href="diagrams/arch.svg">Open full size</a></p>
 <div class="dg" tabindex="0" role="region" aria-label="Architecture diagram, scrolls sideways on small screens" aria-describedby="h-arch">
-<svg viewBox="0 0 960 700" role="img" aria-labelledby="arch-t arch-d" xmlns="http://www.w3.org/2000/svg">
+<svg viewBox="0 0 960 744" role="img" aria-labelledby="arch-t arch-d" xmlns="http://www.w3.org/2000/svg">
 <title id="arch-t">CHAMP OS architecture</title>
-<desc id="arch-d">The Electron desktop app has a renderer, a preload bridge with context isolation, and a main process. The main process starts a PM2 fleet of 15 Node services that only this PC can reach and talks to the orchestrator over HTTP. The orchestrator routes to 13 agents and a local-model service. Agents can call a local model through LM Studio or a standalone llama-server, and fall back to the Google Gemini API when LM Studio is down. The Researcher agent and the app's chat page call the Anthropic API. The app and the fleet read and write an Obsidian vault of markdown files on the local disk.</desc>
+<desc id="arch-d">The main path, drawn first: Mika assigns and approves tasks at the terminal or with a signed Agent Chat line. A lead agent, Claude Code or Gemini via Antigravity (cloud models), orchestrates 33 specialist role agents through a markdown task queue with lock files in the Obsidian vault. Tasks pass an explorer, builder roles, a reviewer, a design and UX check, security and privacy roles and a scribe. A human approval gate stops anything that publishes, sends, pushes, deletes, spends or changes security settings, and only Mika marks a task done. Below it, a smaller always-on fleet: a desktop app (Electron) and a PM2 fleet of one orchestrator and 13 agents on this PC. Its model provider is a local model by default with a Gemini fallback. The Researcher agent and the app chat page call Anthropic (Claude). Everything is stored as markdown in the vault on the local disk.</desc>
 <defs>
 <marker id="am" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk"/></marker>
 <marker id="aa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-a"/></marker>
 <marker id="ac" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-c"/></marker>
 </defs>
-<path class="ln-c" d="M135,44 V26 H825 V40" marker-end="url(#ac)"/>
-<text class="ts tc" x="300" y="18">app chat page &rarr; Anthropic API (called from the main process)</text>
-
-<rect class="grp" x="20" y="44" width="230" height="290" rx="12"/>
-<text class="tt" x="36" y="70">CHAMP OS desktop app</text>
-<text class="ts" x="36" y="88">Electron 31 &middot; Windows</text>
-<rect class="bx" x="36" y="104" width="198" height="70" rx="8"/>
-<text class="t" x="48" y="128">Renderer (UI)</text>
-<text class="ts" x="48" y="146">dashboard &middot; Agent Chat</text>
-<text class="ts" x="48" y="162">offline chat &middot; 3D graph</text>
-<path class="ln" d="M135,174 V186"/>
-<rect class="bx" x="36" y="186" width="198" height="50" rx="8"/>
-<text class="t" x="48" y="208">Preload bridge</text>
-<text class="ts" x="48" y="225">contextIsolation on</text>
-<path class="ln" d="M135,236 V248"/>
-<rect class="bx" x="36" y="248" width="198" height="72" rx="8"/>
-<text class="t" x="48" y="272">Main process</text>
-<text class="ts" x="48" y="290">IPC handlers</text>
-<text class="ts" x="48" y="306">starts the fleet (pm2)</text>
-<path class="ln-a" d="M234,284 H258 V131 H292" marker-end="url(#aa)"/>
-<path class="ln-p" d="M234,150 H246 V197 H292" marker-end="url(#am)"/>
-<text class="ts ta" x="272" y="214" transform="rotate(-90 272 214)" text-anchor="middle">HTTP</text>
-
-<rect class="grp" x="280" y="44" width="400" height="400" rx="12"/>
-<text class="tt" x="296" y="70">PM2 fleet &middot; 15 Node/Express services</text>
-<text class="ts" x="296" y="88">reachable from this PC only</text>
-<rect class="bx-a" x="296" y="102" width="368" height="58" rx="8"/>
-<text class="t" x="312" y="126">Orchestrator</text>
-
-<text class="ts" x="312" y="145">LLM router &middot; Director loops &middot; Agent Chat</text>
-<path class="ln" d="M480,160 V176" marker-end="url(#am)"/>
-<g>
-<rect class="bx" x="296" y="178" width="180" height="32" rx="6"/><text class="tn" x="306" y="199">life-admin</text>
-<rect class="bx" x="484" y="178" width="180" height="32" rx="6"/><text class="tn" x="494" y="199">fitness</text>
-<rect class="bx" x="296" y="215" width="180" height="32" rx="6"/><text class="tn" x="306" y="236">learning</text>
-<rect class="bx" x="484" y="215" width="180" height="32" rx="6"/><text class="tn" x="494" y="236">memory</text>
-<rect class="bx" x="296" y="252" width="180" height="32" rx="6"/><text class="tn" x="306" y="273">vault-manager</text>
-<rect class="bx-c" x="484" y="252" width="180" height="32" rx="6"/><text class="tn" x="494" y="273">researcher</text>
-<rect class="bx" x="296" y="289" width="180" height="32" rx="6"/><text class="tn" x="306" y="310">builder</text>
-<rect class="bx" x="484" y="289" width="180" height="32" rx="6"/><text class="tn" x="494" y="310">business-expert</text>
-<rect class="bx" x="296" y="326" width="180" height="32" rx="6"/><text class="tn" x="306" y="347">manufacturing-expert</text>
-<rect class="bx" x="484" y="326" width="180" height="32" rx="6"/><text class="tn" x="494" y="347">career-expert</text>
-<rect class="bx" x="296" y="363" width="180" height="32" rx="6"/><text class="tn" x="306" y="384">network-security</text>
-<rect class="bx" x="484" y="363" width="180" height="32" rx="6"/><text class="tn" x="494" y="384">it-security</text>
-<rect class="bx" x="296" y="400" width="180" height="32" rx="6"/><text class="tn" x="306" y="421">maintenance</text>
-<rect class="bx-a" x="484" y="400" width="180" height="32" rx="6"/><text class="tn" x="494" y="421">offline-llm</text>
-</g>
-<path class="ln-c" d="M680,130 H706" marker-end="url(#ac)"/>
-<path class="ln-a" d="M680,344 H706" marker-end="url(#aa)"/>
-
-<rect class="grp-c" x="710" y="44" width="230" height="170" rx="12"/>
-<text class="tt tc" x="726" y="70">Cloud APIs (internet)</text>
-<rect class="bx-c" x="726" y="84" width="198" height="56" rx="8"/>
-<text class="t" x="738" y="106">Google Gemini API</text>
-<text class="ts" x="738" y="124">fallback: LM Studio down</text>
-<rect class="bx-c" x="726" y="148" width="198" height="56" rx="8"/>
-<text class="t" x="738" y="170">Anthropic API (Claude)</text>
-<text class="ts" x="738" y="188">Researcher &middot; app chat page</text>
-
-<rect class="grp-l" x="710" y="244" width="230" height="200" rx="12"/>
-<text class="tt ta" x="726" y="270">Local models (this PC)</text>
-<rect class="bx" x="726" y="284" width="198" height="66" rx="8"/>
-<text class="t" x="738" y="306">LM Studio server</text>
-<text class="ts" x="738" y="324">on this PC</text>
-<text class="ts" x="738" y="340">default: a Gemma model</text>
-<rect class="bx" x="726" y="362" width="198" height="66" rx="8"/>
-<text class="t" x="738" y="384">llama-server (llama.cpp)</text>
-<text class="ts" x="738" y="402">standalone GGUF model</text>
-<text class="ts" x="738" y="418">via offline-llm</text>
-
-<path class="ln" d="M135,334 V480" marker-end="url(#am)"/>
-<text class="ts" x="145" y="404">read &middot; list &middot; graph</text>
-<text class="ts" x="145" y="420">save chat logs</text>
-<path class="ln-a" d="M480,444 V480" marker-end="url(#aa)"/>
-<text class="ts" x="490" y="467">write / append (shared/obsidian.js)</text>
-
-<rect class="grp-l" x="20" y="484" width="920" height="150" rx="12"/>
-<text class="tt" x="36" y="510">Obsidian vault &middot; plain markdown files on the local disk</text>
-<rect class="bx" x="36" y="524" width="213" height="96" rx="8"/>
-<text class="t" x="48" y="546">Logs/ (agent output)</text>
-<text class="ts" x="48" y="566">briefings &middot; fitness</text>
-<text class="ts" x="48" y="582">research &middot; builds</text>
-<text class="ts" x="48" y="598">security &middot; director</text>
-<rect class="bx" x="261" y="524" width="213" height="96" rx="8"/>
-<text class="t" x="273" y="546">Logs/Agents + PM2 logs</text>
-<text class="ts" x="273" y="566">one state file per agent</text>
-<text class="ts" x="273" y="582">Idle / Working / Paused</text>
-<text class="ts" x="273" y="598">stdout and error logs</text>
-<rect class="bx" x="486" y="524" width="213" height="96" rx="8"/>
-<text class="t" x="498" y="546">Logs/conversations/</text>
-<text class="ts" x="498" y="566">app chat, one file a day</text>
-<text class="ts" x="498" y="582">Agent Chat transcript</text>
-<rect class="bx" x="711" y="524" width="213" height="96" rx="8"/>
-<text class="t" x="723" y="546">Tasks/ &middot; Notes/</text>
-<text class="ts" x="723" y="566">weekly plans &middot; task locks</text>
-<text class="ts" x="723" y="582">Memory Index</text>
-<text class="ts" x="723" y="598">context agents read</text>
-
-<path class="ln-a" d="M36,662 H76"/><text class="ts" x="84" y="666">local call, stays on this PC</text>
-<path class="ln-c" d="M330,662 H370"/><text class="ts" x="378" y="666">leaves the machine over the internet</text>
-<path class="ln" d="M36,686 H76"/><text class="ts" x="84" y="690">IPC or file access</text>
-<path class="ln-p" d="M330,686 H370"/><text class="ts" x="378" y="690">Pause button &rarr; agent pause</text>
+<rect class="grp" x="20" y="44" width="920" height="300" rx="12"/>
+<text class="tt" x="36" y="70">Main path: a lead agent orchestrates 33 specialist role agents</text>
+<text class="ts" x="36" y="88">tasks move through a markdown queue with lock files, and through human, review and security gates</text>
+<rect class="bx" x="36" y="104" width="170" height="96" rx="8"/>
+<text class="t" x="48" y="126">You (Mika)</text>
+<text class="ts" x="48" y="144">assign and approve</text>
+<text class="ts" x="48" y="160">at the terminal or a</text>
+<text class="ts" x="48" y="176">signed Agent Chat line</text>
+<rect class="bx-c" x="246" y="104" width="200" height="96" rx="8"/>
+<text class="t" x="258" y="126">Lead agent</text>
+<text class="ts" x="258" y="144">Claude Code, or Gemini</text>
+<text class="ts" x="258" y="160">via Antigravity</text>
+<text class="ts" x="258" y="176">(cloud models)</text>
+<path class="ln" d="M206,152 H246" marker-end="url(#am)"/>
+<path class="ln" d="M446,152 H486" marker-end="url(#am)"/>
+<rect class="grp" x="486" y="100" width="438" height="232" rx="10"/>
+<text class="t" x="500" y="122">33 specialist role agents</text>
+<text class="ts" x="500" y="138">run by the lead, in a fixed pipeline</text>
+<rect class="bx" x="498" y="148" width="204" height="50" rx="6"/>
+<text class="tn" x="508" y="169">1 Explorer</text>
+<text class="ts" x="508" y="187">finds what is relevant</text>
+<rect class="bx" x="712" y="148" width="204" height="50" rx="6"/>
+<text class="tn" x="722" y="169">2 Builder roles</text>
+<text class="ts" x="722" y="187">web &middot; app &middot; 3D &middot; writing</text>
+<rect class="bx" x="498" y="206" width="204" height="50" rx="6"/>
+<text class="tn" x="508" y="227">3 Reviewer</text>
+<text class="ts" x="508" y="245">failed review goes back</text>
+<rect class="bx" x="712" y="206" width="204" height="50" rx="6"/>
+<text class="tn" x="722" y="227">4 Design and UX check</text>
+<text class="ts" x="722" y="245">for anything people see</text>
+<rect class="bx" x="498" y="264" width="204" height="50" rx="6"/>
+<text class="tn" x="508" y="285">5 Security and privacy</text>
+<text class="ts" x="508" y="303">read-only roles</text>
+<rect class="bx" x="712" y="264" width="204" height="50" rx="6"/>
+<text class="tn" x="722" y="285">6 Scribe</text>
+<text class="ts" x="722" y="303">result note + lessons</text>
+<rect class="bx-g" x="36" y="232" width="410" height="96" rx="8"/>
+<text class="t" x="48" y="254">Human approval gate</text>
+<text class="ts" x="48" y="272">agents stop at review before they publish, send,</text>
+<text class="ts" x="48" y="288">push, delete, spend or change security settings</text>
+<text class="ts" x="48" y="304">only Mika marks a task done</text>
+<path class="ln" d="M486,280 H446" marker-end="url(#am)"/>
+<path class="ln" d="M121,232 V200" marker-end="url(#am)"/>
+<path class="ln-a" d="M246,344 V376" marker-end="url(#aa)"/>
+<text class="ts" x="256" y="364">claim a task, write results</text>
+<rect class="grp-l" x="20" y="376" width="920" height="118" rx="12"/>
+<text class="tt" x="36" y="402">Obsidian vault &middot; plain markdown files on the local disk</text>
+<rect class="bx" x="36" y="414" width="213" height="68" rx="8"/>
+<text class="t" x="48" y="436">Tasks/ queue</text>
+<text class="ts" x="48" y="454">one file per task</text>
+<text class="ts" x="48" y="470">lock files + 30-min leases</text>
+<rect class="bx" x="261" y="414" width="213" height="68" rx="8"/>
+<text class="t" x="273" y="436">Results/ and Lessons/</text>
+<text class="ts" x="273" y="454">a result note per task</text>
+<text class="ts" x="273" y="470">lessons per role</text>
+<rect class="bx" x="486" y="414" width="213" height="68" rx="8"/>
+<text class="t" x="498" y="436">Logs/ and Agents/</text>
+<text class="ts" x="498" y="454">fleet output and state</text>
+<text class="ts" x="498" y="470">briefings &middot; audits &middot; logs</text>
+<rect class="bx" x="711" y="414" width="213" height="68" rx="8"/>
+<text class="t" x="723" y="436">Notes/</text>
+<text class="ts" x="723" y="454">plans, playbooks</text>
+<text class="ts" x="723" y="470">context agents read</text>
+<path class="ln-a" d="M640,516 V494" marker-end="url(#aa)"/>
+<text class="ts" x="650" y="510">notes and reports</text>
+<rect class="grp" x="20" y="516" width="700" height="172" rx="12"/>
+<text class="tt" x="36" y="542">Always-on fleet &middot; a second, smaller layer</text>
+<text class="ts" x="36" y="560">1 orchestrator + 13 agents under PM2, on this PC</text>
+<rect class="bx" x="36" y="574" width="180" height="96" rx="8"/>
+<text class="t" x="48" y="596">Desktop app</text>
+<text class="ts" x="48" y="614">(Electron) dashboard,</text>
+<text class="ts" x="48" y="630">Agent Chat, graph</text>
+<text class="ts" x="48" y="646">talks to the fleet</text>
+<rect class="bx-a" x="236" y="574" width="230" height="96" rx="8"/>
+<text class="t" x="248" y="596">Orchestrator + 13 agents</text>
+<text class="ts" x="248" y="614">briefings &middot; research &middot; audits</text>
+<text class="ts" x="248" y="630">Director check-ins you</text>
+<text class="ts" x="248" y="646">approve in Agent Chat</text>
+<rect class="bx" x="486" y="574" width="214" height="96" rx="8"/>
+<text class="t" x="498" y="596">Model provider</text>
+<text class="ts" x="498" y="614">local model by default</text>
+<text class="ts" x="498" y="630">Gemini fallback</text>
+<text class="ts" x="498" y="646">(optional)</text>
+<path class="ln-a" d="M216,622 H236" marker-end="url(#aa)"/>
+<path class="ln" d="M466,622 H486" marker-end="url(#am)"/>
+<rect class="grp-c" x="740" y="516" width="200" height="172" rx="12"/>
+<text class="tt tc" x="756" y="542">Cloud (internet)</text>
+<rect class="bx-c" x="752" y="556" width="176" height="56" rx="8"/>
+<text class="t" x="764" y="578">Gemini API</text>
+<text class="ts" x="764" y="596">fleet fallback only</text>
+<rect class="bx-c" x="752" y="624" width="176" height="56" rx="8"/>
+<text class="t" x="764" y="646">Anthropic (Claude)</text>
+<text class="ts" x="764" y="664">Researcher &middot; app chat</text>
+<path class="ln-c" d="M700,584 H752" marker-end="url(#ac)"/>
+<path class="ln-c" d="M351,670 V678 H730 V652 H752" marker-end="url(#ac)"/>
+<path class="ln-a" d="M36,712 H76"/><text class="ts" x="84" y="716">stays on this PC</text>
+<path class="ln-c" d="M300,712 H340"/><text class="ts" x="348" y="716">leaves the machine over the internet</text>
+<path class="ln" d="M36,734 H76"/><text class="ts" x="84" y="738">internal step or file access</text>
+<rect class="bx-g" x="300" y="725" width="40" height="18" rx="4"/><text class="ts" x="348" y="738">human approval gate</text>
 </svg>
 </div>
 <div class="col">
-<p class="foot-note">Source: <code>agents/ecosystem.config.cjs</code> (the 15 processes), <code>agents/shared/llm.js</code>, <code>agents/shared/obsidian.js</code> and <code>app/main.js</code>.</p>
+<p class="foot-note">Source: <code>agents/ecosystem.config.cjs</code> (the fleet: 1 orchestrator + 13 agents, plus an optional local-model service), <code>agents/shared/llm.js</code>, <code>agents/shared/obsidian.js</code> and <code>app/main.js</code>.</p>
 </div>
 </section>
 
@@ -196,80 +193,105 @@
 </div>
 <p class="dg-tools"><span class="dg-hint" id="h-flow">Diagram is wide: scroll it sideways, or open it full size to zoom.</span> <a class="dg-full" href="diagrams/flow.svg">Open full size</a></p>
 <div class="dg" tabindex="0" role="region" aria-label="Data flow diagram, scrolls sideways on small screens" aria-describedby="h-flow">
-<svg viewBox="0 0 960 560" role="img" aria-labelledby="flow-t flow-d" xmlns="http://www.w3.org/2000/svg">
+<svg viewBox="0 0 960 572" role="img" aria-labelledby="flow-t flow-d" xmlns="http://www.w3.org/2000/svg">
 <title id="flow-t">CHAMP OS data flow</title>
-<desc id="flow-d">Inputs are: the user through the dashboard, Agent Chat, tray menu and offline chat; eight scheduled jobs; the Director loops; vault notes read as context; and system checks such as npm audit and the firewall state. An agent builds a prompt and calls the shared model caller. If LM Studio is reachable the prompt goes to the local model and nothing leaves the PC. If not, it falls back to the Google Gemini API, unless the provider is set to local only. The Researcher agent and the app chat page always use the Anthropic API. Offline chat only uses local models. Results are written to the vault as markdown under Logs, Notes and Tasks, and shown on the dashboard, in Agent Chat and as Windows notifications.</desc>
+<desc id="flow-d">Two paths into one local vault. The main path, drawn first: you assign a task as a markdown file in the queue; the lead agent (Claude or Gemini, cloud models) and the role agents work on it under a lock file and write a result note with status review. Review, design and UX, security and privacy gates and your approval come before anything ships, and only you mark it done. The lead agent prompts go to its cloud model provider. The smaller always-on fleet of one orchestrator and 13 agents is triggered by eight scheduled jobs, Director loops and you in the app. An agent builds a prompt from the task and vault notes and calls the shared model caller, which uses a local model by default and falls back to the Gemini API when the local model is down. The Researcher agent and the app chat page call Anthropic. Results from both paths are written as markdown into the vault on the local disk and shown in the dashboard and Agent Chat.</desc>
 <defs>
 <marker id="bm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk"/></marker>
 <marker id="ba" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-a"/></marker>
 <marker id="bc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-c"/></marker>
 </defs>
-<rect class="grp" x="20" y="44" width="220" height="470" rx="12"/>
-<text class="tt" x="36" y="70">Where data comes from</text>
-<rect class="bx" x="36" y="84" width="188" height="76" rx="8"/>
-<text class="t" x="48" y="106">You</text><text class="ts" x="48" y="125">dashboard &middot; Agent Chat</text><text class="ts" x="48" y="141">tray menu &middot; offline chat</text>
-<rect class="bx" x="36" y="170" width="188" height="76" rx="8"/>
-<text class="t" x="48" y="192">8 scheduled jobs</text><text class="ts" x="48" y="211">04:00 04:15 audits</text><text class="ts" x="48" y="225">06:00 07:00 18:00 20:00</text><text class="ts" x="48" y="239">Mon plan &middot; Sun updates</text>
-<rect class="bx" x="36" y="256" width="188" height="76" rx="8"/>
-<text class="t" x="48" y="278">Director loops</text><text class="ts" x="48" y="297">states every 30 s</text><text class="ts" x="48" y="311">chat remarks every 45 s</text><text class="ts" x="48" y="325">report every 2 h, 7&ndash;23h</text>
-<rect class="bx" x="36" y="342" width="188" height="76" rx="8"/>
-<text class="t" x="48" y="364">Vault notes as context</text><text class="ts" x="48" y="383">personal context &middot; tasks</text><text class="ts" x="48" y="399">daily log &middot; agent state</text>
-<rect class="bx" x="36" y="428" width="188" height="76" rx="8"/>
-<text class="t" x="48" y="450">This PC</text><text class="ts" x="48" y="469">npm audit / outdated</text><text class="ts" x="48" y="485">firewall state</text>
-<path class="ln" d="M224,122 H252 M224,208 H252 M224,294 H252 M224,380 H252 M224,466 H252 M252,122 V466"/>
-<path class="ln" d="M252,128 H292" marker-end="url(#bm)"/>
-
-<rect class="grp" x="280" y="44" width="380" height="470" rx="12"/>
-<text class="tt" x="296" y="70">What the agent does</text>
-<rect class="bx" x="296" y="96" width="348" height="64" rx="8"/>
-<text class="t" x="312" y="120">Agent builds a prompt</text>
-<text class="ts" x="312" y="140">task + vault context &rarr; shared/llm.js</text>
-<path class="ln" d="M470,160 V178" marker-end="url(#bm)"/>
-<polygon class="bx-a" points="330,214 470,178 610,214 470,250"/>
-<text class="t mid" x="470" y="211">LM Studio reachable?</text>
-<text class="ts mid" x="470" y="229">rechecked every 30 s</text>
-<path class="ln-a" d="M330,214 H316 V286" marker-end="url(#ba)"/>
-<text class="ts ta" x="324" y="270">yes</text>
-<path class="ln-c" d="M610,214 H624 V286" marker-end="url(#bc)"/>
-<text class="ts tc end" x="616" y="270">no</text>
-<rect class="bx-a" x="296" y="290" width="164" height="70" rx="8"/>
-<text class="t" x="308" y="314">Local model</text><text class="ts" x="308" y="332">LM Studio</text><text class="ts" x="308" y="348">stays on the PC</text>
-<rect class="bx-c" x="480" y="290" width="164" height="70" rx="8"/>
-<text class="t" x="492" y="314">Gemini API (cloud)</text><text class="ts" x="492" y="332">fallback only;</text><text class="ts" x="492" y="348">off if provider=local</text>
-<rect class="bx-c" x="296" y="380" width="348" height="56" rx="8"/>
-<text class="t" x="312" y="402">Researcher + app chat page &rarr; Anthropic</text>
-<text class="ts" x="312" y="420">Claude &middot; web search for research &middot; cloud</text>
-<rect class="bx-a" x="296" y="448" width="348" height="52" rx="8"/>
-<text class="t" x="312" y="470">Offline chat &rarr; offline-llm &rarr; local model</text>
-<text class="ts" x="312" y="488">LM Studio or llama-server only</text>
-<path class="ln-a" d="M660,250 H702" marker-end="url(#ba)"/>
-<text class="ts" x="664" y="242">write</text>
-
+<rect class="grp" x="20" y="44" width="660" height="250" rx="12"/>
+<text class="tt" x="36" y="70">Main path &middot; lead agent and role agents</text>
+<text class="ts" x="36" y="88">a task goes in as a markdown file and comes out as a result note</text>
+<rect class="bx" x="36" y="100" width="140" height="86" rx="8"/>
+<text class="t" x="48" y="122">You</text>
+<text class="ts" x="48" y="140">assign &middot; approve</text>
+<text class="ts" x="48" y="156">terminal or signed</text>
+<text class="ts" x="48" y="172">Agent Chat line</text>
+<rect class="bx" x="196" y="100" width="140" height="86" rx="8"/>
+<text class="t" x="208" y="122">Task queue</text>
+<text class="ts" x="208" y="140">one markdown file</text>
+<text class="ts" x="208" y="156">claimed by a lock</text>
+<text class="ts" x="208" y="172">file, 30-min lease</text>
+<rect class="bx-c" x="356" y="100" width="150" height="86" rx="8"/>
+<text class="t" x="368" y="122">Lead + role agents</text>
+<text class="ts" x="368" y="140">Claude or Gemini</text>
+<text class="ts" x="368" y="156">(cloud models)</text>
+<text class="ts" x="368" y="172">task + notes in</text>
+<rect class="bx" x="526" y="100" width="138" height="86" rx="8"/>
+<text class="t" x="538" y="122">Result note</text>
+<text class="ts" x="538" y="140">status: review</text>
+<text class="ts" x="538" y="156">written inside</text>
+<text class="ts" x="538" y="172">the task scope</text>
+<path class="ln" d="M176,143 H196" marker-end="url(#bm)"/>
+<path class="ln" d="M336,143 H356" marker-end="url(#bm)"/>
+<path class="ln" d="M506,143 H526" marker-end="url(#bm)"/>
+<rect class="bx-g" x="36" y="206" width="300" height="76" rx="8"/>
+<text class="t" x="48" y="228">Gates before anything ships</text>
+<text class="ts" x="48" y="246">review &middot; design and UX &middot; security</text>
+<text class="ts" x="48" y="262">then my approval; only I mark done</text>
+<rect class="bx-c" x="356" y="206" width="308" height="76" rx="8"/>
+<text class="t" x="368" y="228">What leaves the PC on this path</text>
+<text class="ts" x="368" y="246">the lead agent's prompts go to</text>
+<text class="ts" x="368" y="262">its cloud model provider</text>
+<path class="ln" d="M595,186 V196 H186 V206" marker-end="url(#bm)"/>
+<path class="ln-a" d="M664,143 H700" marker-end="url(#ba)"/>
+<rect class="grp" x="20" y="314" width="660" height="200" rx="12"/>
+<text class="tt" x="36" y="340">Always-on fleet &middot; 1 orchestrator + 13 agents</text>
+<text class="ts" x="36" y="358">scheduled jobs and Director loops, run on this PC</text>
+<rect class="bx" x="36" y="372" width="150" height="112" rx="8"/>
+<text class="t" x="48" y="394">Triggers</text>
+<text class="ts" x="48" y="412">8 scheduled jobs</text>
+<text class="ts" x="48" y="428">Director loops</text>
+<text class="ts" x="48" y="444">you, in the app</text>
+<rect class="bx" x="206" y="372" width="150" height="112" rx="8"/>
+<text class="t" x="218" y="394">Builds a prompt</text>
+<text class="ts" x="218" y="412">task + vault notes</text>
+<text class="ts" x="218" y="428">via the shared</text>
+<text class="ts" x="218" y="444">model caller</text>
+<rect class="bx-a" x="376" y="372" width="296" height="56" rx="8"/>
+<text class="t" x="388" y="394">Model: local by default</text>
+<text class="ts" x="388" y="412">Gemini fallback if local is down</text>
+<rect class="bx-c" x="376" y="438" width="144" height="48" rx="8"/>
+<text class="t" x="388" y="460">Gemini API</text>
+<text class="ts" x="388" y="478">local model down</text>
+<rect class="bx-c" x="528" y="438" width="144" height="48" rx="8"/>
+<text class="t" x="540" y="460">Anthropic</text>
+<text class="ts" x="540" y="478">Researcher + chat</text>
+<path class="ln" d="M186,428 H206" marker-end="url(#bm)"/>
+<path class="ln-a" d="M356,400 H376" marker-end="url(#ba)"/>
+<path class="ln-c" d="M356,462 H376" marker-end="url(#bc)"/>
+<path class="ln-c" d="M281,484 V500 H600 V486" marker-end="url(#bc)"/>
+<path class="ln-a" d="M680,420 H700" marker-end="url(#ba)"/>
 <rect class="grp" x="690" y="44" width="250" height="470" rx="12"/>
 <text class="tt" x="706" y="70">Where it ends up</text>
-<rect class="grp-l" x="706" y="84" width="218" height="300" rx="8"/>
+<rect class="grp-l" x="706" y="84" width="218" height="326" rx="8"/>
 <text class="t" x="720" y="108">Vault (local markdown)</text>
-<text class="ts" x="720" y="132">Logs/briefings/</text>
-<text class="ts" x="720" y="150">Logs/fitness/ &middot; research/</text>
-<text class="ts" x="720" y="168">Logs/builds/ + output</text>
-<text class="ts" x="720" y="186">Logs/security/</text>
-<text class="ts" x="720" y="204">Logs/maintenance/</text>
-<text class="ts" x="720" y="222">Logs/director/ check-ins</text>
-<text class="ts" x="720" y="240">Logs/Agents/ state files</text>
-<text class="ts" x="720" y="258">Logs/conversations/</text>
-<text class="ts" x="720" y="276">Notes/Memory Index.md</text>
-<text class="ts" x="720" y="294">Tasks/weekly-plan-*.md</text>
-<text class="ts" x="720" y="312">Logs/*.log (PM2 output)</text>
-<path class="ln" d="M815,384 V400" marker-end="url(#bm)"/>
-<rect class="bx" x="706" y="404" width="218" height="96" rx="8"/>
-<text class="t" x="720" y="428">Shown to you</text>
-<text class="ts" x="720" y="448">dashboard + Agent Chat</text>
-<text class="ts" x="720" y="464">Windows notifications</text>
-<text class="ts" x="720" y="480">(briefing, fitness, study)</text>
-
-<path class="ln-a" d="M36,542 H76"/><text class="ts" x="84" y="546">stays on this PC</text>
-<path class="ln-c" d="M250,542 H290"/><text class="ts" x="298" y="546">leaves the machine over the internet</text>
-<path class="ln" d="M580,542 H620"/><text class="ts" x="628" y="546">internal step</text>
+<rect class="bx" x="720" y="120" width="190" height="50" rx="6"/>
+<text class="tn" x="730" y="140">Tasks/ queue + locks</text>
+<text class="ts" x="730" y="158">one file per task</text>
+<rect class="bx" x="720" y="178" width="190" height="50" rx="6"/>
+<text class="tn" x="730" y="198">Results/ and Lessons/</text>
+<text class="ts" x="730" y="216">result and lessons</text>
+<rect class="bx" x="720" y="236" width="190" height="50" rx="6"/>
+<text class="tn" x="730" y="256">Logs/</text>
+<text class="ts" x="730" y="274">briefings &middot; research</text>
+<rect class="bx" x="720" y="294" width="190" height="50" rx="6"/>
+<text class="tn" x="730" y="314">Logs/Agents/</text>
+<text class="ts" x="730" y="332">state file per agent</text>
+<rect class="bx" x="720" y="352" width="190" height="50" rx="6"/>
+<text class="tn" x="730" y="372">Notes/</text>
+<text class="ts" x="730" y="390">plans &middot; context for agents</text>
+<path class="ln" d="M815,410 V426" marker-end="url(#bm)"/>
+<rect class="bx" x="706" y="430" width="218" height="70" rx="8"/>
+<text class="t" x="718" y="452">Shown to you</text>
+<text class="ts" x="718" y="470">dashboard &middot; Agent Chat</text>
+<text class="ts" x="718" y="486">Windows notifications</text>
+<path class="ln-a" d="M36,536 H76"/><text class="ts" x="84" y="540">stays on this PC</text>
+<path class="ln-c" d="M300,536 H340"/><text class="ts" x="348" y="540">leaves the machine over the internet</text>
+<path class="ln" d="M36,558 H76"/><text class="ts" x="84" y="562">internal step or file access</text>
+<rect class="bx-g" x="300" y="549" width="40" height="18" rx="4"/><text class="ts" x="348" y="562">human approval gate</text>
 </svg>
 </div>
 <div class="col">
@@ -286,8 +308,8 @@
 <p class="dg-tools"><span class="dg-hint" id="h-wf">Diagram is wide: scroll it sideways, or open it full size to zoom.</span> <a class="dg-full" href="diagrams/wf.svg">Open full size</a></p>
 <div class="dg" tabindex="0" role="region" aria-label="Workflow diagram, scrolls sideways on small screens" aria-describedby="h-wf">
 <svg viewBox="0 0 1000 470" role="img" aria-labelledby="wf-t wf-d" xmlns="http://www.w3.org/2000/svg">
-<title id="wf-t">Director workflow with the approval step</title>
-<desc id="wf-d">Four lanes: You, Director, Agent and Vault. Step 1: you open CHAMP OS; the app starts the fleet and tells the orchestrator a session started. Step 2: the Director writes a check-in from gathered facts with a local model, ending with a question that offers one of 8 allowed actions. Step 3: you reply in Agent Chat. Step 4, the approval step: the Director reads the reply; if you agreed and the action is on the allowlist, it continues; if not, the reply is routed as a new request or it asks one follow-up question. Step 5: the orchestrator posts to the agent's trigger; the agent sets its state to Working, calls the model and writes a note. Step 6: the note, the chat and the director log are saved in the vault. Step 7: the result is posted back into Agent Chat.</desc>
+<title id="wf-t">Always-on fleet: Director workflow with the approval step</title>
+<desc id="wf-d">Four lanes: You, Director, Agent and Vault. Step 1: you open CHAMP OS; the app starts the fleet and tells the orchestrator a session started. Step 2: the Director writes a check-in from gathered facts with a model call, ending with a question that offers one of 8 allowed actions. Step 3: you reply in Agent Chat. Step 4, the approval step: the Director reads the reply; if you agreed and the action is on the allowlist, it continues; if not, the reply is routed as a new request or it asks one follow-up question. Step 5: the orchestrator posts to the agent's trigger; the agent sets its state to Working, calls the model and writes a note. Step 6: the note, the chat and the director log are saved in the vault. Step 7: the result is posted back into Agent Chat.</desc>
 <defs>
 <marker id="cm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk"/></marker>
 <marker id="ca" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-a"/></marker>
@@ -308,7 +330,7 @@
 <path class="ln" d="M193,120 V201 H246" marker-end="url(#cm)"/>
 
 <rect class="bx" x="250" y="158" width="190" height="86" rx="8"/>
-<text class="t" x="262" y="182">2 &middot; Check-in</text><text class="ts" x="262" y="200">facts &rarr; local model</text><text class="ts" x="262" y="216">ends with a question</text><text class="ts" x="262" y="232">offering 1 of 8 actions</text>
+<text class="t" x="262" y="182">2 &middot; Check-in</text><text class="ts" x="262" y="200">facts &rarr; model call</text><text class="ts" x="262" y="216">ends with a question</text><text class="ts" x="262" y="232">offering 1 of 8 actions</text>
 <path class="ln" d="M345,158 V85 H466" marker-end="url(#cm)"/>
 <path class="ln" d="M345,244 V409 H648" marker-end="url(#cm)"/>
 <text class="ts" x="354" y="400">check-in logged</text>
@@ -329,7 +351,7 @@
 <path class="ln-a" d="M737,254 V272" marker-end="url(#ca)"/>
 <text class="ts ta" x="745" y="268">yes</text>
 <rect class="bx-a" x="652" y="276" width="170" height="70" rx="8"/>
-<text class="t" x="664" y="298">5 &middot; Agent runs</text><text class="ts" x="664" y="316">POST /trigger/&hellip;</text><text class="ts" x="664" y="332">Working &rarr; model &rarr; note</text>
+<text class="t" x="664" y="298">5 &middot; Agent runs</text><text class="ts" x="664" y="316">Director triggers it</text><text class="ts" x="664" y="332">Working &rarr; model &rarr; note</text>
 <path class="ln-a" d="M737,346 V370" marker-end="url(#ca)"/>
 <rect class="bx" x="652" y="374" width="170" height="70" rx="8"/>
 <text class="t" x="664" y="396">6 &middot; Saved</text><text class="ts" x="664" y="414">note under Logs/&hellip;</text><text class="ts" x="664" y="430">+ chat and director log</text>
@@ -382,7 +404,7 @@
 </ul>
 <h3>Limitations</h3>
 <ul>
-<li>15 always-on processes cost memory, even when idle.</li>
+<li>The always-on fleet costs memory, even when idle.</li>
 <li>The task-lock helpers are tested but not yet called by the PM2 agents themselves.</li>
 <li>It is a single-user desktop tool: no login, no multi-user data, and some agents are Windows-specific (firewall check, notifications).</li>
 <li>It does not train models; it orchestrates existing open-weights and cloud models.</li>
@@ -390,7 +412,7 @@
 <h3>What's next</h3>
 <ul>
 <li>Apply the two hardening changes once they pass review.</li>
-<li>Replace the 15 always-on services with one orchestrator and on-demand role agents that claim a task, write their result and stop.</li>
+<li>Replace the always-on fleet with one orchestrator and on-demand role agents that claim a task, write their result and stop.</li>
 <li>Publish a cleaned README and architecture diagram in the public repository.</li>
 </ul>
 </section>
