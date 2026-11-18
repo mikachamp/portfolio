@@ -45,7 +45,7 @@
 <h2 id="s2">Two apps, one design: a database and one folder per job</h2>
 <p>On the phone, the screens call a small set of services. All job data goes into a local SQLite database, and photos and videos go into one folder per CE number inside the app's own storage. The only parts that reach the internet are drawn dashed, and each one runs only when the user acts or, for sync, once it is switched on. Every database write notifies the sync engine; with sync off, nothing is sent. The Windows app has the same layout: an untrusted page, a narrow bridge, and a main process that owns the database and the job folders.</p>
 </div>
-<p class="dg-hint" id="h-arch">Diagram is wide: scroll it sideways.</p>
+<p class="dg-tools"><span class="dg-hint" id="h-arch">Diagram is wide: scroll it sideways, or open it full size to zoom.</span> <a class="dg-full" href="diagrams/arch.svg">Open full size</a></p>
 <div class="dg" tabindex="0" role="region" aria-label="Architecture diagram, scrolls sideways on small screens" aria-describedby="h-arch">
 <svg viewBox="0 0 800 850" role="img" aria-labelledby="arch-t arch-d" xmlns="http://www.w3.org/2000/svg">
 <title id="arch-t">BPD Capture architecture</title>
@@ -151,7 +151,7 @@
 <h2 id="s3">What goes in, what is checked, where it ends up</h2>
 <p>Everything a user enters is checked before it touches the database or the file system. A CE number becomes a folder name, so it is cleaned up and the folder it points to must sit inside the app's orders folder. After that, data is only read back on the phone, unless the user sends a report or a backup. The diagram shows the phone; the desktop app applies the same CE rules (an identical copy of the file) and takes photos from a webcam.</p>
 </div>
-<p class="dg-hint" id="h-flow">Diagram is wide: scroll it sideways.</p>
+<p class="dg-tools"><span class="dg-hint" id="h-flow">Diagram is wide: scroll it sideways, or open it full size to zoom.</span> <a class="dg-full" href="diagrams/flow.svg">Open full size</a></p>
 <div class="dg" tabindex="0" role="region" aria-label="Data flow diagram, scrolls sideways on small screens" aria-describedby="h-flow">
 <svg viewBox="0 0 800 540" role="img" aria-labelledby="flow-t flow-d" xmlns="http://www.w3.org/2000/svg">
 <title id="flow-t">BPD Capture data flow</title>
@@ -235,7 +235,7 @@
 <h2 id="s4">One order, from sample to install</h2>
 <p>Each order moves through the same four stages as the workshop: Sample, Production, Dispatch and Installed. Production is split into the steps the order needs. To move on, someone signs off the current stage or step by name, and the app saves who, when and any notes. That history goes into the PDF report. Both apps use the same stage and step definitions.</p>
 </div>
-<p class="dg-hint" id="h-wf">Diagram is wide: scroll it sideways.</p>
+<p class="dg-tools"><span class="dg-hint" id="h-wf">Diagram is wide: scroll it sideways, or open it full size to zoom.</span> <a class="dg-full" href="diagrams/wf.svg">Open full size</a></p>
 <div class="dg" tabindex="0" role="region" aria-label="Workflow diagram, scrolls sideways on small screens" aria-describedby="h-wf">
 <svg viewBox="0 0 800 400" role="img" aria-labelledby="wf-t wf-d" xmlns="http://www.w3.org/2000/svg">
 <title id="wf-t">BPD Capture order workflow with sign-offs</title>

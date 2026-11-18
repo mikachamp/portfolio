@@ -35,6 +35,8 @@
   canvas { display: block; touch-action: none; }
   .scene-label { position: absolute; bottom: 16px; left: 16px; right: 16px; font-size: 13px; color: var(--fg-muted); max-width: 440px; line-height: 1.5; pointer-events: none; }
   @media (max-width: 520px) { #replay-btn { margin-left: 0; } }
+/* T-0120: 44px touch targets on phones and tablets */
+@media (pointer: coarse) { button { min-height: 44px; } button.x { min-width: 44px; } }
 </style>
   <div id="tabs">
     <h1>BPD Capture — loading screen concepts</h1>
@@ -53,7 +55,7 @@
   <script type="importmap">
   {
     "imports": {
-      "three": "../vendor/three/three.module.js",
+      "three": "../vendor/three/three.module.min.js",
       "three/addons/": "../vendor/three/addons/"
     }
   }

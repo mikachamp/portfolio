@@ -41,7 +41,10 @@
 </nav>
 
 <header class="hero" id="top">
-  <iframe id="heroScene" src="Concepts/career-flow-hero.html" sandbox="allow-scripts" title="Animation of Mika's career as a workshop: robots load a CNC router and a laser cutter, a 3D printer prints, the parts are assembled, and the product becomes an AI agent network" aria-hidden="true" tabindex="-1" loading="eager"></iframe>
+  <div class="hero-media">
+    <picture><source media="(max-width: 760px)" srcset="media/hero-poster-phone.jpg" width="780" height="472"><img class="hero-poster" src="media/hero-poster.jpg" width="1600" height="900" alt="" fetchpriority="high" decoding="async"></picture>
+    <iframe id="heroScene" data-src="Concepts/career-flow-hero.html" sandbox="allow-scripts" title="Animation of Mika's career as a workshop: robots load a CNC router and a laser cutter, a 3D printer prints, the parts are assembled, and the product becomes an AI agent network" aria-hidden="true" tabindex="-1"></iframe>
+  </div>
   <div class="wrap">
     <div class="hero-copy">
       <p class="eyebrow">Mika Williamson · AI developer · Cape Town</p>
@@ -61,7 +64,7 @@
       <h2 id="work-h">Three things I've built</h2>
       <div class="feat">
         <article class="fcard">
-          <div class="shot"><img src="media/champ-os-dashboard.jpg" alt="CHAMP OS dashboard: the AI Core figure, agent overview and the Director panel" loading="lazy" decoding="async" width="1440" height="900" /></div>
+          <div class="shot"><img src="media/champ-os-dashboard.jpg" srcset="media/champ-os-dashboard-720.jpg 720w, media/champ-os-dashboard.jpg 1440w" sizes="(max-width: 1000px) 100vw, 360px" alt="CHAMP OS dashboard: the AI Core figure, agent overview and the Director panel" loading="lazy" decoding="async" width="1440" height="900" /></div>
           <div class="info">
             <span class="tag">Project · 2026</span>
             <h3>An AI team that runs my day</h3>

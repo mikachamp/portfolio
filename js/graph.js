@@ -42,7 +42,7 @@ function flat(data, byId) {
 }
 
 async function three(data, byId) {
-  const THREE = await import('../vendor/three/three.module.js');
+  const THREE = await import('../vendor/three/three.module.min.js');
   const nodes = data.nodes, N = nodes.length;
   const idx = Object.fromEntries(nodes.map((n, i) => [n.id, i]));
   const edges = data.links.map(([a, b]) => [idx[a], idx[b]]);

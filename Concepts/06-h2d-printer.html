@@ -68,6 +68,8 @@
     .status, .temps, .label, .views { display: none; } .jobs { grid-template-columns: 1fr 1fr; } .job .tm, .job small { display: none; }
     .card { bottom: auto; top: 86px; left: 10px; width: calc(100% - 20px); }
   }
+/* T-0120: 44px touch targets on phones and tablets */
+@media (pointer: coarse) { button { min-height: 44px; } button.x { min-width: 44px; } }
 </style>
 <link rel="icon" href="data:,">
 <link rel="stylesheet" href="../css/back.css">
@@ -96,7 +98,7 @@
 <div class="card" id="card"></div>
 
 <script type="importmap">
-{ "imports": { "three": "../vendor/three/three.module.js", "three/addons/": "../vendor/three/addons/" } }
+{ "imports": { "three": "../vendor/three/three.module.min.js", "three/addons/": "../vendor/three/addons/" } }
 </script>
 <script type="module">
 import * as THREE from 'three'

@@ -40,3 +40,11 @@ footer{border-top:1px solid var(--line);padding-top:20px;font:400 .85rem var(--f
   .js-reveal .rv.rv-in { opacity: 1; transform: none; }
   .js-reveal .rv.rv-now { transition: none; }
 }
+
+/* T-0120: diagram tools line (scroll hint + "Open full size" link to diagrams/*.svg), thumb-sized targets */
+.dg-tools{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:0 14px;margin:0 0 -6px;font:400 .85rem var(--f-head);color:var(--muted)}
+.dg-tools .dg-hint{margin:0}
+.dg-full{display:inline-flex;align-items:center;min-height:44px;font:600 .9rem var(--f-head);margin-left:auto}
+.dg-full::after{content:"\2197";margin-left:6px}
+/* T-0120: footer links and the top "All work" link get 44px-tall tap areas on every width */
+footer a[href*="projects.html"], footer a[href="https://github.com/mikachamp"], a.back { display: inline-flex; align-items: center; min-height: 44px; }

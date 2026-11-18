@@ -1,0 +1,4 @@
+/* T-0120: a case-study diagram opened on its own (projects/<page>/diagrams/*.svg). Colours and text come from
+   project.css and the page CSS; this only paints the background so it fits the screen and can be pinch-zoomed. */
+@import url("https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap");
+svg.dgfile { background: var(--card); }

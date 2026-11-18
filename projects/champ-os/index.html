@@ -28,7 +28,7 @@
 </div>
 </header>
 
-<figure class="hero-shot"><img src="../../media/champ-os-dashboard.jpg" alt="CHAMP OS desktop app: the AI Core figure in the centre, an agent overview showing 14 of 14 agents running, quick commands and the Director panel" width="1440" height="900">
+<figure class="hero-shot"><img src="../../media/champ-os-dashboard.jpg" srcset="../../media/champ-os-dashboard-720.jpg 720w, ../../media/champ-os-dashboard.jpg 1440w" sizes="(max-width: 1100px) 100vw, 1100px" alt="CHAMP OS desktop app: the AI Core figure in the centre, an agent overview showing 14 of 14 agents running, quick commands and the Director panel" width="1440" height="900">
 <figcaption>The desktop app's command centre, shown with demo content. The app was first called Mika OS, which is why the screenshot still shows that name.</figcaption></figure>
 
 <section class="col" aria-labelledby="s1">
@@ -48,7 +48,7 @@
 <h2 id="s2">The always-on fleet: a desktop app, 15 services, a markdown vault</h2>
 <p>The desktop app never runs agent logic itself. Its main process starts the fleet with <code>pm2 start</code> and talks to the services over HTTP on the same PC. Every service writes its results into the vault through one shared module. Models are called through another shared module: it can use a local model and falls back to Gemini; the Researcher and the app chat page call Anthropic.</p>
 </div>
-<p class="dg-hint" id="h-arch">Diagram is wide: scroll it sideways.</p>
+<p class="dg-tools"><span class="dg-hint" id="h-arch">Diagram is wide: scroll it sideways, or open it full size to zoom.</span> <a class="dg-full" href="diagrams/arch.svg">Open full size</a></p>
 <div class="dg" tabindex="0" role="region" aria-label="Architecture diagram, scrolls sideways on small screens" aria-describedby="h-arch">
 <svg viewBox="0 0 960 700" role="img" aria-labelledby="arch-t arch-d" xmlns="http://www.w3.org/2000/svg">
 <title id="arch-t">CHAMP OS architecture</title>
@@ -194,7 +194,7 @@
 <h2 id="s3">Where data comes from, where it goes, where it is kept</h2>
 <p>Everything is stored as markdown in the vault on the local disk; there is no database. Data leaves the PC in four cases. The shared model caller falls back to Gemini when LM Studio is not reachable. The Researcher agent and the app's chat page use the Anthropic API. The IT-security and maintenance agents contact the npm registry. The desktop app loads its fonts from Google Fonts.</p>
 </div>
-<p class="dg-hint" id="h-flow">Diagram is wide: scroll it sideways.</p>
+<p class="dg-tools"><span class="dg-hint" id="h-flow">Diagram is wide: scroll it sideways, or open it full size to zoom.</span> <a class="dg-full" href="diagrams/flow.svg">Open full size</a></p>
 <div class="dg" tabindex="0" role="region" aria-label="Data flow diagram, scrolls sideways on small screens" aria-describedby="h-flow">
 <svg viewBox="0 0 960 560" role="img" aria-labelledby="flow-t flow-d" xmlns="http://www.w3.org/2000/svg">
 <title id="flow-t">CHAMP OS data flow</title>
@@ -283,7 +283,7 @@
 <h2 id="s4">One task, start to finish, with the approval step</h2>
 <p>This is the Director flow in the orchestrator. When the app starts, the Director writes a check-in from facts it gathers (fleet state, recent vault changes, the latest briefing) and may offer to run a job. A job runs only if I reply in Agent Chat and agree. The job must also be one of 8 fixed actions in the code; anything else is ignored.</p>
 </div>
-<p class="dg-hint" id="h-wf">Diagram is wide: scroll it sideways.</p>
+<p class="dg-tools"><span class="dg-hint" id="h-wf">Diagram is wide: scroll it sideways, or open it full size to zoom.</span> <a class="dg-full" href="diagrams/wf.svg">Open full size</a></p>
 <div class="dg" tabindex="0" role="region" aria-label="Workflow diagram, scrolls sideways on small screens" aria-describedby="h-wf">
 <svg viewBox="0 0 1000 470" role="img" aria-labelledby="wf-t wf-d" xmlns="http://www.w3.org/2000/svg">
 <title id="wf-t">Director workflow with the approval step</title>
@@ -395,7 +395,7 @@
 </ul>
 </section>
 
-<figure class="hero-shot"><img src="../../media/champ-os-agents.jpg" alt="CHAMP OS agent fleet page: 14 agent cards, each showing online status, its job and a Pause button, under a Director's summary" width="1440" height="900" loading="lazy">
+<figure class="hero-shot"><img src="../../media/champ-os-agents.jpg" srcset="../../media/champ-os-agents-720.jpg 720w, ../../media/champ-os-agents.jpg 1440w" sizes="(max-width: 1100px) 100vw, 1100px" alt="CHAMP OS agent fleet page: 14 agent cards, each showing online status, its job and a Pause button, under a Director's summary" width="1440" height="900" loading="lazy">
 <figcaption>The agent fleet page, with demo data. Each card has a Pause button.</figcaption></figure>
 
 <footer class="col">

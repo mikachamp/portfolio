@@ -63,7 +63,7 @@
 <h2 id="s3">A page, a data library, two sandboxed frames and one small server</h2>
 <p>The playground is a single page with no framework. It reads the library from JSON files, or from a generated bundle when opened straight from disk. Site pages only ever run inside sandboxed frames. A Python server on this PC serves the pages and has exactly one write route, for Site Tuner saves.</p>
 </div>
-<p class="dg-hint" id="h-arch">Diagram is wide: scroll it sideways.</p>
+<p class="dg-tools"><span class="dg-hint" id="h-arch">Diagram is wide: scroll it sideways, or open it full size to zoom.</span> <a class="dg-full" href="diagrams/arch.svg">Open full size</a></p>
 <div class="dg" tabindex="0" role="region" aria-label="Architecture diagram, scrolls sideways on small screens" aria-describedby="h-arch">
 <svg viewBox="0 0 1040 640" role="img" aria-labelledby="arch-t arch-d" xmlns="http://www.w3.org/2000/svg">
 <title id="arch-t">Design Playground architecture</title>
@@ -184,7 +184,7 @@
 <h2 id="s4">Where data comes from, what checks it, where it ends up</h2>
 <p>The library is plain JSON with a written schema. Every value is checked before it becomes CSS, and checked again on the way out. The only outside call the playground makes is for Google Fonts; there are no accounts, no analytics and no cloud storage.</p>
 </div>
-<p class="dg-hint" id="h-flow">Diagram is wide: scroll it sideways.</p>
+<p class="dg-tools"><span class="dg-hint" id="h-flow">Diagram is wide: scroll it sideways, or open it full size to zoom.</span> <a class="dg-full" href="diagrams/flow.svg">Open full size</a></p>
 <div class="dg" tabindex="0" role="region" aria-label="Data flow diagram, scrolls sideways on small screens" aria-describedby="h-flow">
 <svg viewBox="0 0 1040 470" role="img" aria-labelledby="flow-t flow-d" xmlns="http://www.w3.org/2000/svg">
 <title id="flow-t">Design Playground data flow</title>
@@ -262,7 +262,7 @@
 <h2 id="s5">Tuning a site, start to finish</h2>
 <p>The Site Tuner loads one of my sites in its sandboxed frame and steps through Look, Motion and Features. Every change is preview-only. Saving is two steps: the server first builds a diff and writes nothing, then a write is accepted only with the hash from that diff, so a stale review cannot be saved.</p>
 </div>
-<p class="dg-hint" id="h-wf">Diagram is wide: scroll it sideways.</p>
+<p class="dg-tools"><span class="dg-hint" id="h-wf">Diagram is wide: scroll it sideways, or open it full size to zoom.</span> <a class="dg-full" href="diagrams/wf.svg">Open full size</a></p>
 <div class="dg" tabindex="0" role="region" aria-label="Workflow diagram, scrolls sideways on small screens" aria-describedby="h-wf">
 <svg viewBox="0 0 1040 520" role="img" aria-labelledby="wf-t wf-d" xmlns="http://www.w3.org/2000/svg">
 <title id="wf-t">Site Tuner workflow with the review and save steps</title>

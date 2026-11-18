@@ -96,6 +96,8 @@
 
   /* Portfolio hero on phones (?hero, narrow): machine only, no controls */
   .hero-m header, .hero-m .pendant, .hero-m .card, .hero-m .label, .hero-m .views { display: none !important; }
+/* T-0120: 44px touch targets on phones and tablets */
+@media (pointer: coarse) { button { min-height: 44px; } button.x { min-width: 44px; } }
 </style>
 <link rel="icon" href="data:,">
 <link rel="stylesheet" href="../css/back.css">
@@ -132,7 +134,7 @@
 
 <script type="importmap">
 { "imports": {
-  "three": "../vendor/three/three.module.js",
+  "three": "../vendor/three/three.module.min.js",
   "three/addons/": "../vendor/three/addons/"
 } }
 </script>

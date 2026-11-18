@@ -28,7 +28,7 @@
 </div>
 </header>
 
-<figure class="hero-shot"><img src="dog-samples.png" alt="Twelve training photos in a grid, each titled with its breed label: tibetan terrier, beagle, chow, bull mastiff, brabancon griffon, silky terrier, pekinese, african hunting dog, brabancon griffon, tibetan terrier, dhole and border collie" width="803" height="493">
+<figure class="hero-shot"><img src="dog-samples.jpg" alt="Twelve training photos in a grid, each titled with its breed label: tibetan terrier, beagle, chow, bull mastiff, brabancon griffon, silky terrier, pekinese, african hunting dog, brabancon griffon, tibetan terrier, dhole and border collie" width="803" height="493">
 <figcaption>The first 12 images of a shuffled training batch with their labels, as the notebook plots them after preprocessing to 224 &times; 224. Photos from the public Kaggle Dog Breed Identification dataset.</figcaption></figure>
 
 <section class="col" aria-labelledby="s1">
@@ -48,7 +48,7 @@
 <h2 id="s2">A frozen MobileNetV2 with one trained layer on top</h2>
 <p>The base network is MobileNetV2 (width 1.3, 224-pixel input) from TensorFlow Hub. It is loaded with <code>trainable=False</code>, so its 5.4 million weights stay as ImageNet trained them. Only the new 120-way softmax layer learns: 120,240 weights, about 2% of the model. The Hub module I used is the <em>classification</em> version, so the new layer reads the base's 1001 ImageNet class scores, not its internal feature vector.</p>
 </div>
-<p class="dg-hint" id="h-arch">Diagram is wide: scroll it sideways.</p>
+<p class="dg-tools"><span class="dg-hint" id="h-arch">Diagram is wide: scroll it sideways, or open it full size to zoom.</span> <a class="dg-full" href="diagrams/arch.svg">Open full size</a></p>
 <div class="dg" tabindex="0" role="region" aria-label="Model architecture diagram, scrolls sideways on small screens" aria-describedby="h-arch">
 <svg viewBox="0 0 960 400" role="img" aria-labelledby="arch-t arch-d" xmlns="http://www.w3.org/2000/svg">
 <title id="arch-t">Model architecture</title>
@@ -115,7 +115,7 @@
 <h2 id="s3">From Kaggle files to batches of tensors</h2>
 <p>The labels come as a CSV of image ids and breed names, plus a folder of JPEGs. The notebook checks that the two counts match, turns each breed into a one-hot array of 120, and holds back 20% of the images for validation. A <code>tf.data</code> pipeline then reads, decodes and resizes each image as it is needed and groups them into batches of 32. Only the training set is shuffled.</p>
 </div>
-<p class="dg-hint" id="h-data">Diagram is wide: scroll it sideways.</p>
+<p class="dg-tools"><span class="dg-hint" id="h-data">Diagram is wide: scroll it sideways, or open it full size to zoom.</span> <a class="dg-full" href="diagrams/data.svg">Open full size</a></p>
 <div class="dg" tabindex="0" role="region" aria-label="Data pipeline diagram, scrolls sideways on small screens" aria-describedby="h-data">
 <svg viewBox="0 0 960 470" role="img" aria-labelledby="data-t data-d" xmlns="http://www.w3.org/2000/svg">
 <title id="data-t">Data pipeline</title>
@@ -197,7 +197,7 @@
 <p>Every run follows the same loop: build the model, train with early stopping, score it on the validation set, and save it to Drive. I changed one thing at a time. Making the base trainable (fine-tuning) cut validation accuracy from about 77% to about 45%, so the last run froze it again. The likely cause is that the whole base was unfrozen from the start at Adam&rsquo;s default learning rate, which overwrites the pre-trained weights; about 85 images per breed makes that worse. Run 6 is the best, and it is the model the results below describe.</p>
 <p>The notebook also trains the same frozen-base model on all 10,222 images (15 epochs, no validation set). The Kaggle test predictions load a full-data model file dated 16 Nov 2024. That is a week before the run-1 file (23 Nov 2024), so the prediction model came before the experiment runs, not after run 6.</p>
 </div>
-<p class="dg-hint" id="h-wf">Diagram is wide: scroll it sideways.</p>
+<p class="dg-tools"><span class="dg-hint" id="h-wf">Diagram is wide: scroll it sideways, or open it full size to zoom.</span> <a class="dg-full" href="diagrams/wf.svg">Open full size</a></p>
 <div class="dg" tabindex="0" role="region" aria-label="Training and evaluation workflow diagram, scrolls sideways on small screens" aria-describedby="h-wf">
 <svg viewBox="0 0 1000 470" role="img" aria-labelledby="wf-t wf-d" xmlns="http://www.w3.org/2000/svg">
 <title id="wf-t">Training, evaluation and experiments</title>

@@ -63,7 +63,7 @@ table { border-collapse: collapse; width: 100%; font: 400 .92rem/1.45 var(--f-he
 th, td { text-align: left; padding: 10px 12px 10px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
 th { font: 500 .75rem var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
 .cta { display: flex; flex-wrap: wrap; gap: 10px; }
-.cta a { font: 600 .95rem var(--f-head); text-decoration: none; border: 1px solid var(--line); background: var(--card); color: var(--fg); padding: 10px 16px; border-radius: 999px; }
+.cta a { font: 600 .95rem var(--f-head); text-decoration: none; border: 1px solid var(--line); background: var(--card); color: var(--fg); padding: 10px 16px; border-radius: 999px; min-height: 44px; display: inline-flex; align-items: center; }
 .cta a:hover { border-color: var(--accent); }
 .rounds { display: grid; gap: 28px; }
 .round-tag { font: 500 .78rem var(--f-mono); color: var(--muted); letter-spacing: .06em; text-transform: uppercase; }
@@ -115,8 +115,8 @@ footer { border-top: 1px solid var(--line); padding-top: 22px; color: var(--mute
     <div class="step-head"><span class="n">03 · First version</span><h2>The working app</h2></div>
     <p>Version one covered the whole job: a dashboard of jobs in progress, capture straight into each job's folder, due dates with a calendar, insights on overdue work, PDF field reports, a daily digest and full backup and restore. I picked a dark theme with a cyan-to-purple gradient from a set of reference screenshots, and tested it on my own phone.</p>
     <div class="pair">
-      <figure class="phone"><img src="media/v1-dashboard.jpg" alt="Version 1 dashboard: dark screen, job cards with initials avatars, purple buttons and emoji tab icons"><figcaption>Version 1 dashboard. It worked well, but this look is what testers later called "AI-generated".</figcaption></figure>
-      <figure class="phone"><img src="media/logo-dashboard.jpg" alt="Dashboard in version 1.4.2 with the Blueprint Digital logo in the header"><figcaption>v1.4.2: same layout, with the real logo replacing a placeholder camera icon.</figcaption></figure>
+      <figure class="phone"><img src="media/v1-dashboard.jpg" alt="Version 1 dashboard: dark screen, job cards with initials avatars, purple buttons and emoji tab icons" width="540" height="1200" loading="lazy" decoding="async"><figcaption>Version 1 dashboard. It worked well, but this look is what testers later called "AI-generated".</figcaption></figure>
+      <figure class="phone"><img src="media/logo-dashboard.jpg" alt="Dashboard in version 1.4.2 with the Blueprint Digital logo in the header" width="540" height="1200" loading="lazy" decoding="async"><figcaption>v1.4.2: same layout, with the real logo replacing a placeholder camera icon.</figcaption></figure>
     </div>
   </section>
 
@@ -127,11 +127,11 @@ footer { border-top: 1px solid var(--line); padding-top: 22px; color: var(--mute
     <blockquote class="quote">You have combined two designs in one animation, which does not look good.<cite>My feedback on a blend of the "camera iris" and "blueprint" concepts</cite></blockquote>
     <p>The answer was to use the real logo. I extracted the exact vector paths and gradient colours from the logo's PDF (not the outline-only cut file), and I chose concept 7: the pencil in the logo traces the outline, the colours pour in, the bulb lights up and the pencil slides into place. The last frame had to match the printed logo exactly, and it does.</p>
   </section>
-  <figure class="wide"><img src="media/concept-gallery.jpg" alt="Concept gallery with seven tabs; concept 7, Pencil Draws Logo, is selected and shows the finished logo"><figcaption>The concept gallery: seven live 3D concepts on one page. <a href="startup-animation-concepts.html">Open the interactive gallery</a>.</figcaption></figure>
-  <figure class="wide"><img src="media/animation-frames.jpg" alt="Six frames: the pencil draws the outline, blue fills in, the body fills, the bulb lights, the final logo"><figcaption>Six frames from the 3.5-second animation, as it runs in the app.</figcaption></figure>
+  <figure class="wide"><img src="media/concept-gallery.jpg" alt="Concept gallery with seven tabs; concept 7, Pencil Draws Logo, is selected and shows the finished logo" width="1280" height="706" loading="lazy" decoding="async"><figcaption>The concept gallery: seven live 3D concepts on one page. <a href="startup-animation-concepts.html">Open the interactive gallery</a>.</figcaption></figure>
+  <figure class="wide"><img src="media/animation-frames.jpg" alt="Six frames: the pencil draws the outline, blue fills in, the body fills, the bulb lights, the final logo" width="1800" height="300" loading="lazy" decoding="async"><figcaption>Six frames from the 3.5-second animation, as it runs in the app.</figcaption></figure>
   <div class="col">
     <div class="pair">
-      <figure><img src="media/logo-match.jpg" alt="Original logo artwork on white beside the animation's final frame on black"><figcaption>Left: the original artwork. Right: the animation's final frame.</figcaption></figure>
+      <figure><img src="media/logo-match.jpg" alt="Original logo artwork on white beside the animation's final frame on black" width="1000" height="500" loading="lazy" decoding="async"><figcaption>Left: the original artwork. Right: the animation's final frame.</figcaption></figure>
       <figure><video src="media/bpd-startup-animation.mp4" poster="media/animation-poster.jpg" controls muted playsinline loop preload="metadata"></video><figcaption>The animation exported as a video, rendered frame by frame from the same code the app runs. The app also saves it to the phone's gallery the first time it opens.</figcaption></figure>
     </div>
   </div>
@@ -140,8 +140,8 @@ footer { border-top: 1px solid var(--line); padding-top: 22px; color: var(--mute
     <div class="step-head"><span class="n">05 · Icons</span><h2>One source for every logo</h2></div>
     <p>The app icon, the in-app logo and the desktop icon are all rendered from the animation's final frame, so they can never drift apart. Testing on the emulator caught one problem: Android crops icons to a circle, and the first version clipped the pencil tip. The logo now sits at 45% of the icon canvas instead of 58%.</p>
     <div class="pair">
-      <figure><img src="media/icons.jpg" alt="Four icon variants: monochrome, adaptive, launcher and in-app logo"><figcaption>Themed (monochrome), adaptive, launcher and in-app versions.</figcaption></figure>
-      <figure><img src="media/launcher-icon.jpg" alt="Android app drawer with the BPD Capture icon fully inside its circle"><figcaption>After the fix, on the Android home screen.</figcaption></figure>
+      <figure><img src="media/icons.jpg" alt="Four icon variants: monochrome, adaptive, launcher and in-app logo" width="1600" height="400" loading="lazy" decoding="async"><figcaption>Themed (monochrome), adaptive, launcher and in-app versions.</figcaption></figure>
+      <figure><img src="media/launcher-icon.jpg" alt="Android app drawer with the BPD Capture icon fully inside its circle" width="540" height="450" loading="lazy" decoding="async"><figcaption>After the fix, on the Android home screen.</figcaption></figure>
     </div>
   </section>
 
@@ -149,8 +149,8 @@ footer { border-top: 1px solid var(--line); padding-top: 22px; color: var(--mute
     <div class="step-head"><span class="n">06 · Shipping without an app store</span><h2>Updates in one tap</h2></div>
     <p>The app is installed directly from an APK file, so it checks GitHub Releases for new versions itself. The first version of the updater asked people to save a backup zip before updating, and I found that confusing on my own phone. Now the backup is saved quietly on the device, the update downloads, and Android asks for the one confirmation it always requires. I tested the full path on the emulator, from an older build through to the installed new version.</p>
     <div class="pair">
-      <figure class="phone"><img src="media/update-dialog.jpg" alt="Dialog: Update available v1.4.1, Update Now"><figcaption>One button, with no file handling for the user.</figcaption></figure>
-      <figure class="phone"><img src="media/android-update.jpg" alt="Android system dialog: Do you want to update this app?"><figcaption>The only other step: Android's own confirmation.</figcaption></figure>
+      <figure class="phone"><img src="media/update-dialog.jpg" alt="Dialog: Update available v1.4.1, Update Now" width="540" height="1200" loading="lazy" decoding="async"><figcaption>One button, with no file handling for the user.</figcaption></figure>
+      <figure class="phone"><img src="media/android-update.jpg" alt="Android system dialog: Do you want to update this app?" width="540" height="1200" loading="lazy" decoding="async"><figcaption>The only other step: Android's own confirmation.</figcaption></figure>
     </div>
   </section>
 
@@ -158,7 +158,7 @@ footer { border-top: 1px solid var(--line); padding-top: 22px; color: var(--mute
     <div class="step-head"><span class="n">07 · Desktop companion</span><h2>The same jobs on a Windows PC</h2></div>
     <p>A Windows version, built with Electron, mirrors the phone app's screens and data model for office work: reviewing jobs, adding photos from files or a webcam, and the same startup animation. Syncing data between the two through GitHub is planned next.</p>
   </section>
-  <figure class="wide"><img src="media/desktop-app.jpg" alt="Desktop app: header with logo and tabs for Dashboard, Calendar, Insights and Clients, search bar and New Order button"><figcaption>The desktop app's dashboard.</figcaption></figure>
+  <figure class="wide"><img src="media/desktop-app.jpg" alt="Desktop app: header with logo and tabs for Dashboard, Calendar, Insights and Clients, search bar and New Order button" width="1400" height="845" loading="lazy" decoding="async"><figcaption>The desktop app's dashboard.</figcaption></figure>
 
   <section class="col">
     <div class="step-head"><span class="n">08 · Security review</span><h2>Testing it the way an attacker would</h2></div>
@@ -180,14 +180,14 @@ footer { border-top: 1px solid var(--line); padding-top: 22px; color: var(--mute
     <p>People I showed the app to said it looked like it was made by AI. They were right about why: a purple gradient, emoji used as icons, and identical rounded cards are the default look of generated apps. Redesigning is taking several rounds, and each round taught me something about how I want to brief design.</p>
     <div class="rounds">
       <div class="trio">
-        <figure><img src="media/concept-A.jpg" alt="Concept A: blueprint-blue screens with grid lines and drawing title blocks"><figcaption><span class="round-tag">Round 1 · A</span><br>Drafting table: blueprint paper and title blocks.</figcaption></figure>
-        <figure><img src="media/concept-B.jpg" alt="Concept B: grey and safety-yellow screens with job tags"><figcaption><span class="round-tag">Round 1 · B</span><br>Field kit: site tags, hazard stripes, big buttons.</figcaption></figure>
-        <figure><img src="media/concept-C.jpg" alt="Concept C: light screens with ink dots and crop marks"><figcaption><span class="round-tag">Round 1 · C</span><br>Colour proof: the logo's inks as status colours.</figcaption></figure>
+        <figure><img src="media/concept-A.jpg" alt="Concept A: blueprint-blue screens with grid lines and drawing title blocks" width="1180" height="700" loading="lazy" decoding="async"><figcaption><span class="round-tag">Round 1 · A</span><br>Drafting table: blueprint paper and title blocks.</figcaption></figure>
+        <figure><img src="media/concept-B.jpg" alt="Concept B: grey and safety-yellow screens with job tags" width="1180" height="700" loading="lazy" decoding="async"><figcaption><span class="round-tag">Round 1 · B</span><br>Field kit: site tags, hazard stripes, big buttons.</figcaption></figure>
+        <figure><img src="media/concept-C.jpg" alt="Concept C: light screens with ink dots and crop marks" width="1180" height="700" loading="lazy" decoding="async"><figcaption><span class="round-tag">Round 1 · C</span><br>Colour proof: the logo's inks as status colours.</figcaption></figure>
       </div>
       <p><strong>Round 1</strong> took its ideas from the business: blueprints, site work, print. I liked none of them. The design didn't need to illustrate the brand, so I shared four dashboard designs I liked instead.</p>
       <p><strong>Round 2</strong> recreated those references almost exactly: number tiles, charts and filter pills everywhere. It felt overwhelming, and I realised I'd wanted their style (colours, type, shapes), not their layout.</p>
-      <figure><img src="media/calm-layout.jpg" alt="Calm layout: a simple job list and a job screen on near-black with white text"><figcaption><span class="round-tag">Round 3</span> · A calm layout: a plain job list, one summary line and one highlighted action per screen. The layout worked, but the bright white text on black felt harsh and the colours didn't belong together.</figcaption></figure>
-      <figure><img src="media/palettes.jpg" alt="Five versions of the same screens in Moss, Dusk, Ink and ember, Clay and Stone palettes"><figcaption><span class="round-tag">Round 4</span> · Five colour schemes on the same layout. Each tints the background with its accent and uses softer text so everything blends. <a href="redesign-colour-schemes.html">Open the interactive comparison</a>.</figcaption></figure>
+      <figure><img src="media/calm-layout.jpg" alt="Calm layout: a simple job list and a job screen on near-black with white text" width="1100" height="931" loading="lazy" decoding="async"><figcaption><span class="round-tag">Round 3</span> · A calm layout: a plain job list, one summary line and one highlighted action per screen. The layout worked, but the bright white text on black felt harsh and the colours didn't belong together.</figcaption></figure>
+      <figure><img src="media/palettes.jpg" alt="Five versions of the same screens in Moss, Dusk, Ink and ember, Clay and Stone palettes" width="1500" height="677" loading="lazy" decoding="async"><figcaption><span class="round-tag">Round 4</span> · Five colour schemes on the same layout. Each tints the background with its accent and uses softer text so everything blends. <a href="redesign-colour-schemes.html">Open the interactive comparison</a>.</figcaption></figure>
     </div>
     <p>The chosen scheme will be built on a separate branch, so the working app stays untouched until the new design has been tested on the phone.</p>
   </section>

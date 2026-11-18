@@ -72,3 +72,4 @@ code{font:400 .88em var(--f-mono);background:var(--card);border:1px solid var(--
 .tbl tr.best td{background:var(--card)}
 .tbl tr.bad td.num:last-child{color:var(--flag)}
 .nums{grid-template-columns:repeat(auto-fit,minmax(130px,1fr))}
+@media (max-width:400px){.ch text{font-size:15px}} /* T-0120: keeps chart text at 11px or more at 360px */
